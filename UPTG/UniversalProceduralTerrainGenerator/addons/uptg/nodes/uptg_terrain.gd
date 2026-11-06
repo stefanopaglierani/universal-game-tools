@@ -47,6 +47,7 @@ var _mesh_instance: MeshInstance3D
 var _body: StaticBody3D
 var _shape_node: CollisionShape3D
 var _stats: Dictionary = {}
+var _generating: bool = false
 
 
 func _ready() -> void:
@@ -55,13 +56,28 @@ func _ready() -> void:
 
 
 ## Validates, generates and replaces the terrain. Returns [code]true[/code] on success.
-## Synchronous: do not call it from physics callbacks.
+## Synchronous: do not call it from physics callbacks. Not reentrant: a call made while a
+## generation is running (for example from a signal handler) is ignored with a warning.
 func generate() -> bool:
+	if _generating:
+		push_warning("UPTG: generate() called while a generation is running; ignored")
+		return false
+	_generating = true
+	var ok: bool = _generate()
+	_generating = false
+	return ok
+
+
+func _generate() -> bool:
 	generation_started.emit()
 	var t_start: int = Time.get_ticks_usec()
 	var errors := UPTGHeightfieldGenerator.check(config, allow_large_terrain)
 	if not errors.is_empty():
 		return _fail("; ".join(errors))
+	var cost_before: Dictionary = config.estimate_cost()
+	if cost_before.level == UPTGConfig.CostLevel.LARGE:
+		push_warning("UPTG: generating a LARGE configuration (%d cells, about %d MB estimated)" % [
+			cost_before.cells, cost_before.estimated_bytes / 1048576])
 
 	var data := UPTGHeightfieldGenerator.generate(config, allow_large_terrain)
 	if data == null:

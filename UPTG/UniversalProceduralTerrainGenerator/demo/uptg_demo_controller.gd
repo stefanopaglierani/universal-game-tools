@@ -9,6 +9,7 @@ const ORBIT_SPEED: float = 0.005
 const ZOOM_STEP: float = 1.1
 const MIN_PITCH: float = -1.45
 const MAX_PITCH: float = -0.05
+const PRESET_PATH: String = "res://addons/uptg/presets/uptg_island_default.tres"
 const BALLS_PER_DROP: int = 20
 const MAX_BALLS: int = 100
 const BALL_RADIUS: float = 2.0
@@ -37,7 +38,8 @@ func _enter_tree() -> void:
 func _ready() -> void:
 	_rng.randomize()
 	if _terrain.config == null:
-		_terrain.config = UPTGConfig.new()
+		# A copy, so that changing the seed never modifies the preset resource.
+		_terrain.config = (load(PRESET_PATH) as UPTGConfig).duplicate(true)
 	_terrain.generation_finished.connect(_on_generation_finished)
 	_terrain.generation_failed.connect(_on_generation_failed)
 	_build_environment()
@@ -71,6 +73,8 @@ func _unhandled_input(event: InputEvent) -> void:
 func _regenerate() -> void:
 	_clear_balls()
 	_terrain.config.generation_seed = int(_seed_box.value)
+	var cost: Dictionary = _terrain.config.estimate_cost()
+	_info.text = "Generating: estimated %.1f MB (%s)..." % [cost.estimated_bytes / 1048576.0, UPTGConfig.CostLevel.keys()[cost.level]]
 	_terrain.generate()
 
 
