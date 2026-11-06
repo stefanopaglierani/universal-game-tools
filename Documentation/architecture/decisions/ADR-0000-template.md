@@ -1,3 +1,5 @@
+**English** | [Italiano](ADR-0000-template.it.md)
+
 # ADR-NNNN: Title
 
 **Status:** Proposed | Accepted | Superseded by ADR-XXXX

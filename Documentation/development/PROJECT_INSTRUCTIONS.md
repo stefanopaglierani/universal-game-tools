@@ -1,3 +1,5 @@
+**English** | [Italiano](PROJECT_INSTRUCTIONS.it.md)
+
 # Universal Game Tools — Project Instructions
 
 ## Project identity

@@ -1,3 +1,5 @@
+**English** | [Italiano](CONVENTIONS.it.md)
+
 # Coding conventions
 
 Follows the official [GDScript style guide](https://docs.godotengine.org/en/stable/tutorials/scripting/gdscript/gdscript_styleguide.html), with these project rules.
@@ -13,6 +15,8 @@ Follows the official [GDScript style guide](https://docs.godotengine.org/en/stab
 | Scenes | `snake_case.tscn` | `uptg_demo.tscn` |
 | Presets | `snake_case.tres` | `island_default.tres` |
 
+Code (names, comments) is written in English.
+
 ## GDScript
 
 - Use static typing (`var size: int = 64`, `func f() -> void`).
@@ -23,5 +27,5 @@ Follows the official [GDScript style guide](https://docs.godotengine.org/en/stab
 
 ## Documentation
 
-- Every module has a `README.md`, an architecture doc, `TESTING.md` and `CHANGELOG.md`.
+- Every module has a `README.md`, an architecture doc, `TESTING.md` and `CHANGELOG.md`, each with an Italian `.it.md` version.
 - Public classes and exported properties have doc comments (`##`).

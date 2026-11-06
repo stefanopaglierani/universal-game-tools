@@ -1,3 +1,5 @@
+**English** | [Italiano](README.it.md)
+
 # Universal Game Tools
 
 A personal collection of reusable, modular and documented game development tools, procedural generators and systems built with **Godot 4.7.2**, **GDScript**, **Blender** and AI-assisted workflows.

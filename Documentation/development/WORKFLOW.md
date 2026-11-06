@@ -1,3 +1,5 @@
+**English** | [Italiano](WORKFLOW.it.md)
+
 # Development workflow
 
 ## Branches
@@ -32,6 +34,10 @@ docs: update testing procedure
 5. Update docs: module README, `TESTING.md`, `CHANGELOG.md`.
 6. Report files created or modified, tests actually run, and known limitations.
 7. Propose the next milestone without starting it automatically.
+
+## Bilingual documentation
+
+Every document exists in English (`NAME.md`) and Italian (`NAME.it.md`). When one is changed, update the other in the same commit.
 
 ## Large binary assets
 

@@ -1,3 +1,5 @@
+**English** | [Italiano](README.it.md)
+
 # UPTG — Universal Procedural Terrain Generator
 
 **Status:** architecture draft 0.1, not implemented yet

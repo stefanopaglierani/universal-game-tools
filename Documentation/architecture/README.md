@@ -1,3 +1,5 @@
+**English** | [Italiano](README.it.md)
+
 # Architecture overview
 
 Shared architecture rules that apply to every module in Universal Game Tools.
