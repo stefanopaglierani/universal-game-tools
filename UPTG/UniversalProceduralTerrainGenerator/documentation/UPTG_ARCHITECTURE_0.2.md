@@ -1,8 +1,8 @@
 # UPTG — Universal Procedural Terrain Generator
 ## Specifica di architettura — Versione 0.2
 
-**Stato:** architettura approvata (0.2-r2). Milestone 0 eseguita il 2026-11-06: i risultati sperimentali sono riportati con l'etichetta [VERIFICATO M0]. Nessun codice del generatore è stato scritto.
-**Revisione:** 0.2-r3 (vedi Appendice B)
+**Stato:** architettura approvata (0.2-r2). Milestone 0 eseguita il 2026-11-06: i risultati sperimentali sono riportati con l'etichetta [VERIFICATO M0]. Milestone A, B, C e D completate: versione `0.1.0`; le misure reali sono etichettate [VERIFICATO MD].
+**Revisione:** 0.2-r5 (vedi Appendice B)
 **Progetto:** Universal Game Tools
 **Engine di riferimento:** Godot 4.7.2
 **Linguaggio:** GDScript (static typing)
@@ -14,12 +14,13 @@
 
 ## 0. Come leggere questo documento
 
-Il documento usa tre etichette, riepilogate nella sezione 16:
+Il documento usa queste etichette, riepilogate nella sezione 16:
 
 - **[APPROVATO]** — decisione architetturale approvata da Stefano il 2026-11-06. Si cambia solo con una nuova approvazione.
 - **[DA VERIFICARE]** — ipotesi tecnica da confermare sperimentalmente in Godot 4.7.2, quasi sempre in Milestone 0. Le ipotesi previste per la Milestone 0 sono state verificate (vedi [VERIFICATO M0]); restano [DA VERIFICARE] solo le voci elencate in 16.2. Se un test smentisce l'ipotesi, il documento viene aggiornato e la modifica sottoposta a Stefano.
 - **[RINVIATO]** — decisione consapevolmente spostata a una milestone successiva, con l'indicazione di quale.
 - **[VERIFICATO M0]** — ipotesi confermata da un test realmente eseguito in Godot 4.7.2 durante la Milestone 0. Comandi, output e valori misurati sono in `documentation/M0_VERIFICATION.md`.
+- **[VERIFICATO MD]** — valore misurato in Godot 4.7.2 durante la Milestone D. Procedura e misure sono in `documentation/TESTING.md`.
 
 La documentazione ufficiale è quella contenuta nel repository `universal-game-tools`. Le copie nella cartella esterna `C:\Progetti Software\Universal Gmaes Tool` sono solo riferimenti locali (D8, [APPROVATO]).
 
@@ -188,10 +189,10 @@ Nota sui nomi: `UPTGGenerator` del Draft 0.1 diventa `UPTGHeightfieldGenerator` 
 | Isola | `coastline_irregularity` | `float` | 0.0 – 0.5 | 0.25 | Ampiezza della perturbazione della costa |
 | Isola | `coastline_noise_frequency` | `float` | 0.0001 – 0.1 | 0.004 | Frequenza in unità mondo (vedi 6.1) |
 | Isola | `coastline_falloff_width` | `float` | 0.01 – 0.8 | 0.25 | Larghezza normalizzata della transizione terra-mare |
-| Rilievo | `land_base_height` | `float` | 0 – 500 m | 6.0 m | Quota media dell'entroterra sopra `sea_level` |
-| Rilievo | `min_land_height` | `float` | 0 – 50 m | 1.0 m | Quota minima dell'entroterra (evita laghi in v0.1) |
+| Rilievo | `land_base_height` | `float` | 0 – 500 m | 8.0 m | Quota media dell'entroterra sopra `sea_level` |
+| Rilievo | `min_land_height` | `float` | 0 – 50 m | 2.5 m | Quota minima dell'entroterra (evita laghi in v0.1) |
 | Rilievo | `terrain_noise_frequency` | `float` | 0.0001 – 0.1 | 0.006 | Frequenza in unità mondo |
-| Rilievo | `terrain_noise_amplitude` | `float` | 0 – 500 m | 12.0 m | Ampiezza delle colline |
+| Rilievo | `terrain_noise_amplitude` | `float` | 0 – 500 m | 10.0 m | Ampiezza delle colline |
 | Rilievo | `noise_octaves` | `int` | 1 – 8 | 4 | `FastNoiseLite.fractal_octaves` |
 | Rilievo | `noise_lacunarity` | `float` | 1.0 – 4.0 | 2.0 | `FastNoiseLite.fractal_lacunarity` |
 | Rilievo | `noise_gain` | `float` | 0.0 – 1.0 | 0.5 | `FastNoiseLite.fractal_gain` |
@@ -200,8 +201,8 @@ Nota sui nomi: `UPTGGenerator` del Draft 0.1 diventa `UPTGHeightfieldGenerator` 
 | Aspetto | `uv_tile_size` | `float` | 0.1 – 1000 m | 8.0 m | Metri coperti da una ripetizione UV |
 | Aspetto | `sand_color`, `grass_color`, `rock_color` | `Color` | — | toni neutri | Vertex colors |
 | Aspetto | `beach_height` | `float` | 0 – 50 m | 1.5 m | Fascia di sabbia sopra `sea_level` |
-| Aspetto | `rock_slope_degrees` | `float` | 0 – 90 | 35 | Pendenza oltre la quale il colore tende alla roccia |
-| Aspetto | `rock_height` | `float` | 0 – 2000 m | 45 m | Quota oltre la quale il colore tende alla roccia |
+| Aspetto | `rock_slope_degrees` | `float` | 0 – 90 | 38 | Pendenza oltre la quale il colore tende alla roccia |
+| Aspetto | `rock_height` | `float` | 0 – 2000 m | 60 m | Quota oltre la quale il colore tende alla roccia |
 
 ### 5.2 `UPTGMountainRegion` [APPROVATO]
 
@@ -213,6 +214,8 @@ Nota sui nomi: `UPTGGenerator` del Draft 0.1 diventa `UPTGHeightfieldGenerator` 
 | `radius` | `float` | 0.01 – 1.0 | Raggio normalizzato rispetto alla dimensione minore del terreno |
 | `peak_height` | `float` | 0 – 2000 m | Altezza aggiunta al centro |
 | `falloff` | `float` | 0.25 – 8.0 | Esponente della curva di decadimento (1 = morbido, valori alti = picco più stretto) |
+
+La regione predefinita del preset isola (D7, tarata in Milestone D) ha `center` (0.5, 0.5), `radius` 0.22, `peak_height` 80 m e `falloff` 1.2.
 
 Le coordinate normalizzate fanno sì che la montagna resti nella stessa posizione relativa quando cambiano `cell_size` o il numero di celle.
 
@@ -240,10 +243,10 @@ Obiettivo: impedire che un preset, un errore di battitura o un valore modificato
 | `vertices` | `(grid_cells_x + 1) * (grid_cells_z + 1)` |
 | `triangles` | `2 * cells` |
 | `noise_samples` | `vertices * (noise_octaves + 2)` (rilievo frattale + costa a 2 ottave) |
-| `estimated_bytes` | `vertices * 112 + cells * 24`, più `cells * 72` se `collision_mode == TRIMESH` |
+| `estimated_bytes` | `vertices * 112 + cells * 48`, più `cells * 320` se `collision_mode == TRIMESH` |
 | `level` | `OK`, `LARGE` o `REJECTED` (tabella sotto) |
 
-I coefficienti di memoria sono stime a priori: 112 byte per vertice coprono height field e maschera (8), array della mesh lato CPU (posizione, normale, UV, colore: 48), una copia equivalente lato GPU (48) e la heightmap di collisione (4, arrotondato); 24 byte per cella sono gli indici; 72 byte per cella i triangoli della trimesh, senza la struttura di accelerazione del motore fisico. Vanno **calibrati con misure reali in Milestone D** **[DA VERIFICARE]**.
+I coefficienti di memoria sono stati calibrati in Milestone D con misure reali **[VERIFICATO MD]** (dettagli in `documentation/TESTING.md`). 112 byte per vertice coprono height field e maschera (8), array della mesh lato CPU (posizione, normale, UV, colore: 48), la copia lato GPU (48) e la heightmap di collisione (4, arrotondato): la memoria video misurata è di circa 54 byte per vertice, coerente con la stima. 48 byte per cella coprono gli indici lato CPU e GPU (le stime a priori ne contavano 24, solo lato CPU). 320 byte per cella sono il costo misurato della `ConcavePolygonShape3D` (circa 84 MB a 512 × 512 celle), che include le strutture interne del motore fisico: le stime a priori (72) lo sottovalutavano di oltre 4 volte. Le soglie della tabella seguente sono rimaste invariate: con i coefficienti calibrati, 512 × 512 celle in `HEIGHTMAP` stimano circa 40 MB (`OK`) e il caso peggiore ammesso, 1024 × 1024 in `TRIMESH`, circa 480 MB, sotto il limite di 512 MB.
 
 **Livelli e comportamento:**
 
@@ -260,7 +263,7 @@ Regole aggiuntive:
 - Le soglie sono costanti nominate in `UPTGConfig` (`MAX_CELLS_OK`, `MAX_CELLS_HARD`, `MAX_BYTES_OK`, `MAX_BYTES_HARD`, `MAX_CELLS_OK_TRIMESH`), non valori sparsi nel codice. Potranno essere riviste dopo le misure di Milestone D, con approvazione.
 - La stima e il livello vengono riportati da `UPTGTerrain.get_last_stats()` e mostrati nella demo **prima** di generare.
 - **Rigenerazione:** `UPTGTerrain.generate()` non è rientrante: una chiamata durante una generazione in corso (per esempio da un gestore di `generation_finished`) viene ignorata con `push_warning()`. La demo applica la rigenerazione solo su azione esplicita (pulsante), non a ogni modifica di un campo.
-- **Tempo:** non si impone un timeout, perché la generazione è sincrona e non interrompibile in v0.1. Il tempo è controllato indirettamente da `cells` e `noise_samples`; le soglie in secondi saranno documentate dopo le misure di Milestone D.
+- **Tempo:** non si impone un timeout, perché la generazione è sincrona e non interrompibile in v0.1. Il tempo è controllato indirettamente da `cells` e `noise_samples`. Le misure di Milestone D (`documentation/TESTING.md`) danno, su un portatile con Intel UHD 620, circa 1.8 s per height field e mesh a 512 × 512 celle e circa 1.5 s in più per la trimesh: per questo nessuna soglia in secondi è stata aggiunta.
 
 ---
 
@@ -293,7 +296,9 @@ Ogni fase casuale usa un proprio sub-seed derivato dal seed principale con un "s
 | 1 | `SALT_COASTLINE` | `FastNoiseLite` della costa |
 | 2 | `SALT_TERRAIN` | `FastNoiseLite` del rilievo |
 | 3 | `SALT_MOUNTAINS` | Riservato (posizionamento casuale di montagne, non in v0.1) |
-| 4 – 99 | — | Riservati a UPTG |
+| 4 | `SALT_COASTLINE_OFFSET` | Offset di campionamento del noise della costa (8.2) |
+| 5 | `SALT_TERRAIN_OFFSET` | Offset di campionamento del noise del rilievo (8.3) |
+| 6 – 99 | — | Riservati a UPTG |
 
 Regole: i salt non vengono mai riordinati né riutilizzati; un nuovo uso riceve un nuovo numero.
 
@@ -370,10 +375,11 @@ mask    = mask * edge
 - Il noise della costa è campionato sulla posizione (x, z) e non sull'angolo polare, per evitare la cucitura dove l'angolo passa da -π a π.
 - Il fattore `edge` garantisce che l'ultimo 10% della griglia sia sempre mare, qualunque sia la configurazione: il bordo della mesh resta sotto il livello del mare e non è visibile.
 - Il noise della costa usa `FastNoiseLite` con `seed = derive(generation_seed, SALT_COASTLINE)`, tipo Simplex Smooth, frattale FBM con 2 ottave fisse in v0.1.
+- **Offset di campionamento [APPROVATO, 0.2-r4]:** il noise simplex vale 0 nell'origine per qualunque seed, quindi senza correzione il centro dell'isola non riceverebbe mai variazioni di costa né colline. Il noise della costa viene quindi campionato in `(x, z) + offset_costa`, con `offset_costa = UPTGSeed.noise_offset(generation_seed, SALT_COASTLINE_OFFSET)`. Ogni componente è un numero intero di metri tra 1024 e 9215: `h = derive(generation_seed, salt)`, `offset = (1024 + (h & 0x1FFF), 1024 + ((h >> 13) & 0x1FFF))`. L'offset si somma alle coordinate in metri, quindi l'indipendenza dalla risoluzione (sezione 6) resta valida.
 
 ### 8.3 Rilievo (`terrain_noise`)
 
-Un solo `FastNoiseLite` [APPROVATO]: `seed = derive(generation_seed, SALT_TERRAIN)`, tipo Simplex Smooth, frattale FBM con `noise_octaves`, `noise_lacunarity`, `noise_gain`, `frequency = terrain_noise_frequency`. Il valore restituito da `get_noise_2d(x, z)` viene limitato a [-1, 1].
+Un solo `FastNoiseLite` [APPROVATO]: `seed = derive(generation_seed, SALT_TERRAIN)`, tipo Simplex Smooth, frattale FBM con `noise_octaves`, `noise_lacunarity`, `noise_gain`, `frequency = terrain_noise_frequency`. Il valore restituito da `get_noise_2d(x, z)` viene limitato a [-1, 1]. Come per la costa, il campionamento avviene in `(x, z) + offset_rilievo`, con `offset_rilievo = UPTGSeed.noise_offset(generation_seed, SALT_TERRAIN_OFFSET)` (sezione 8.2, 0.2-r4).
 
 ### 8.4 Montagne (`mountains`)
 
@@ -491,6 +497,8 @@ Colore per vertice calcolato da quota e pendenza, con transizioni morbide (`smoo
 - roccia: pendenza oltre `rock_slope_degrees` o quota oltre `rock_height`;
 - erba: altrove.
 
+La sabbia ha la precedenza sulla roccia (`grass.lerp(rock, w_rock).lerp(sand, w_sand)`): una scarpata costiera bassa resta sabbia e non diventa roccia. Scelta fatta in Milestone D durante la taratura del preset.
+
 ### 10.6 Materiale [APPROVATO]
 
 Un `StandardMaterial3D` (`addons/uptg/materials/uptg_terrain_default.tres`) con `vertex_color_use_as_albedo = true`. Nessuno shader custom in v0.1. Il nodo permette di sostituirlo con un materiale del gioco.
@@ -577,7 +585,7 @@ Nessuno script usa `@tool`. Non esistono anteprima nell'editor, editor dock o ba
 
 ## 13. Prestazioni
 
-Nessun valore di prestazione è dichiarato finché non viene misurato. In Milestone D si misurano, per 128 × 128, 256 × 256 e 512 × 512 celle:
+Le misure di Milestone D **[VERIFICATO MD]** sono registrate in `documentation/TESTING.md` e si ripetono con `tests/benchmark.gd`. Valgono solo per la macchina su cui sono state prese. Si misurano, per 128 × 128, 256 × 256 e 512 × 512 celle:
 
 - tempo di generazione dell'height field, della mesh e della collisione (separatamente);
 - numero di vertici e triangoli;
@@ -678,19 +686,20 @@ Limite noto: una sola mesh significa che il frustum culling vale per tutto il te
 | Indici a 32 bit | Integri oltre 65 535 vertici |
 | Test headless | Funzionano, con codice d'uscita affidabile |
 
+**Eseguite in Milestone D [VERIFICATO MD]** (dettagli in `documentation/TESTING.md`): coefficienti di memoria della sezione 5.4, misure della sezione 13, collisione A8 e A9 ripetuta su entrambi i backend dopo la taratura.
+
 **Ancora da verificare:**
 
 | Tema | Quando | Azione |
 |---|---|---|
 | Backend assegnato da Godot a un progetto creato dal Project Manager (il `project.godot` di UPTG è stato scritto a mano) | Se servirà | Non influisce su UPTG: entrambi i backend si comportano allo stesso modo |
-| Coefficienti di memoria e soglie della protezione | Milestone D | Aggiornare le costanti con approvazione |
 | Determinismo cross-platform | Quando sarà disponibile una seconda piattaforma | Documentare; resta un obiettivo, non una garanzia |
 
 ### 16.3 Decisioni rinviate [RINVIATO]
 
 | Tema | Rinviato a | Note |
 |---|---|---|
-| D7: valori definitivi del preset isola | Milestone D, dopo la demo | I valori della tabella 5.1 sono provvisori |
+| D7: valori definitivi del preset isola | Eseguita in Milestone D | Valori della tabella 5.1 e della regione 5.2 aggiornati; preset `addons/uptg/presets/uptg_island_default.tres` |
 | Allineamento di `Documentation/architecture/README.md`, README di modulo e cartella `presets/` di modulo alla struttura R12 | Aggiornamento documentale separato, da approvare | Fino ad allora prevale questo documento per UPTG |
 | Soglie di tempo in secondi per la protezione | Milestone D | Dopo le misure reali |
 | Spostamento della generazione su thread | Dopo v0.1 | Reso possibile dal generatore puro |
@@ -742,6 +751,7 @@ Ogni milestone inizia solo dopo l'approvazione esplicita di Stefano e termina co
 - Misure della sezione 13 in `TESTING.md`.
 - README dell'addon, TESTING, CHANGELOG; verifica A1, A13 – A16.
 - Versione `0.1.0`.
+- **Stato:** completata il 2026-11-06. Coefficienti di memoria calibrati (5.4), soglie invariate, preset isola tarato (5.1, 5.2, 10.5), misure in `documentation/TESTING.md`.
 
 ---
 
@@ -797,3 +807,5 @@ Questo documento definisce l'architettura. Non autorizza implementazioni, modifi
 | 0.2-r1 | 2026-11-06 | Prima stesura in italiano con le 15 decisioni approvate |
 | 0.2-r2 | 2026-11-06 | Incorporate D1–D9; aggiunta la protezione da configurazioni costose (5.4, A5b); sezione 16 divisa in approvato, da verificare, rinviato; corretti il vincolo raggio/irregolarità della costa e i valori predefiniti di `island_radius`, il campo mancante `sea_floor_depth` in `UPTGTerrainData`, la definizione di `config_checksum` e il tipo di `UPTGHeightfieldGenerator` |
 | 0.2-r3 | 2026-11-06 | Risultati della Milestone 0: aggiunta l'etichetta [VERIFICATO M0]; registrati ordine di `map_data`, centratura, diagonale `(ix + 1, iz)`–`(ix, iz + 1)`, winding orario, scala uniforme, tolleranza di 1 cm confermata, backend predefinito (Godot Physics), comportamento identico di Jolt, indici a 32 bit, test headless e file `.gd.uid`. Nessuna decisione architetturale modificata |
+| 0.2-r4 | 2026-11-06 | Durante la Milestone A: offset di campionamento del noise derivato dal seed (salt 4 e 5, sezioni 7.1, 8.2 e 8.3), approvato da Stefano, perché il noise simplex vale 0 nell'origine e il centro dell'isola restava uguale con ogni seed. `ALGORITHM_VERSION` resta 1, perché la formula precedente non è mai stata rilasciata |
+| 0.2-r5 | 2026-11-06 | Milestone D: valori predefiniti del preset isola tarati (5.1, 5.2; D7); coefficienti di memoria calibrati con misure reali, 48 byte per cella per gli indici e 320 per la trimesh, soglie invariate (5.4); precedenza della sabbia sulla roccia nei vertex colors (10.5); misure della sezione 13 in `TESTING.md`; nuova etichetta [VERIFICATO MD]. Nessuna decisione architetturale modificata |
