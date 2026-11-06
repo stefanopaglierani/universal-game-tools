@@ -1,0 +1,15 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=5
+
+[application]
+
+config/name="UPTG - Universal Procedural Terrain Generator"
+config/description="Reusable, game-agnostic procedural terrain generator for Godot 4.7.2."
+config/features=PackedStringArray("4.7")
