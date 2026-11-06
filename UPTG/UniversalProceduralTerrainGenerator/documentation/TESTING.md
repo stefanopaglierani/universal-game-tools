@@ -27,7 +27,7 @@ Each check prints one line:
 
 The last line is `SUMMARY checks=<n> failures=<n>`.
 
-Some tests feed invalid configurations on purpose. The generator reports them with `push_error`, so a run that passes still prints two `ERROR: UPTG: ...` lines (an invalid `cell_size` and a large configuration without `allow_large_terrain`). They are expected.
+Some tests feed invalid configurations on purpose. The generator and the node report them with `push_error`, so a run that passes still prints four `ERROR: UPTG: ...` lines: an invalid `cell_size` and a large configuration without `allow_large_terrain`, once from `test_validation.gd` and once from `test_terrain_node.gd`. They are expected.
 
 ## Test suites
 
@@ -36,6 +36,20 @@ Some tests feed invalid configurations on purpose. The generator reports them wi
 | `tests/test_seed.gd` | `UPTGSeed.derive()` reference values, range, distinct sub-seeds | A7 |
 | `tests/test_validation.gd` | `UPTGConfig.validate()` rejects each kind of invalid value; cost levels OK / LARGE / REJECTED and refusal without generating | A5, A5b |
 | `tests/test_determinism.gd` | Same seed gives the same heights and checksums; border at the sea floor; height queries on the verified diagonal; resolution independence; `.tres` preset round trip; timings | A7, A11, A12 |
+| `tests/test_mesh.gd` | `UPTGMeshBuilder`: vertex and triangle counts, index bounds, no NaN, unit normals, clockwise winding seen from +Y, shared diagonal, UVs, bounds, vertex colors | A6 |
+| `tests/test_terrain_node.gd` | `UPTGTerrain`: child `UPTGMesh` without owner, default material, signals, statistics, world-space height query, failed generation keeps the previous terrain, 20 regenerations without growth in nodes, objects, resources or static memory | A5b, A10 |
+
+## Checking the demo by hand
+
+Open the project in Godot 4.7.2 and run `res://demo/uptg_demo.tscn` (F6 with the scene open). Check that:
+
+1. the demo starts on its own and shows an island surrounded by sea (A2, A3);
+2. the coastline is irregular, with hills and a raised area around the mountain region (A3, A4);
+3. **Regenerate** with a different seed, or **Random seed**, changes the island, and the panel shows the seed, grid, vertices, triangles, times and checksum;
+4. **Wireframe** shows the triangle grid;
+5. dragging with the mouse orbits the camera and the wheel zooms.
+
+The water plane, sky, light and camera belong to the demo only, not to the addon.
 
 ## Adding a suite
 
