@@ -1,0 +1,11 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://demo/uptg_demo_controller.gd" id="1_demo"]
+[ext_resource type="Script" path="res://addons/uptg/nodes/uptg_terrain.gd" id="2_terrain"]
+
+[node name="UPTGDemo" type="Node3D"]
+script = ExtResource("1_demo")
+
+[node name="Terrain" type="Node3D" parent="."]
+script = ExtResource("2_terrain")
+generate_on_ready = false
