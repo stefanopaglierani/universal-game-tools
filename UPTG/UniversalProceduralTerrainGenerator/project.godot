@@ -12,4 +12,5 @@ config_version=5
 
 config/name="UPTG - Universal Procedural Terrain Generator"
 config/description="Reusable, game-agnostic procedural terrain generator for Godot 4.7.2."
+config/version="0.1.0"
 config/features=PackedStringArray("4.7")

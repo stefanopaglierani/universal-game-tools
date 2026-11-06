@@ -33,12 +33,16 @@ const MIN_CELLS_PER_AXIS: int = 2
 const MAX_BYTES_OK: int = 128 * 1024 * 1024
 ## Estimated memory above which a configuration is [constant CostLevel.REJECTED].
 const MAX_BYTES_HARD: int = 512 * 1024 * 1024
-## A-priori memory estimate per vertex, in bytes (to be calibrated in Milestone D).
+## Memory estimate per vertex, in bytes: height field and mask (8), heightmap collision (4),
+## mesh vertex buffers on the GPU (about 30) and the CPU arrays alive while the mesh is built (48),
+## rounded up. Calibrated with the Milestone D measurements (documentation/TESTING.md).
 const BYTES_PER_VERTEX: int = 112
-## A-priori memory estimate per cell for mesh indices, in bytes.
-const BYTES_PER_CELL: int = 24
-## Extra memory estimate per cell for trimesh collision, in bytes.
-const BYTES_PER_CELL_TRIMESH: int = 72
+## Memory estimate per cell for mesh indices, in bytes: GPU index buffer (24) and the CPU copy
+## alive while the mesh is built (24). Calibrated in Milestone D.
+const BYTES_PER_CELL: int = 48
+## Extra memory per cell for TRIMESH collision, in bytes: faces plus the physics engine's own
+## structures, measured at 320 bytes per cell in Milestone D.
+const BYTES_PER_CELL_TRIMESH: int = 320
 ## The island coastline may not reach further than this normalized distance from the center.
 const MAX_COAST_EXTENT: float = 0.9
 ## Octaves used by the coastline noise.
@@ -74,13 +78,13 @@ const COASTLINE_OCTAVES: int = 2
 
 @export_group("Relief")
 ## Average inland height above [member sea_level].
-@export_range(0.0, 500.0, 0.1, "suffix:m") var land_base_height: float = 6.0
+@export_range(0.0, 500.0, 0.1, "suffix:m") var land_base_height: float = 8.0
 ## Minimum inland height above [member sea_level]; prevents inland lakes in v0.1.
-@export_range(0.0, 50.0, 0.1, "suffix:m") var min_land_height: float = 1.0
+@export_range(0.0, 50.0, 0.1, "suffix:m") var min_land_height: float = 2.5
 ## Relief noise frequency, in cycles per meter.
 @export_range(0.0001, 0.1, 0.0001) var terrain_noise_frequency: float = 0.006
 ## Amplitude of the hills.
-@export_range(0.0, 500.0, 0.1, "suffix:m") var terrain_noise_amplitude: float = 12.0
+@export_range(0.0, 500.0, 0.1, "suffix:m") var terrain_noise_amplitude: float = 10.0
 ## Fractal octaves of the relief noise.
 @export_range(1, 8) var noise_octaves: int = 4
 ## Fractal lacunarity of the relief noise.
@@ -108,9 +112,9 @@ const COASTLINE_OCTAVES: int = 2
 ## Height band above [member sea_level] colored as sand.
 @export_range(0.0, 50.0, 0.1, "suffix:m") var beach_height: float = 1.5
 ## Slope above which the color tends to rock.
-@export_range(0.0, 90.0, 0.1, "suffix:°") var rock_slope_degrees: float = 35.0
+@export_range(0.0, 90.0, 0.1, "suffix:°") var rock_slope_degrees: float = 38.0
 ## Height above which the color tends to rock.
-@export_range(0.0, 2000.0, 0.1, "suffix:m") var rock_height: float = 45.0
+@export_range(0.0, 2000.0, 0.1, "suffix:m") var rock_height: float = 60.0
 
 
 func _init() -> void:
