@@ -2,13 +2,16 @@ extends Node3D
 ## UPTG demo (architecture 0.2, Milestone B).
 ##
 ## Generates an island at startup and lets you change the seed, regenerate,
-## toggle the wireframe and orbit the camera. The water plane at sea level, the
+## toggle the wireframe, drop balls on the terrain collision and orbit the camera. The water plane at sea level, the
 ## sky, the light and the camera belong to the demo only, not to the addon.
 
 const ORBIT_SPEED: float = 0.005
 const ZOOM_STEP: float = 1.1
 const MIN_PITCH: float = -1.45
 const MAX_PITCH: float = -0.05
+const BALLS_PER_DROP: int = 20
+const MAX_BALLS: int = 100
+const BALL_RADIUS: float = 2.0
 
 @onready var _terrain: UPTGTerrain = $Terrain
 
@@ -22,6 +25,8 @@ var _yaw: float = 0.6
 var _pitch: float = -0.55
 var _distance: float = 0.0
 var _rotating: bool = false
+var _balls: Array[RigidBody3D] = []
+var _ball_material := StandardMaterial3D.new()
 
 
 func _enter_tree() -> void:
@@ -64,6 +69,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _regenerate() -> void:
+	_clear_balls()
 	_terrain.config.generation_seed = int(_seed_box.value)
 	_terrain.generate()
 
@@ -71,6 +77,39 @@ func _regenerate() -> void:
 func _on_random_seed() -> void:
 	_seed_box.value = _rng.randi_range(0, UPTGSeed.MAX_SEED)
 	_regenerate()
+
+
+func _on_drop_balls() -> void:
+	var data := _terrain.get_terrain_data()
+	if data == null:
+		return
+	for i in BALLS_PER_DROP:
+		var x: float = _rng.randf_range(-0.3, 0.3) * data.size.x
+		var z: float = _rng.randf_range(-0.3, 0.3) * data.size.y
+		var body := RigidBody3D.new()
+		var shape := CollisionShape3D.new()
+		var sphere := SphereShape3D.new()
+		sphere.radius = BALL_RADIUS
+		shape.shape = sphere
+		body.add_child(shape)
+		var mesh := MeshInstance3D.new()
+		var sphere_mesh := SphereMesh.new()
+		sphere_mesh.radius = BALL_RADIUS
+		sphere_mesh.height = BALL_RADIUS * 2.0
+		sphere_mesh.material = _ball_material
+		mesh.mesh = sphere_mesh
+		body.add_child(mesh)
+		body.position = Vector3(x, _terrain.get_height_at_world(Vector3(x, 0.0, z)) + 40.0, z)
+		add_child(body)
+		_balls.append(body)
+	while _balls.size() > MAX_BALLS:
+		_balls.pop_front().queue_free()
+
+
+func _clear_balls() -> void:
+	for ball in _balls:
+		ball.queue_free()
+	_balls.clear()
 
 
 func _on_wireframe_toggled(enabled: bool) -> void:
@@ -90,7 +129,8 @@ func _on_generation_finished(data: UPTGTerrainData) -> void:
 		"Seed %d" % data.generation_seed,
 		"Grid %d x %d cells, cell %.2f m (%.0f x %.0f m)" % [data.grid_cells_x, data.grid_cells_z, data.cell_size, data.size.x, data.size.y],
 		"Vertices %d, triangles %d" % [s.vertices, s.triangles],
-		"Height field %.1f ms, mesh %.1f ms, total %.1f ms" % [s.heightfield_us / 1000.0, s.mesh_us / 1000.0, s.total_us / 1000.0],
+		"Height field %.1f ms, mesh %.1f ms" % [s.heightfield_us / 1000.0, s.mesh_us / 1000.0],
+		"Collision %s %.1f ms, total %.1f ms" % [UPTGConfig.CollisionMode.keys()[s.collision_mode], s.collision_us / 1000.0, s.total_us / 1000.0],
 		"Heights %.1f .. %.1f m, sea level %.1f m" % [data.min_height, data.max_height, data.sea_level],
 		"Estimated memory %.1f MB (%s)" % [s.estimated_bytes / 1048576.0, UPTGConfig.CostLevel.keys()[s.cost_level]],
 		"Heights checksum %08x" % data.heights_checksum,
@@ -109,9 +149,6 @@ func _update_camera() -> void:
 
 func _build_environment() -> void:
 	var sky_material := ProceduralSkyMaterial.new()
-	# Sea-colored ground, so that the horizon beyond the water plane reads as open sea.
-	sky_material.ground_bottom_color = Color(0.08, 0.2, 0.32)
-	sky_material.ground_horizon_color = Color(0.45, 0.58, 0.68)
 	var sky := Sky.new()
 	sky.sky_material = sky_material
 	var environment := Environment.new()
@@ -151,6 +188,7 @@ func _build_water() -> void:
 
 
 func _build_ui() -> void:
+	_ball_material.albedo_color = Color(0.85, 0.25, 0.2)
 	var layer := CanvasLayer.new()
 	add_child(layer)
 	var panel := PanelContainer.new()
@@ -187,6 +225,11 @@ func _build_ui() -> void:
 	random_seed.text = "Random seed"
 	random_seed.pressed.connect(_on_random_seed)
 	buttons.add_child(random_seed)
+
+	var drop := Button.new()
+	drop.text = "Drop balls"
+	drop.pressed.connect(_on_drop_balls)
+	box.add_child(drop)
 
 	_wireframe = CheckBox.new()
 	_wireframe.text = "Wireframe"
