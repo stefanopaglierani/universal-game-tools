@@ -8,11 +8,11 @@ extends Resource
 ## Normalized position on the terrain: (0, 0) is the -X/-Z corner, (1, 1) the +X/+Z corner.
 @export var center: Vector2 = Vector2(0.5, 0.5)
 ## Radius, normalized to the shorter terrain side.
-@export_range(0.01, 1.0, 0.001) var radius: float = 0.2
+@export_range(0.01, 1.0, 0.001) var radius: float = 0.22
 ## Height added at the center, in meters.
-@export_range(0.0, 2000.0, 0.1, "suffix:m") var peak_height: float = 40.0
+@export_range(0.0, 2000.0, 0.1, "suffix:m") var peak_height: float = 80.0
 ## Falloff curve exponent: 1 is soft, higher values give a narrower peak.
-@export_range(0.25, 8.0, 0.01) var falloff: float = 1.5
+@export_range(0.25, 8.0, 0.01) var falloff: float = 1.2
 
 
 ## Returns the list of validation errors (empty when valid). [param label] prefixes each message.

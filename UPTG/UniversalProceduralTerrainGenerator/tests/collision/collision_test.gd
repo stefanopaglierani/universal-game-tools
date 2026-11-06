@@ -43,6 +43,20 @@ func _config(cells_x: int, cells_z: int, cell: float) -> UPTGConfig:
 	return c
 
 
+## A9 terrain with moderate slopes, fixed here so that it does not follow the preset tuning:
+## low inland relief and a 40 m mountain on a 512 m island keep slopes below the 45 degree
+## limit of CharacterBody3D.floor_max_angle and below the friction angle of the falling spheres.
+func _moderate_config() -> UPTGConfig:
+	var c := _config(128, 128, 4.0)
+	c.land_base_height = 6.0
+	c.terrain_noise_amplitude = 12.0
+	c.min_land_height = 1.0
+	c.mountain_regions[0].peak_height = 40.0
+	c.mountain_regions[0].radius = 0.2
+	c.mountain_regions[0].falloff = 1.5
+	return c
+
+
 func _spawn_terrain(config: UPTGConfig, mode: UPTGConfig.CollisionMode) -> UPTGTerrain:
 	var c: UPTGConfig = config.duplicate(true)
 	c.collision_mode = mode
@@ -105,7 +119,7 @@ func _ray(space: PhysicsDirectSpaceState3D, at: Vector3) -> Dictionary:
 # A9: spheres dropped on a grid of points come to rest on the surface.
 func _test_falling_bodies(mode: UPTGConfig.CollisionMode) -> void:
 	var label: String = UPTGConfig.CollisionMode.keys()[mode]
-	var terrain := _spawn_terrain(_config(128, 128, 4.0), mode)
+	var terrain := _spawn_terrain(_moderate_config(), mode)
 	var data := terrain.get_terrain_data()
 	var radius: float = 0.5
 	var bodies: Array[RigidBody3D] = []
@@ -148,7 +162,7 @@ func _test_falling_bodies(mode: UPTGConfig.CollisionMode) -> void:
 
 # A9: a capsule CharacterBody3D walks across the island without sinking.
 func _test_capsule() -> void:
-	var terrain := _spawn_terrain(_config(128, 128, 4.0), UPTGConfig.CollisionMode.HEIGHTMAP)
+	var terrain := _spawn_terrain(_moderate_config(), UPTGConfig.CollisionMode.HEIGHTMAP)
 	var data := terrain.get_terrain_data()
 	var character := CharacterBody3D.new()
 	var shape := CollisionShape3D.new()

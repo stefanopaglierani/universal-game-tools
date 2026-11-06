@@ -6,6 +6,9 @@ func run(t: Object) -> void:
 	var def := UPTGConfig.new()
 	t.check("A5 default configuration is valid", def.validate().is_empty(), def.validate())
 	t.check("A5 default configuration has one mountain region", def.mountain_regions.size() == 1)
+	var preset := load("res://addons/uptg/presets/uptg_island_default.tres") as UPTGConfig
+	t.check("island preset loads, is valid and matches the defaults",
+		preset != null and preset.validate().is_empty() and var_to_bytes(preset.get_height_parameters()) == var_to_bytes(def.get_height_parameters()))
 
 	# Each case: [description, Callable that breaks a fresh config, expected text in an error]
 	var cases: Array = [

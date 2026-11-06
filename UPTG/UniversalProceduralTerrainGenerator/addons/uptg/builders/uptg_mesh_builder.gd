@@ -77,12 +77,13 @@ static func build(data: UPTGTerrainData, config: UPTGConfig) -> ArrayMesh:
 
 
 ## Vertex color for a point [param height_above_sea] meters above sea level with unit normal [param normal].
-## Sand up to [member UPTGConfig.beach_height], rock above [member UPTGConfig.rock_height] or on
-## slopes steeper than [member UPTGConfig.rock_slope_degrees], grass elsewhere.
+## Sand up to [member UPTGConfig.beach_height] (including the sea floor, whatever the slope),
+## otherwise rock above [member UPTGConfig.rock_height] or on slopes steeper than
+## [member UPTGConfig.rock_slope_degrees], grass elsewhere.
 static func vertex_color(height_above_sea: float, normal: Vector3, config: UPTGConfig) -> Color:
 	var slope: float = rad_to_deg(acos(clampf(normal.y, -1.0, 1.0)))
 	var sand: float = 1.0 - smoothstep(config.beach_height, config.beach_height + COLOR_BLEND_HEIGHT, height_above_sea)
 	var rock: float = maxf(
 		smoothstep(config.rock_slope_degrees - COLOR_BLEND_SLOPE, config.rock_slope_degrees, slope),
 		smoothstep(config.rock_height, config.rock_height + COLOR_BLEND_HEIGHT, height_above_sea))
-	return config.grass_color.lerp(config.sand_color, sand).lerp(config.rock_color, rock)
+	return config.grass_color.lerp(config.rock_color, rock).lerp(config.sand_color, sand)

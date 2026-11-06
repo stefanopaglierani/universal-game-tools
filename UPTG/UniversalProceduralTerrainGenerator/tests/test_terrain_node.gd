@@ -68,6 +68,14 @@ func run(t: Object) -> void:
 		not ok_large and mesh_node.mesh == old_mesh and terrain.get_terrain_data() == old_data and _failed == 2)
 	terrain.config = _small()
 
+	# Not reentrant: a generate() call from a generation_started handler is ignored.
+	var nested: Array = []
+	var reenter := func() -> void: nested.append(terrain.generate())
+	terrain.generation_started.connect(reenter)
+	var outer_ok: bool = terrain.generate()
+	terrain.generation_started.disconnect(reenter)
+	t.check("generate() is not reentrant (nested call ignored, outer call succeeds)", outer_ok and nested == [false], nested)
+
 	# Collision modes: resources change, nodes stay.
 	terrain.config.collision_mode = UPTGConfig.CollisionMode.TRIMESH
 	terrain.generate()
