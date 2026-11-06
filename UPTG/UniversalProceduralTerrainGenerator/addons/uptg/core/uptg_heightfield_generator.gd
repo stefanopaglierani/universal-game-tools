@@ -51,6 +51,9 @@ static func generate(config: UPTGConfig, allow_large: bool = false) -> UPTGTerra
 	var relief := _make_noise(UPTGSeed.derive(config.generation_seed, UPTGSeed.SALT_TERRAIN),
 		config.terrain_noise_frequency, config.noise_octaves, config.noise_lacunarity, config.noise_gain)
 
+	var coast_offset := UPTGSeed.noise_offset(config.generation_seed, UPTGSeed.SALT_COASTLINE_OFFSET)
+	var relief_offset := UPTGSeed.noise_offset(config.generation_seed, UPTGSeed.SALT_TERRAIN_OFFSET)
+
 	# Mountain regions converted to local meters once.
 	var m_centers := PackedVector2Array()
 	var m_radii := PackedFloat32Array()
@@ -88,10 +91,10 @@ static func generate(config: UPTGConfig, allow_large: bool = false) -> UPTGTerra
 		for ix in vx:
 			var x: float = (ix - cells_x * 0.5) * cell
 			var u: float = x / half_x
-			var mask: float = _shape_mask(coast, x, z, u, v, rx, rz, irregularity, inner)
+			var mask: float = _shape_mask(coast, x + coast_offset.x, z + coast_offset.y, u, v, rx, rz, irregularity, inner)
 			var h: float = sea_floor
 			if mask > 0.0:
-				var hills: float = clampf(relief.get_noise_2d(x, z), -1.0, 1.0) * amplitude
+				var hills: float = clampf(relief.get_noise_2d(x + relief_offset.x, z + relief_offset.y), -1.0, 1.0) * amplitude
 				var mount: float = 0.0
 				for m in m_count:
 					var t: float = 1.0 - clampf(Vector2(x, z).distance_to(m_centers[m]) / m_radii[m], 0.0, 1.0)
@@ -122,7 +125,8 @@ static func generate(config: UPTGConfig, allow_large: bool = false) -> UPTGTerra
 	return data
 
 
-## Island mask (section 8.2): 0 = sea, 1 = inland. [param u], [param v] are normalized to -1..1.
+## Island mask (section 8.2): 0 = sea, 1 = inland. [param u], [param v] are normalized to -1..1;
+## [param x], [param z] are the noise sampling coordinates (position plus offset, in meters).
 static func _shape_mask(coast: FastNoiseLite, x: float, z: float, u: float, v: float,
 		rx: float, rz: float, irregularity: float, inner: float) -> float:
 	var edge: float = 1.0 - smoothstep(EDGE_BAND_START, 1.0, maxf(absf(u), absf(v)))

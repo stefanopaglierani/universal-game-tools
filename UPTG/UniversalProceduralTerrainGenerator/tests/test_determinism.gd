@@ -63,6 +63,14 @@ func run(t: Object) -> void:
 	t.check("the mountain region raises the center", a.get_height_at(0.0, 0.0) > no_mountain.get_height_at(0.0, 0.0) + 10.0,
 		"%.2f vs %.2f" % [a.get_height_at(0.0, 0.0), no_mountain.get_height_at(0.0, 0.0)])
 
+	# The island center gets relief noise, and it changes with the seed (noise sampling offset).
+	var centers := {}
+	for sd in [1, 2, 3, 4]:
+		var c := _small(sd)
+		c.mountain_regions.clear()
+		centers[snappedf(UPTGHeightfieldGenerator.generate(c).get_height_at(0.0, 0.0), 0.001)] = true
+	t.check("center height without mountains varies with the seed", centers.size() >= 3, centers.keys())
+
 	# Queries
 	var max_err := 0.0
 	for iz in range(0, a.vertex_count_z, 7):

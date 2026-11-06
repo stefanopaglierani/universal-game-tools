@@ -15,6 +15,12 @@ const SALT_COASTLINE: int = 1
 const SALT_TERRAIN: int = 2
 ## Reserved for random mountain placement (not used in v0.1).
 const SALT_MOUNTAINS: int = 3
+## Salt for the sampling offset of the coastline noise.
+const SALT_COASTLINE_OFFSET: int = 4
+## Salt for the sampling offset of the terrain relief noise.
+const SALT_TERRAIN_OFFSET: int = 5
+## Smallest component of a noise sampling offset, in meters.
+const NOISE_OFFSET_MIN: float = 1024.0
 ## Largest valid seed (31 bits, compatible with [member FastNoiseLite.seed]).
 const MAX_SEED: int = 2147483647
 
@@ -28,6 +34,15 @@ static func derive(master_seed: int, salt: int) -> int:
 	x = _mul32(x ^ (x >> 15), 0x846CA68B)
 	x = x ^ (x >> 16)
 	return x & MAX_SEED
+
+
+## Sampling offset in meters for a noise, derived from [param master_seed] and [param salt].
+## Each component is an integer in [constant NOISE_OFFSET_MIN] .. NOISE_OFFSET_MIN + 8191.
+## Simplex noise is 0 at the origin for every seed: without this offset the
+## island center would get no relief or coastline noise, whatever the seed.
+static func noise_offset(master_seed: int, salt: int) -> Vector2:
+	var h: int = derive(master_seed, salt)
+	return Vector2(NOISE_OFFSET_MIN + float(h & 0x1FFF), NOISE_OFFSET_MIN + float((h >> 13) & 0x1FFF))
 
 
 ## (a * b) mod 2^32 for 32-bit unsigned inputs, without exceeding 2^63.

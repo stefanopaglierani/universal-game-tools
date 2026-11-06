@@ -2,7 +2,7 @@
 ## Specifica di architettura — Versione 0.2
 
 **Stato:** architettura approvata (0.2-r2). Milestone 0 eseguita il 2026-11-06: i risultati sperimentali sono riportati con l'etichetta [VERIFICATO M0]. Nessun codice del generatore è stato scritto.
-**Revisione:** 0.2-r3 (vedi Appendice B)
+**Revisione:** 0.2-r4 (vedi Appendice B)
 **Progetto:** Universal Game Tools
 **Engine di riferimento:** Godot 4.7.2
 **Linguaggio:** GDScript (static typing)
@@ -293,7 +293,9 @@ Ogni fase casuale usa un proprio sub-seed derivato dal seed principale con un "s
 | 1 | `SALT_COASTLINE` | `FastNoiseLite` della costa |
 | 2 | `SALT_TERRAIN` | `FastNoiseLite` del rilievo |
 | 3 | `SALT_MOUNTAINS` | Riservato (posizionamento casuale di montagne, non in v0.1) |
-| 4 – 99 | — | Riservati a UPTG |
+| 4 | `SALT_COASTLINE_OFFSET` | Offset di campionamento del noise della costa (8.2) |
+| 5 | `SALT_TERRAIN_OFFSET` | Offset di campionamento del noise del rilievo (8.3) |
+| 6 – 99 | — | Riservati a UPTG |
 
 Regole: i salt non vengono mai riordinati né riutilizzati; un nuovo uso riceve un nuovo numero.
 
@@ -370,10 +372,11 @@ mask    = mask * edge
 - Il noise della costa è campionato sulla posizione (x, z) e non sull'angolo polare, per evitare la cucitura dove l'angolo passa da -π a π.
 - Il fattore `edge` garantisce che l'ultimo 10% della griglia sia sempre mare, qualunque sia la configurazione: il bordo della mesh resta sotto il livello del mare e non è visibile.
 - Il noise della costa usa `FastNoiseLite` con `seed = derive(generation_seed, SALT_COASTLINE)`, tipo Simplex Smooth, frattale FBM con 2 ottave fisse in v0.1.
+- **Offset di campionamento [APPROVATO, 0.2-r4]:** il noise simplex vale 0 nell'origine per qualunque seed, quindi senza correzione il centro dell'isola non riceverebbe mai variazioni di costa né colline. Il noise della costa viene quindi campionato in `(x, z) + offset_costa`, con `offset_costa = UPTGSeed.noise_offset(generation_seed, SALT_COASTLINE_OFFSET)`. Ogni componente è un numero intero di metri tra 1024 e 9215: `h = derive(generation_seed, salt)`, `offset = (1024 + (h & 0x1FFF), 1024 + ((h >> 13) & 0x1FFF))`. L'offset si somma alle coordinate in metri, quindi l'indipendenza dalla risoluzione (sezione 6) resta valida.
 
 ### 8.3 Rilievo (`terrain_noise`)
 
-Un solo `FastNoiseLite` [APPROVATO]: `seed = derive(generation_seed, SALT_TERRAIN)`, tipo Simplex Smooth, frattale FBM con `noise_octaves`, `noise_lacunarity`, `noise_gain`, `frequency = terrain_noise_frequency`. Il valore restituito da `get_noise_2d(x, z)` viene limitato a [-1, 1].
+Un solo `FastNoiseLite` [APPROVATO]: `seed = derive(generation_seed, SALT_TERRAIN)`, tipo Simplex Smooth, frattale FBM con `noise_octaves`, `noise_lacunarity`, `noise_gain`, `frequency = terrain_noise_frequency`. Il valore restituito da `get_noise_2d(x, z)` viene limitato a [-1, 1]. Come per la costa, il campionamento avviene in `(x, z) + offset_rilievo`, con `offset_rilievo = UPTGSeed.noise_offset(generation_seed, SALT_TERRAIN_OFFSET)` (sezione 8.2, 0.2-r4).
 
 ### 8.4 Montagne (`mountains`)
 
@@ -797,3 +800,4 @@ Questo documento definisce l'architettura. Non autorizza implementazioni, modifi
 | 0.2-r1 | 2026-11-06 | Prima stesura in italiano con le 15 decisioni approvate |
 | 0.2-r2 | 2026-11-06 | Incorporate D1–D9; aggiunta la protezione da configurazioni costose (5.4, A5b); sezione 16 divisa in approvato, da verificare, rinviato; corretti il vincolo raggio/irregolarità della costa e i valori predefiniti di `island_radius`, il campo mancante `sea_floor_depth` in `UPTGTerrainData`, la definizione di `config_checksum` e il tipo di `UPTGHeightfieldGenerator` |
 | 0.2-r3 | 2026-11-06 | Risultati della Milestone 0: aggiunta l'etichetta [VERIFICATO M0]; registrati ordine di `map_data`, centratura, diagonale `(ix + 1, iz)`–`(ix, iz + 1)`, winding orario, scala uniforme, tolleranza di 1 cm confermata, backend predefinito (Godot Physics), comportamento identico di Jolt, indici a 32 bit, test headless e file `.gd.uid`. Nessuna decisione architetturale modificata |
+| 0.2-r4 | 2026-11-06 | Durante la Milestone A: offset di campionamento del noise derivato dal seed (salt 4 e 5, sezioni 7.1, 8.2 e 8.3), approvato da Stefano, perché il noise simplex vale 0 nell'origine e il centro dell'isola restava uguale con ogni seed. `ALGORITHM_VERSION` resta 1, perché la formula precedente non è mai stata rilasciata |

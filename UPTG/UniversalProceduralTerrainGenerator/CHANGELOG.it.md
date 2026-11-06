@@ -14,5 +14,5 @@ Il formato segue [Keep a Changelog](https://keepachangelog.com/it-IT/1.1.0/) e i
 - Specifica di architettura 0.2 (`documentation/UPTG_ARCHITECTURE_0.2.md`, in italiano), revisione 0.2-r3 con i risultati della Milestone 0.
 - Risultati della verifica della Milestone 0 (`documentation/M0_VERIFICATION.md`).
 - ADR-0001 … ADR-0006 in `Documentation/architecture/decisions/`.
-- Milestone A, dati e height field (ancora senza scena), in `addons/uptg/core/`: `UPTGConfig` (parametri, validazione, stima dei costi), `UPTGMountainRegion`, `UPTGSeed` (derivazione dei sub-seed), `UPTGTerrainData` (height field, maschera della terra, checksum, interrogazioni di altezza e normale) e `UPTGHeightfieldGenerator`.
+- Milestone A, dati e height field (ancora senza scena), in `addons/uptg/core/`: `UPTGConfig` (parametri, validazione, stima dei costi), `UPTGMountainRegion`, `UPTGSeed` (derivazione dei sub-seed), `UPTGTerrainData` (height field, maschera della terra, checksum, interrogazioni di altezza e normale) e `UPTGHeightfieldGenerator`. Il noise è campionato con offset derivati dal seed (architettura 0.2-r4), quindi anche il centro dell'isola cambia con il seed.
 - Esecutore dei test headless e suite in `tests/` (seed, validazione e protezione dai costi, determinismo), documentati in `documentation/TESTING.it.md`.
