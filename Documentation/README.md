@@ -15,4 +15,5 @@ Repository-wide documentation. Module-specific docs live inside each module's ow
 - [Development workflow](development/WORKFLOW.md)
 - [Coding conventions](development/CONVENTIONS.md)
 - [Architecture overview](architecture/README.md)
+- [Architecture decisions (ADR)](architecture/README.md#decisions)
 - [ADR template](architecture/decisions/ADR-0000-template.md)

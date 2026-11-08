@@ -2,26 +2,30 @@
 
 # UPTG — Universal Procedural Terrain Generator
 
-**Stato:** bozza di architettura 0.1, non ancora implementato
+**Stato:** versione 0.1.0 rilasciata (tag `uptg-v0.1.0`)
 **Motore:** Godot 4.7.2 (GDScript)
 
-Un modulo di generazione del terreno per Godot, riutilizzabile e indipendente dal gioco. Il primo traguardo (v0.1) è un generatore procedurale di isole deterministico e configurabile: costa irregolare, colline, pianure, regioni montuose, generazione della mesh e collisione statica.
+Un modulo di generazione del terreno per Godot, riutilizzabile e indipendente dal gioco. La versione 0.1 è un generatore procedurale di isole deterministico e configurabile: costa irregolare, colline, pianure, regioni montuose, generazione della mesh e collisione statica.
 
 ## Cartelle
 
 | Cartella | Contenuto |
 |---|---|
-| `addons/` | Codice dell'addon (`addons/uptg/runtime`, `addons/uptg/resources`) |
-| `demo/` | Scena demo e di test autonoma |
-| `presets/` | Preset di configurazione salvati come risorse `.tres` |
-| `documentation/` | Architettura, procedure di test e note del modulo |
+| `addons/uptg/` | L'addon portabile, e l'unica cartella da copiare in un gioco: `core/`, `builders/`, `nodes/`, `materials/`, `presets/` |
+| `demo/` | Scena demo autonoma |
+| `tests/` | Suite di test headless, test di collisione e benchmark |
+| `presets/` | Riservata e vuota in v0.1: il preset predefinito è `addons/uptg/presets/uptg_island_default.tres` |
+| `documentation/` | Architettura, procedure di test, risultati delle verifiche e screenshot |
 
 ## Documentazione
 
-- [Specifica di architettura](documentation/UPTG_ARCHITECTURE.md) (bozza 0.1, in revisione, solo in inglese)
-- `documentation/TESTING.md` (da scrivere con la Milestone A)
-- `CHANGELOG.md` (da creare con la prima implementazione)
+- [Guida dell'addon](addons/uptg/README.it.md): installazione, avvio rapido, configurazione
+- [Specifica di architettura 0.2](documentation/UPTG_ARCHITECTURE_0.2.it.md)
+- [Bozza di architettura 0.1](documentation/UPTG_ARCHITECTURE.md), in inglese, conservata come riferimento storico
+- [Test](documentation/TESTING.it.md): suite di test, benchmark, verifiche manuali, screenshot
+- [Verifica della Milestone 0](documentation/M0_VERIFICATION.it.md)
+- [Changelog](CHANGELOG.it.md)
 
 ## Utilizzo
 
-Non ancora disponibile. Le istruzioni di installazione e utilizzo verranno aggiunte quando la Milestone A (terreno minimo) sarà implementata e testata.
+Segui la [guida dell'addon](addons/uptg/README.it.md) per copiare `addons/uptg/` in un progetto Godot 4.7.2. Per vedere il generatore in funzione, apri questa cartella come progetto ed esegui `res://demo/uptg_demo.tscn`.

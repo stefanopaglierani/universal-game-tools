@@ -2,26 +2,30 @@
 
 # UPTG — Universal Procedural Terrain Generator
 
-**Status:** architecture draft 0.1, not implemented yet
+**Status:** version 0.1.0 released (tag `uptg-v0.1.0`)
 **Target engine:** Godot 4.7.2 (GDScript)
 
-A reusable, game-agnostic terrain generation module for Godot. The first milestone (v0.1) is a deterministic, configurable procedural island generator: irregular coastline, hills, plains, mountain regions, mesh generation and static collision.
+A reusable, game-agnostic terrain generation module for Godot. Version 0.1 is a deterministic, configurable procedural island generator: irregular coastline, hills, plains, mountain regions, mesh generation and static collision.
 
 ## Folders
 
 | Folder | Content |
 |---|---|
-| `addons/` | Addon code (`addons/uptg/runtime`, `addons/uptg/resources`) |
-| `demo/` | Standalone demo and test scene |
-| `presets/` | Configuration presets saved as `.tres` resources |
-| `documentation/` | Architecture, testing procedures and module notes |
+| `addons/uptg/` | The portable addon, and the only folder to copy into a game: `core/`, `builders/`, `nodes/`, `materials/`, `presets/` |
+| `demo/` | Standalone demo scene |
+| `tests/` | Headless test suites, collision test and benchmark |
+| `presets/` | Reserved and empty in v0.1: the default preset is `addons/uptg/presets/uptg_island_default.tres` |
+| `documentation/` | Architecture, testing procedures, verification results and screenshots |
 
 ## Documentation
 
-- [Architecture specification](documentation/UPTG_ARCHITECTURE.md) (draft 0.1, under review)
-- `documentation/TESTING.md` (to be written with Milestone A)
-- `CHANGELOG.md` (to be created with the first implementation)
+- [Addon guide](addons/uptg/README.md): installation, quick start, configuration
+- [Architecture specification 0.2](documentation/UPTG_ARCHITECTURE_0.2.md)
+- [Architecture draft 0.1](documentation/UPTG_ARCHITECTURE.md), kept as a historical reference
+- [Testing](documentation/TESTING.md): test suites, benchmark, manual checks, screenshots
+- [Milestone 0 verification](documentation/M0_VERIFICATION.md)
+- [Changelog](CHANGELOG.md)
 
 ## Usage
 
-Not available yet. Installation and usage instructions will be added once Milestone A (minimal terrain) is implemented and tested.
+Follow the [addon guide](addons/uptg/README.md) to copy `addons/uptg/` into a Godot 4.7.2 project. To see the generator working, open this folder as a project and run `res://demo/uptg_demo.tscn`.

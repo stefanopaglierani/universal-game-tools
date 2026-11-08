@@ -15,4 +15,5 @@ Documentazione a livello di repository. I documenti specifici di ogni modulo si 
 - [Workflow di sviluppo](development/WORKFLOW.it.md)
 - [Convenzioni di codice](development/CONVENTIONS.it.md)
 - [Panoramica dell'architettura](architecture/README.it.md)
+- [Decisioni architetturali (ADR)](architecture/README.it.md#decisioni)
 - [Modello ADR](architecture/decisions/ADR-0000-template.it.md)

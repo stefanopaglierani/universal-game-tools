@@ -115,6 +115,19 @@ Open the project in Godot 4.7.2 and run `res://demo/uptg_demo.tscn` (F6 with the
 
 The water plane, sky, light and camera belong to the demo only, not to the addon.
 
+## Screenshots
+
+Captures of the demo running in Godot 4.7.2 are in `documentation/screenshots/`. The folder contains a `.gdignore` file, so Godot does not import the images. The Milestone B and C images predate the preset tuning of Milestone D (heights up to about 47 m instead of about 88 m).
+
+| File | Shows |
+|---|---|
+| [`milestone-d/preset_seed12345.png`](screenshots/milestone-d/preset_seed12345.png) | Tuned default preset, seed 12345 |
+| [`milestone-d/preset_seed777.png`](screenshots/milestone-d/preset_seed777.png) | Tuned default preset, seed 777 |
+| [`milestone-c/demo_balls.png`](screenshots/milestone-c/demo_balls.png) | **Drop balls**: balls resting on the terrain and under the water |
+| [`milestone-b/demo_seed12345.png`](screenshots/milestone-b/demo_seed12345.png) | First island from the demo, seed 12345 |
+| [`milestone-b/demo_seed777_close.png`](screenshots/milestone-b/demo_seed777_close.png) | Closer view, seed 777 |
+| [`milestone-b/demo_wireframe.png`](screenshots/milestone-b/demo_wireframe.png) | **Wireframe** view of the triangle grid |
+
 ## Adding a suite
 
 1. Create `tests/test_<topic>.gd` extending `RefCounted` with a `func run(t: Object) -> void`.

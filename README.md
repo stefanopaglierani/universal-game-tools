@@ -10,7 +10,7 @@ The tools are game-agnostic: each one is designed so it can be copied into, or i
 
 | Module | Name | Status |
 |---|---|---|
-| [UPTG](UPTG/UniversalProceduralTerrainGenerator/) | Universal Procedural Terrain Generator | Architecture draft 0.1, not implemented yet |
+| [UPTG](UPTG/UniversalProceduralTerrainGenerator/) | Universal Procedural Terrain Generator | Version 0.1.0 released (tag `uptg-v0.1.0`): procedural island generator with mesh, collision and demo |
 | [UPRG](UPRG/UniversalProceduralRoadGenerator/) | Universal Procedural Road Generator | Planned, not started |
 | [UPWG](UPWG/UniversalProceduralWorldGenerator/) | Universal Procedural World Generator | Planned, not started |
 
@@ -25,10 +25,13 @@ universal-game-tools/
 ├── LICENSE
 ├── UPTG/
 │   └── UniversalProceduralTerrainGenerator/
-│       ├── addons/           Godot addon code (runtime, resources)
-│       ├── demo/             Standalone demo / test scenes
-│       ├── presets/          Configuration presets (.tres)
-│       ├── documentation/    Architecture, testing, module docs
+│       ├── project.godot     Standalone Godot project for the module
+│       ├── addons/uptg/      Portable addon: core, builders, nodes, materials, presets
+│       ├── demo/             Standalone demo scene
+│       ├── tests/            Headless test suites, collision test, benchmark
+│       ├── presets/          Reserved, empty in v0.1 (the preset is in addons/uptg/presets/)
+│       ├── documentation/    Architecture, testing, verification, screenshots
+│       ├── CHANGELOG.md      Module changes
 │       └── README.md
 ├── UPRG/
 │   └── UniversalProceduralRoadGenerator/    (placeholder)
@@ -54,7 +57,9 @@ Each tool should contain: core implementation, configuration resources, optional
 - [Project instructions](Documentation/development/PROJECT_INSTRUCTIONS.md): identity, principles and AI workflow
 - [Development workflow](Documentation/development/WORKFLOW.md): branching, commits, versioning
 - [Architecture overview](Documentation/architecture/README.md): shared conventions across modules
-- [UPTG architecture](UPTG/UniversalProceduralTerrainGenerator/documentation/UPTG_ARCHITECTURE.md)
+- [UPTG architecture 0.2](UPTG/UniversalProceduralTerrainGenerator/documentation/UPTG_ARCHITECTURE_0.2.md) ([draft 0.1](UPTG/UniversalProceduralTerrainGenerator/documentation/UPTG_ARCHITECTURE.md) is kept as a historical reference)
+- [UPTG addon guide](UPTG/UniversalProceduralTerrainGenerator/addons/uptg/README.md): installation and usage
+- [UPTG testing](UPTG/UniversalProceduralTerrainGenerator/documentation/TESTING.md): test suites, benchmark, manual checks
 
 ## Development principles
 
