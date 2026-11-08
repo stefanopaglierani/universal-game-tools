@@ -29,7 +29,7 @@ Ogni strumento vive in `<CODICE>/<NomeCompleto>/` e idealmente contiene:
 | Modulo | Documento di architettura |
 |---|---|
 | UPTG | [UPTG_ARCHITECTURE_0.2.it.md](../../UPTG/UniversalProceduralTerrainGenerator/documentation/UPTG_ARCHITECTURE_0.2.it.md); sostituisce la [bozza 0.1](../../UPTG/UniversalProceduralTerrainGenerator/documentation/UPTG_ARCHITECTURE.md), in inglese |
-| UPRG | Non ancora scritto |
+| UPRG | [UPRG_ARCHITECTURE_0.1.it.md](../../UPRG/UniversalProceduralRoadGenerator/documentation/UPRG_ARCHITECTURE_0.1.it.md) |
 | UPWG | Non ancora scritto |
 
 ## Decisioni

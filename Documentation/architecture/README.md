@@ -29,7 +29,7 @@ Each tool lives in `<CODE>/<FullName>/` and should ideally contain:
 | Module | Architecture doc |
 |---|---|
 | UPTG | [UPTG_ARCHITECTURE_0.2.md](../../UPTG/UniversalProceduralTerrainGenerator/documentation/UPTG_ARCHITECTURE_0.2.md); it supersedes [draft 0.1](../../UPTG/UniversalProceduralTerrainGenerator/documentation/UPTG_ARCHITECTURE.md) |
-| UPRG | Not written yet |
+| UPRG | [UPRG_ARCHITECTURE_0.1.md](../../UPRG/UniversalProceduralRoadGenerator/documentation/UPRG_ARCHITECTURE_0.1.md) |
 | UPWG | Not written yet |
 
 ## Decisions

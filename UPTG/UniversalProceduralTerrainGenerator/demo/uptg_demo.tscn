@@ -1,11 +1,11 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene format=3 uid="uid://dhiq57tmwer2s"]
 
-[ext_resource type="Script" path="res://demo/uptg_demo_controller.gd" id="1_demo"]
-[ext_resource type="Script" path="res://addons/uptg/nodes/uptg_terrain.gd" id="2_terrain"]
+[ext_resource type="Script" uid="uid://d30noeyymcbbi" path="res://demo/uptg_demo_controller.gd" id="1_demo"]
+[ext_resource type="Script" uid="uid://cb1ebeth85xmo" path="res://addons/uptg/nodes/uptg_terrain.gd" id="2_terrain"]
 
-[node name="UPTGDemo" type="Node3D"]
+[node name="UPTGDemo" type="Node3D" unique_id=973151066]
 script = ExtResource("1_demo")
 
-[node name="Terrain" type="Node3D" parent="."]
+[node name="Terrain" type="Node3D" parent="." unique_id=279990118]
 script = ExtResource("2_terrain")
 generate_on_ready = false

@@ -11,7 +11,7 @@ The tools are game-agnostic: each one is designed so it can be copied into, or i
 | Module | Name | Status |
 |---|---|---|
 | [UPTG](UPTG/UniversalProceduralTerrainGenerator/) | Universal Procedural Terrain Generator | Version 0.1.0 released (tag `uptg-v0.1.0`): procedural island generator with mesh, collision and demo |
-| [UPRG](UPRG/UniversalProceduralRoadGenerator/) | Universal Procedural Road Generator | Planned, not started |
+| [UPRG](UPRG/UniversalProceduralRoadGenerator/) | Universal Procedural Road Generator | First version in development: roads on baked terrains |
 | [UPWG](UPWG/UniversalProceduralWorldGenerator/) | Universal Procedural World Generator | Planned, not started |
 
 Current priority is **UPTG**. Other modules will not start until the first generator has been tested and approved.
