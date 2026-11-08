@@ -4,7 +4,7 @@
 ## Architecture Specification — Version 0.2
 
 **Status:** architecture approved (0.2-r2). Milestone 0 carried out on 2026-11-06: experimental results are marked with the label [VERIFIED M0]. Milestones A, B, C and D completed: version `0.1.0`; real measurements are labeled [VERIFIED MD].
-**Revision:** 0.2-r5 (see Appendix B)
+**Revision:** 0.2-r6 (see Appendix B)
 **Project:** Universal Game Tools
 **Target engine:** Godot 4.7.2
 **Language:** GDScript (static typing)
@@ -60,7 +60,7 @@ UPTG is a reusable module for generating 3D procedural terrains in Godot. The fi
 - Infinite terrain, streaming, chunking, LOD.
 - Generation on separate threads.
 - `@tool` scripts, editor preview, editor dock, `EditorPlugin`.
-- Terrain baking to file.
+- Baking inside the addon or from the editor (the bake tool of section 12.5 is outside the addon).
 - Erosion, rivers, lakes.
 - Shape modes other than the island (continental, etc.).
 - Gameplay, AI navigation, vehicle logic.
@@ -128,6 +128,9 @@ universal-game-tools/                         root of the Git repository (existi
         │   └── collision/
         │       ├── collision_test.tscn
         │       └── collision_test.gd
+        ├── tools/
+        │   ├── uptg_baker.gd
+        │   └── uptg_bake.gd
         ├── documentation/
         │   ├── UPTG_ARCHITECTURE.md          Draft 0.1, unchanged
         │   ├── UPTG_ARCHITECTURE_0.2.md      this document
@@ -581,7 +584,17 @@ UPTGTerrain (Node3D)
 
 ### 12.4 Runtime only [APPROVED]
 
-No script uses `@tool`. There is no editor preview, editor dock or baking in v0.1.
+No script uses `@tool`. There is no editor preview or editor dock in v0.1, and the addon itself does not bake.
+
+### 12.5 Bake tool [APPROVED, 0.2-r6]
+
+UPTG and its sub-programs are private development tools: they create worlds and 3D objects for other software and do not ship inside it (D10, ADR-0009). The game receives only the generated result.
+
+- `tools/uptg_baker.gd` (`UPTGBaker.bake(config, out_path, allow_large)`) generates through the public functions of sections 8, 10 and 11, unchanged, and writes one compressed `.scn` file.
+- `tools/uptg_bake.gd` is the command-line entry point (`-- --out=<file.scn> [--preset=<res path>] [--seed=<n>] [--allow-large]`).
+- The file contains a `Node3D` named `Terrain` with `Mesh` (`MeshInstance3D`) and `Body/Shape` (`StaticBody3D`, `CollisionShape3D`). Mesh, material and shape are stored inside the file: no script, no external dependency, no reference to UPTG.
+- Metadata `terrain_data` on the root: `format_version`, `algorithm_version`, `generation_seed`, `config_checksum`, `heights_checksum`, `grid_cells_x`, `grid_cells_z`, `cell_size`, `sea_level`, `sea_floor_depth`, `heights`.
+- The file is tied to the Godot version that wrote it. Bake again after an engine upgrade.
 
 ---
 
@@ -667,6 +680,7 @@ Known limit: a single mesh means that frustum culling applies to the whole terra
 | D8 | The documentation in the repository is official; external copies are local references | 0 |
 | D9 | Fundamental decisions have concise ADRs: ADR-0001 … ADR-0006 in `Documentation/architecture/decisions/` (created in Milestone 0) | 16.3 |
 | — | Protection against expensive configurations | 5.4 |
+| D10 | UPTG and its sub-programs are private tools; only their generated output goes into a game (ADR-0009) | 12.5 |
 
 ### 16.2 Experimental verifications
 
@@ -705,7 +719,7 @@ Known limit: a single mesh means that frustum culling applies to the whole terra
 | Alignment of `Documentation/architecture/README.md`, module README and module-level `presets/` folder with the R12 structure | Separate documentation update, to be approved | Until then this document prevails for UPTG |
 | Time thresholds in seconds for the protection | Milestone D | After real measurements |
 | Moving generation to threads | After v0.1 | Made possible by the pure generator |
-| Editor preview, `@tool`, baking to file | v0.2.0 or later | Out of scope for v0.1 |
+| Editor preview, `@tool` | v0.2.0 or later | Out of scope for v0.1 |
 | Modification of the terrain by future modules (for example roads) | UPRG design | `UPTGTerrainData` stays read-only in v0.1 |
 | Permissive license or distribution | Only with an explicit decision by Stefano | D2 |
 
@@ -765,7 +779,7 @@ Each milestone starts only after Stefano's explicit approval and ends with a rep
 - `documentation/TESTING.md` — verification procedures and measurements.
 - `CHANGELOG.md` — changes by version, including changes to `ALGORITHM_VERSION`.
 
-Planned versions (provisional): `0.1.0` first working island generator; `0.2.0` improved controls, possible editor preview and baking; `1.0.0` stable module after testing and documentation.
+Planned versions (provisional): `0.1.0` first working island generator; `0.2.0` improved controls, bake tool, possible editor preview; `1.0.0` stable module after testing and documentation.
 
 ---
 
@@ -811,3 +825,4 @@ This document defines the architecture. It does not authorize implementations, d
 | 0.2-r3 | 2026-11-06 | Milestone 0 results: added the [VERIFIED M0] label; recorded `map_data` order, centering, diagonal `(ix + 1, iz)`–`(ix, iz + 1)`, clockwise winding, uniform scale, 1 cm tolerance confirmed, default backend (Godot Physics), identical behavior of Jolt, 32-bit indices, headless tests and `.gd.uid` files. No architectural decision changed |
 | 0.2-r4 | 2026-11-06 | During Milestone A: noise sampling offset derived from the seed (salts 4 and 5, sections 7.1, 8.2 and 8.3), approved by Stefano, because simplex noise is 0 at the origin and the center of the island stayed the same with every seed. `ALGORITHM_VERSION` stays 1, because the earlier formula was never released |
 | 0.2-r5 | 2026-11-06 | Milestone D: island preset default values tuned (5.1, 5.2; D7); memory coefficients calibrated with real measurements, 48 bytes per cell for indices and 320 for the trimesh, thresholds unchanged (5.4); sand precedence over rock in vertex colors (10.5); section 13 measurements in `TESTING.md`; new [VERIFIED MD] label. No architectural decision changed |
+| 0.2-r6 | 2026-11-08 | Decided by Stefano: UPTG is a private tool and only its output ships in a game (D10, ADR-0009); bake tool outside the addon (12.5, structure in 3). Generator, seed, mesh and collision unchanged |

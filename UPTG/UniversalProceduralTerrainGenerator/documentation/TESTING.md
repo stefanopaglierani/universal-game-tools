@@ -38,6 +38,7 @@ Some tests feed invalid configurations on purpose. The generator and the node re
 | `tests/test_determinism.gd` | Same seed gives the same heights and checksums; border at the sea floor; height queries on the verified diagonal; resolution independence; `.tres` preset round trip; timings | A7, A11, A12 |
 | `tests/test_mesh.gd` | `UPTGMeshBuilder`: vertex and triangle counts, index bounds, no NaN, unit normals, clockwise winding seen from +Y, shared diagonal, UVs, bounds, vertex colors | A6 |
 | `tests/test_terrain_node.gd` | `UPTGTerrain`: children `UPTGMesh` and `UPTGBody/UPTGShape` without owner, default material, collision modes and layers, signals, statistics, world-space height query, failed generation keeps the previous terrain, 20 regenerations without growth in nodes, objects, resources or static memory, `generate()` called again from `generation_finished` is ignored | A5b, A10 |
+| `tests/test_bake.gd` | Bake tool: self-contained `.scn` with no scripts or dependencies, mesh, material, collision and heights identical to the generator, refused inputs | ADR-0009 |
 
 ## Collision test
 

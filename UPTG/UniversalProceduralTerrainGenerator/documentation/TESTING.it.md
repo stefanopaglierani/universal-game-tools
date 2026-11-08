@@ -38,6 +38,7 @@ Alcuni test passano di proposito configurazioni non valide. Il generatore e il n
 | `tests/test_determinism.gd` | Stesso seed, stesse altezze e stessi checksum; bordo al fondale; interrogazioni dell'altezza sulla diagonale verificata; indipendenza dalla risoluzione; salvataggio e ricaricamento del preset `.tres`; tempi | A7, A11, A12 |
 | `tests/test_mesh.gd` | `UPTGMeshBuilder`: numero di vertici e triangoli, limiti degli indici, nessun NaN, normali unitarie, winding orario visto da +Y, diagonale comune, UV, ingombro, vertex colors | A6 |
 | `tests/test_terrain_node.gd` | `UPTGTerrain`: figli `UPTGMesh` e `UPTGBody/UPTGShape` senza owner, materiale predefinito, modalità e layer della collisione, segnali, statistiche, quota in spazio mondo, una generazione fallita conserva il terreno precedente, 20 rigenerazioni senza crescita di nodi, oggetti, risorse o memoria statica, una chiamata a `generate()` da `generation_finished` viene ignorata | A5b, A10 |
+| `tests/test_bake.gd` | Strumento di bake: `.scn` autonomo senza script né dipendenze, mesh, materiale, collisione e altezze identici al generatore, input rifiutati | ADR-0009 |
 
 ## Test di collisione
 

@@ -6,6 +6,8 @@ UPTG (Universal Procedural Terrain Generator) generates a deterministic 3D islan
 
 Version: **0.1.0** (`ALGORITHM_VERSION` 1). License: all rights reserved, see `LICENSE`.
 
+UPTG is a private development tool: to put a world in a game, bake it with `tools/uptg_bake.gd` (see the module README and ADR-0009). The steps below are for working with the generator in a tool project, not for shipping it.
+
 ## Install
 
 1. Copy the whole `addons/uptg/` folder into the `addons/` folder of your Godot 4.7.2 project, keeping the path `res://addons/uptg/`.

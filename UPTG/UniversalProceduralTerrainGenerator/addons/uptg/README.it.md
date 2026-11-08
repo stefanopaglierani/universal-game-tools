@@ -6,6 +6,8 @@ UPTG (Universal Procedural Terrain Generator) genera a runtime, in Godot 4.7.2, 
 
 Versione: **0.1.0** (`ALGORITHM_VERSION` 1). Licenza: tutti i diritti riservati, vedi `LICENSE`.
 
+UPTG è uno strumento di sviluppo privato: per mettere un mondo in un gioco va esportato con `tools/uptg_bake.gd` (vedi il README del modulo e ADR-0009). I passaggi seguenti servono a lavorare con il generatore in un progetto strumento, non a distribuirlo.
+
 ## Installazione
 
 1. Copiare l'intera cartella `addons/uptg/` nella cartella `addons/` del proprio progetto Godot 4.7.2, mantenendo il percorso `res://addons/uptg/`.

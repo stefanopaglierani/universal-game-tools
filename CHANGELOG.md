@@ -18,6 +18,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Italian versions (`.it.md`) of the documents.
 - UPTG 0.1.0, released as tag `uptg-v0.1.0` (see the module `CHANGELOG.md`).
 - ADR-0007 and ADR-0008, recording decisions taken during UPTG Milestones A and D.
+- ADR-0009: UPTG is a private tool and only its baked output goes into a game.
 
 ### Changed
 - Root README, documentation index and architecture overview updated for UPTG 0.1.0 and the UPTG addon layout (R12).

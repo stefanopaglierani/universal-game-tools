@@ -20,6 +20,7 @@ Ogni strumento vive in `<CODICE>/<NomeCompleto>/` e idealmente contiene:
 
 - I moduli sono indipendenti dal gioco: nel core non c'è logica di gameplay, veicoli, missioni o altro legato a un gioco specifico.
 - Un modulo deve poter essere trasferito in un progetto Godot indipendente seguendo passaggi documentati.
+- I moduli sono strumenti di sviluppo privati: in un gioco entra solo ciò che generano, mai il loro codice (ADR-0009).
 - Sistemi core ed estensioni opzionali sono chiaramente separati.
 - Le dipendenze tra moduli vanno in una sola direzione e sono documentate (per esempio UPRG può dipendere dall'output di UPTG, mai il contrario).
 - Quando c'è casualità, la generazione è deterministica a partire da un seed.
@@ -44,3 +45,4 @@ Le decisioni architetturali importanti sono registrate come ADR in [`decisions/`
 - [ADR-0006: Protezione di UPTG da configurazioni troppo costose](decisions/ADR-0006-uptg-cost-protection.it.md)
 - [ADR-0007: Offset di campionamento del noise di UPTG derivati dal seed](decisions/ADR-0007-uptg-seed-derived-noise-offsets.it.md)
 - [ADR-0008: Calibrazione della stima dei costi di UPTG con misure reali](decisions/ADR-0008-uptg-cost-calibration.it.md)
+- [ADR-0009: UPTG è uno strumento privato, in un gioco entra solo il risultato esportato](decisions/ADR-0009-uptg-tool-only-baked-output.it.md)

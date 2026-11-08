@@ -4,7 +4,7 @@
 
 Una raccolta personale di strumenti di sviluppo videogiochi riutilizzabili, modulari e documentati, generatori procedurali e sistemi realizzati con **Godot 4.7.2**, **GDScript**, **Blender** e flussi di lavoro assistiti dall'IA.
 
-Gli strumenti sono indipendenti dal gioco: ognuno è progettato per poter essere copiato in un progetto Godot indipendente, o installato come addon. Nessuno dipende da un gioco specifico.
+Gli strumenti sono privati e indipendenti dal gioco: creano mondi e oggetti 3D per altri software. In un gioco entra solo ciò che generano, mai il loro codice. Nessuno dipende da un gioco specifico.
 
 ## Stato
 
@@ -29,6 +29,7 @@ universal-game-tools/
 │       ├── addons/uptg/      Addon portabile: core, builders, nodes, materials, presets
 │       ├── demo/             Scena demo autonoma
 │       ├── tests/            Suite di test headless, test di collisione, benchmark
+│       ├── tools/            Strumento di bake: scrive un mondo su file per un gioco
 │       ├── presets/          Riservata, vuota in v0.1 (il preset è in addons/uptg/presets/)
 │       ├── documentation/    Architettura, test, verifiche, screenshot
 │       ├── CHANGELOG.md      Modifiche del modulo
