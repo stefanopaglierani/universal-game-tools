@@ -11,7 +11,7 @@ Gli strumenti sono privati e indipendenti dal gioco: creano mondi e oggetti 3D p
 | Modulo | Nome | Stato |
 |---|---|---|
 | [UPTG](UPTG/UniversalProceduralTerrainGenerator/README.it.md) | Universal Procedural Terrain Generator | Versione 0.1.0 rilasciata (tag `uptg-v0.1.0`): generatore procedurale di isole con mesh, collisione e demo |
-| [UPRG](UPRG/UniversalProceduralRoadGenerator/README.it.md) | Universal Procedural Road Generator | Pianificato, non iniziato |
+| [UPRG](UPRG/UniversalProceduralRoadGenerator/README.it.md) | Universal Procedural Road Generator | Prima versione in sviluppo: strade sui terreni esportati |
 | [UPWG](UPWG/UniversalProceduralWorldGenerator/README.it.md) | Universal Procedural World Generator | Pianificato, non iniziato |
 
 La priorità attuale è **UPTG**. Gli altri moduli non partiranno finché il primo generatore non sarà stato testato e approvato.

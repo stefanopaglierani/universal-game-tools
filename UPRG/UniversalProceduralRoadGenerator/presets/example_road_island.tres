@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="UPRGRoadConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://addons/uprg/core/uprg_road_config.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+points = PackedVector2Array(-40, 226.5, -147.8, 176.2, -216.1, 78.7, -226.5, -39.9, -176.2, -147.8, -78.7, -216.1)
