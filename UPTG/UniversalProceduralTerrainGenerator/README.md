@@ -20,7 +20,7 @@ A reusable, game-agnostic terrain generation module for Godot. Version 0.1 is a 
 ## Documentation
 
 - [Addon guide](addons/uptg/README.md): installation, quick start, configuration
-- [Architecture specification 0.2](documentation/UPTG_ARCHITECTURE_0.2.md), in Italian
+- [Architecture specification 0.2](documentation/UPTG_ARCHITECTURE_0.2.md)
 - [Architecture draft 0.1](documentation/UPTG_ARCHITECTURE.md), kept as a historical reference
 - [Testing](documentation/TESTING.md): test suites, benchmark, manual checks, screenshots
 - [Milestone 0 verification](documentation/M0_VERIFICATION.md)

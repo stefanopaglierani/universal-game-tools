@@ -57,7 +57,7 @@ Each tool should contain: core implementation, configuration resources, optional
 - [Project instructions](Documentation/development/PROJECT_INSTRUCTIONS.md): identity, principles and AI workflow
 - [Development workflow](Documentation/development/WORKFLOW.md): branching, commits, versioning
 - [Architecture overview](Documentation/architecture/README.md): shared conventions across modules
-- [UPTG architecture 0.2](UPTG/UniversalProceduralTerrainGenerator/documentation/UPTG_ARCHITECTURE_0.2.md), in Italian ([draft 0.1](UPTG/UniversalProceduralTerrainGenerator/documentation/UPTG_ARCHITECTURE.md) is kept as a historical reference)
+- [UPTG architecture 0.2](UPTG/UniversalProceduralTerrainGenerator/documentation/UPTG_ARCHITECTURE_0.2.md) ([draft 0.1](UPTG/UniversalProceduralTerrainGenerator/documentation/UPTG_ARCHITECTURE.md) is kept as a historical reference)
 - [UPTG addon guide](UPTG/UniversalProceduralTerrainGenerator/addons/uptg/README.md): installation and usage
 - [UPTG testing](UPTG/UniversalProceduralTerrainGenerator/documentation/TESTING.md): test suites, benchmark, manual checks
 

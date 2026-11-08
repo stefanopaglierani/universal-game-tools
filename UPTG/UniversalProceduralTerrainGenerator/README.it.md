@@ -20,7 +20,7 @@ Un modulo di generazione del terreno per Godot, riutilizzabile e indipendente da
 ## Documentazione
 
 - [Guida dell'addon](addons/uptg/README.it.md): installazione, avvio rapido, configurazione
-- [Specifica di architettura 0.2](documentation/UPTG_ARCHITECTURE_0.2.md), in italiano
+- [Specifica di architettura 0.2](documentation/UPTG_ARCHITECTURE_0.2.it.md)
 - [Bozza di architettura 0.1](documentation/UPTG_ARCHITECTURE.md), in inglese, conservata come riferimento storico
 - [Test](documentation/TESTING.it.md): suite di test, benchmark, verifiche manuali, screenshot
 - [Verifica della Milestone 0](documentation/M0_VERIFICATION.it.md)

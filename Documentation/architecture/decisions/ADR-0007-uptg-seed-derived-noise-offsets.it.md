@@ -23,4 +23,4 @@ Opzione 2 (architettura 0.2-r4, sezioni 7.1, 8.2 e 8.3). I noise di costa e rili
 
 L'offset si somma in metri, quindi non dipende dalla risoluzione della griglia. `ALGORITHM_VERSION` è rimasta 1, perché la formula precedente non è mai stata rilasciata.
 
-Fonte: `UPTG/UniversalProceduralTerrainGenerator/documentation/UPTG_ARCHITECTURE_0.2.md`
+Fonte: `UPTG/UniversalProceduralTerrainGenerator/documentation/UPTG_ARCHITECTURE_0.2.it.md`

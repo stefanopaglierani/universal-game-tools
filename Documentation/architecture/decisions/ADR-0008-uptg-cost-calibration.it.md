@@ -23,4 +23,4 @@ Opzione 2 (architettura 0.2-r5, sezione 5.4). `estimated_bytes` vale `vertices *
 
 512 × 512 celle in `HEIGHTMAP` stimano circa 40 MB (`OK`), e il caso più grande accettato, 1024 × 1024 celle in `TRIMESH`, circa 480 MB. Non è stata aggiunta alcuna soglia in secondi. Le misure sono in `documentation/TESTING.it.md`.
 
-Fonte: `UPTG/UniversalProceduralTerrainGenerator/documentation/UPTG_ARCHITECTURE_0.2.md`
+Fonte: `UPTG/UniversalProceduralTerrainGenerator/documentation/UPTG_ARCHITECTURE_0.2.it.md`

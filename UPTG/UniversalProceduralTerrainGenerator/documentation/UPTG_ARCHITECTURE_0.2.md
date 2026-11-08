@@ -1,102 +1,104 @@
+**English** | [Italiano](UPTG_ARCHITECTURE_0.2.it.md)
+
 # UPTG — Universal Procedural Terrain Generator
-## Specifica di architettura — Versione 0.2
+## Architecture Specification — Version 0.2
 
-**Stato:** architettura approvata (0.2-r2). Milestone 0 eseguita il 2026-11-06: i risultati sperimentali sono riportati con l'etichetta [VERIFICATO M0]. Milestone A, B, C e D completate: versione `0.1.0`; le misure reali sono etichettate [VERIFICATO MD].
-**Revisione:** 0.2-r5 (vedi Appendice B)
-**Progetto:** Universal Game Tools
-**Engine di riferimento:** Godot 4.7.2
-**Linguaggio:** GDScript (static typing)
+**Status:** architecture approved (0.2-r2). Milestone 0 carried out on 2026-11-06: experimental results are marked with the label [VERIFIED M0]. Milestones A, B, C and D completed: version `0.1.0`; real measurements are labeled [VERIFIED MD].
+**Revision:** 0.2-r5 (see Appendix B)
+**Project:** Universal Game Tools
+**Target engine:** Godot 4.7.2
+**Language:** GDScript (static typing)
 **Owner:** Stefano
-**Sostituisce:** `UPTG_ARCHITECTURE.md` (Draft 0.1), che resta invariato come riferimento storico.
-**Data:** 2026-11-06
+**Supersedes:** `UPTG_ARCHITECTURE.md` (Draft 0.1), which stays unchanged as a historical reference.
+**Date:** 2026-11-06
 
 ---
 
-## 0. Come leggere questo documento
+## 0. How to read this document
 
-Il documento usa queste etichette, riepilogate nella sezione 16:
+The document uses these labels, summarized in section 16:
 
-- **[APPROVATO]** — decisione architetturale approvata da Stefano il 2026-11-06. Si cambia solo con una nuova approvazione.
-- **[DA VERIFICARE]** — ipotesi tecnica da confermare sperimentalmente in Godot 4.7.2, quasi sempre in Milestone 0. Le ipotesi previste per la Milestone 0 sono state verificate (vedi [VERIFICATO M0]); restano [DA VERIFICARE] solo le voci elencate in 16.2. Se un test smentisce l'ipotesi, il documento viene aggiornato e la modifica sottoposta a Stefano.
-- **[RINVIATO]** — decisione consapevolmente spostata a una milestone successiva, con l'indicazione di quale.
-- **[VERIFICATO M0]** — ipotesi confermata da un test realmente eseguito in Godot 4.7.2 durante la Milestone 0. Comandi, output e valori misurati sono in `documentation/M0_VERIFICATION.md`.
-- **[VERIFICATO MD]** — valore misurato in Godot 4.7.2 durante la Milestone D. Procedura e misure sono in `documentation/TESTING.md`.
+- **[APPROVED]** — architectural decision approved by Stefano on 2026-11-06. It changes only with a new approval.
+- **[TO VERIFY]** — technical hypothesis to be confirmed experimentally in Godot 4.7.2, almost always in Milestone 0. The hypotheses planned for Milestone 0 have been verified (see [VERIFIED M0]); only the items listed in 16.2 remain [TO VERIFY]. If a test disproves a hypothesis, the document is updated and the change is submitted to Stefano.
+- **[DEFERRED]** — decision deliberately moved to a later milestone, stating which one.
+- **[VERIFIED M0]** — hypothesis confirmed by a test actually run in Godot 4.7.2 during Milestone 0. Commands, output and measured values are in `documentation/M0_VERIFICATION.md`.
+- **[VERIFIED MD]** — value measured in Godot 4.7.2 during Milestone D. Procedure and measurements are in `documentation/TESTING.md`.
 
-La documentazione ufficiale è quella contenuta nel repository `universal-game-tools`. Le copie nella cartella esterna `C:\Progetti Software\Universal Gmaes Tool` sono solo riferimenti locali (D8, [APPROVATO]).
-
----
-
-## 1. Scopo e perimetro
-
-UPTG è un modulo riutilizzabile per generare terreni procedurali 3D in Godot. Il primo obiettivo operativo e il primo preset sono un'isola deterministica e configurabile per un mondo di gioco compatto.
-
-### 1.1 Principi strategici [APPROVATO]
-
-- Il core è **game-agnostic**: non contiene logica di racing, survival, RPG, quest, veicoli o di qualsiasi gioco specifico.
-- L'isola è il **primo preset**, non l'unico scopo del core. La pipeline di generazione è progettata in fasi separate (maschera di forma, rilievo, rilievi localizzati, combinazione) così che in futuro possa supportare terreni continentali, pianure, colline, catene montuose, ambienti survival e fantasy senza riscrivere il core.
-- Queste estensioni **non vengono implementate in v0.1**; sono solo considerate nella progettazione (sezione 14).
-- I futuri moduli (strade, vegetazione, ambienti, world generation) usano esclusivamente `UPTGTerrainData` e non dipendono dai dettagli interni del generatore.
-
-### 1.2 Funzionalità v0.1
-
-- Generazione di un height field deterministico da un `generation_seed`.
-- Maschera dell'isola con costa irregolare e falloff morbido verso il mare.
-- Colline tramite noise frattale, una o più regioni montuose configurabili.
-- Mesh indicizzata con normali, UV e vertex colors.
-- Collisione statica: `HeightMapShape3D` (predefinita), trimesh (alternativa) o nessuna.
-- Nodo riutilizzabile `UPTGTerrain` con rigenerazione senza duplicare nodi.
-- Configurazione tramite Resource salvabile come preset `.tres`.
-- Scena demo autonoma e test automatici.
-- Documentazione: README, TESTING, CHANGELOG.
-
-### 1.3 Fuori perimetro per v0.1
-
-- Strade, sentieri, ponti, percorsi.
-- Edifici, vegetazione, oggetti di scena, insediamenti.
-- Biomi, shader custom, blending avanzato dei materiali.
-- Terreno deformabile o distruttibile.
-- Terreno infinito, streaming, chunking, LOD.
-- Generazione in thread separati.
-- Script `@tool`, anteprima nell'editor, editor dock, `EditorPlugin`.
-- Baking del terreno su file.
-- Erosione, fiumi, laghi.
-- Modalità di forma diverse dall'isola (continentale, ecc.).
-- Gameplay, navigazione AI, logica veicoli.
-- Directory vuote per moduli futuri (UPRG, UPWG).
+The official documentation is the one contained in the `universal-game-tools` repository. The copies in the external folder `C:\Progetti Software\Universal Gmaes Tool` are local references only (D8, [APPROVED]).
 
 ---
 
-## 2. Principi di progettazione
+## 1. Purpose and scope
 
-1. **Riutilizzabile:** il core non dipende da nessun gioco.
-2. **Deterministico:** stessa configurazione + stesso seed + stessa build sulla stessa piattaforma = stesso terreno.
-3. **Modulare:** configurazione, generazione, mesh, collisione e nodo di scena sono separati.
-4. **Puro dove possibile:** il generatore dell'height field non accede alla scena.
-5. **Ispezionabile:** dati e risultati sono leggibili e misurabili.
-6. **Incrementale:** milestone piccole, ciascuna verificata prima della successiva.
-7. **Misurato:** nessuna affermazione sulle prestazioni senza misure.
-8. **Verificato:** nessuna API dichiarata compatibile con 4.7.2 senza un test.
-9. **Portabile:** tutto ciò che serve a runtime sta in `addons/uptg/`.
-10. **Sicuro:** nessuna modifica a file esistenti senza approvazione.
+UPTG is a reusable module for generating 3D procedural terrains in Godot. The first operational goal and the first preset are a deterministic, configurable island for a compact game world.
+
+### 1.1 Strategic principles [APPROVED]
+
+- The core is **game-agnostic**: it contains no racing, survival, RPG, quest, vehicle or other game-specific logic.
+- The island is the **first preset**, not the only purpose of the core. The generation pipeline is designed in separate stages (shape mask, relief, localized relief, combination) so that in the future it can support continental terrains, plains, hills, mountain ranges, survival and fantasy environments without rewriting the core.
+- These extensions **are not implemented in v0.1**; they are only taken into account in the design (section 14).
+- Future modules (roads, vegetation, environments, world generation) use `UPTGTerrainData` exclusively and do not depend on the internal details of the generator.
+
+### 1.2 v0.1 features
+
+- Generation of a deterministic height field from a `generation_seed`.
+- Island mask with an irregular coastline and a soft falloff toward the sea.
+- Hills through fractal noise, one or more configurable mountain regions.
+- Indexed mesh with normals, UVs and vertex colors.
+- Static collision: `HeightMapShape3D` (default), trimesh (alternative) or none.
+- Reusable `UPTGTerrain` node with regeneration without duplicating nodes.
+- Configuration through a Resource that can be saved as a `.tres` preset.
+- Standalone demo scene and automated tests.
+- Documentation: README, TESTING, CHANGELOG.
+
+### 1.3 Out of scope for v0.1
+
+- Roads, paths, bridges, routes.
+- Buildings, vegetation, props, settlements.
+- Biomes, custom shaders, advanced material blending.
+- Deformable or destructible terrain.
+- Infinite terrain, streaming, chunking, LOD.
+- Generation on separate threads.
+- `@tool` scripts, editor preview, editor dock, `EditorPlugin`.
+- Terrain baking to file.
+- Erosion, rivers, lakes.
+- Shape modes other than the island (continental, etc.).
+- Gameplay, AI navigation, vehicle logic.
+- Empty directories for future modules (UPRG, UPWG).
 
 ---
 
-## 3. Struttura del repository [APPROVATO]
+## 2. Design principles
 
-Il repository esiste già in `C:\Progetti Software\Universal Gmaes Tool\universal-game-tools`, collegato a `github.com/stefanopaglierani/universal-game-tools`, branch `main`. La struttura seguente indica in che modo UPTG si inserisce in ciò che esiste; i file marcati "esistente" non vengono modificati da questo documento.
+1. **Reusable:** the core does not depend on any game.
+2. **Deterministic:** same configuration + same seed + same build on the same platform = same terrain.
+3. **Modular:** configuration, generation, mesh, collision and scene node are separate.
+4. **Pure where possible:** the height field generator does not access the scene.
+5. **Inspectable:** data and results are readable and measurable.
+6. **Incremental:** small milestones, each verified before the next.
+7. **Measured:** no performance claim without measurements.
+8. **Verified:** no API declared compatible with 4.7.2 without a test.
+9. **Portable:** everything needed at runtime is in `addons/uptg/`.
+10. **Safe:** no change to existing files without approval.
+
+---
+
+## 3. Repository structure [APPROVED]
+
+The repository already exists at `C:\Progetti Software\Universal Gmaes Tool\universal-game-tools`, connected to `github.com/stefanopaglierani/universal-game-tools`, branch `main`. The structure below shows how UPTG fits into what exists; files marked "existing" are not changed by this document.
 
 ```text
-universal-game-tools/                         radice del repository Git (esistente)
-├── README.md                                 esistente
-├── CHANGELOG.md                              esistente (livello repository)
-├── LICENSE                                   esistente, "All rights reserved" (D2)
-├── Documentation/                            esistente: architecture/ (con ADR), development/
-├── UPRG/, UPWG/                              esistenti, solo README segnaposto; nessun contenuto aggiunto
+universal-game-tools/                         root of the Git repository (existing)
+├── README.md                                 existing
+├── CHANGELOG.md                              existing (repository level)
+├── LICENSE                                   existing, "All rights reserved" (D2)
+├── Documentation/                            existing: architecture/ (with ADRs), development/
+├── UPRG/, UPWG/                              existing, placeholder README only; no content added
 └── UPTG/
-    └── UniversalProceduralTerrainGenerator/  progetto Godot autonomo (project.godot)
+    └── UniversalProceduralTerrainGenerator/  standalone Godot project (project.godot)
         ├── project.godot
         ├── addons/
-        │   └── uptg/                         addon portabile: l'unica cartella da copiare
+        │   └── uptg/                         portable addon: the only folder to copy
         │       ├── core/
         │       │   ├── uptg_config.gd
         │       │   ├── uptg_mountain_region.gd
@@ -112,7 +114,7 @@ universal-game-tools/                         radice del repository Git (esisten
         │       │   └── uptg_terrain_default.tres
         │       ├── presets/
         │       │   └── uptg_island_default.tres
-        │       ├── LICENSE                   copia di "All rights reserved"
+        │       ├── LICENSE                   copy of "All rights reserved"
         │       └── README.md
         ├── demo/
         │   ├── uptg_demo.tscn
@@ -127,191 +129,191 @@ universal-game-tools/                         radice del repository Git (esisten
         │       ├── collision_test.tscn
         │       └── collision_test.gd
         ├── documentation/
-        │   ├── UPTG_ARCHITECTURE.md          Draft 0.1, invariato
-        │   ├── UPTG_ARCHITECTURE_0.2.md      questo documento
+        │   ├── UPTG_ARCHITECTURE.md          Draft 0.1, unchanged
+        │   ├── UPTG_ARCHITECTURE_0.2.md      this document
         │   └── TESTING.md
         └── CHANGELOG.md
 ```
 
-Regole:
+Rules:
 
-- Il codice runtime in `addons/uptg/` usa solo percorsi `res://addons/uptg/...` e non fa riferimento a `demo/`, `tests/` o file esterni all'addon. La verifica si fa con una ricerca testuale (criterio di accettazione A13).
-- Nessun `plugin.cfg` né `EditorPlugin` in v0.1: le classi con `class_name` sono disponibili senza attivare un plugin.
-- Tutti i `class_name` hanno prefisso `UPTG` per evitare conflitti nei progetti che importano l'addon.
-- Nessuna nuova directory per moduli futuri. Le cartelle `UPRG/` e `UPWG/` esistono già con un README segnaposto; non vengono toccate.
-- Il repository segue `Documentation/development/CONVENTIONS.md` (static typing, `##` doc comments, `push_error()`/`push_warning()`, nomi con prefisso del modulo) e `WORKFLOW.md` (branch `uptg/<descrizione>` e `docs/<descrizione>`, commit con prefisso `UPTG:`, tag `uptg-v<versione>`).
-- **D1 [APPROVATO]:** vale la struttura R12, con `core/`, `builders/`, `nodes/`, `materials/` e `presets/` dentro `addons/uptg/`. `Documentation/architecture/README.md` e il README del modulo descrivono ancora `runtime/` + `resources/` e una cartella `presets/` di modulo: **non vengono modificati ora** e restano temporaneamente disallineati. Il loro allineamento è **[RINVIATO]** a un aggiornamento documentale da approvare separatamente. Per UPTG, in caso di differenza, prevale questo documento.
-- La cartella di modulo `UPTG/UniversalProceduralTerrainGenerator/presets/` (oggi vuota, con `.gitkeep`) non viene usata in v0.1; il suo destino si decide insieme all'allineamento dei documenti.
-- **D2 [APPROVATO]:** la licenza resta "All rights reserved". `addons/uptg/LICENSE` sarà una copia dello stesso testo. Nessuna licenza permissiva e nessuna distribuzione pubblica sono autorizzate.
+- Runtime code in `addons/uptg/` uses only `res://addons/uptg/...` paths and does not reference `demo/`, `tests/` or files outside the addon. This is verified with a text search (acceptance criterion A13).
+- No `plugin.cfg` or `EditorPlugin` in v0.1: classes with `class_name` are available without enabling a plugin.
+- All `class_name` declarations have the `UPTG` prefix to avoid conflicts in the projects that import the addon.
+- No new directories for future modules. The `UPRG/` and `UPWG/` folders already exist with a placeholder README; they are not touched.
+- The repository follows `Documentation/development/CONVENTIONS.md` (static typing, `##` doc comments, `push_error()`/`push_warning()`, names prefixed with the module) and `WORKFLOW.md` (branches `uptg/<description>` and `docs/<description>`, commits prefixed with `UPTG:`, tags `uptg-v<version>`).
+- **D1 [APPROVED]:** the R12 structure applies, with `core/`, `builders/`, `nodes/`, `materials/` and `presets/` inside `addons/uptg/`. `Documentation/architecture/README.md` and the module README still describe `runtime/` + `resources/` and a module-level `presets/` folder: **they are not changed now** and stay temporarily out of line. Their alignment is **[DEFERRED]** to a documentation update to be approved separately. For UPTG, in case of a difference, this document prevails.
+- The module-level folder `UPTG/UniversalProceduralTerrainGenerator/presets/` (currently empty, with `.gitkeep`) is not used in v0.1; its fate is decided together with the alignment of the documents.
+- **D2 [APPROVED]:** the license stays "All rights reserved". `addons/uptg/LICENSE` will be a copy of the same text. No permissive license and no public distribution are authorized.
 
 ---
 
-## 4. Componenti e responsabilità
+## 4. Components and responsibilities
 
 ```text
 UPTGConfig ──► UPTGHeightfieldGenerator ──► UPTGTerrainData ──┬─► UPTGMeshBuilder ──────► ArrayMesh
- (Resource)        (puro, nessuna scena)       (contratto)     ├─► UPTGCollisionBuilder ─► Shape3D
-                                                               └─► moduli futuri (strade, vegetazione...)
+ (Resource)        (pure, no scene)            (contract)      ├─► UPTGCollisionBuilder ─► Shape3D
+                                                               └─► future modules (roads, vegetation...)
 
-UPTGTerrain (Node3D) orchestra il flusso e possiede i nodi figli.
+UPTGTerrain (Node3D) orchestrates the flow and owns the child nodes.
 ```
 
-| Componente | Tipo | Responsabilità | Non fa |
+| Component | Type | Responsibility | Does not |
 |---|---|---|---|
-| `UPTGConfig` | `Resource` | Tutti i parametri, validazione, salvataggio come preset | Nessun calcolo di terreno |
-| `UPTGMountainRegion` | `Resource` | Parametri di una singola regione montuosa | — |
-| `UPTGSeed` | classe statica | Derivazione deterministica dei sub-seed | Nessuno stato globale |
-| `UPTGHeightfieldGenerator` | classe con sole funzioni statiche, senza stato | Config → `UPTGTerrainData` | Nessun accesso alla scena, a nodi o a risorse grafiche |
-| `UPTGTerrainData` | `RefCounted` | Contratto dati del terreno e query | Nessuna generazione, nessuna grafica |
-| `UPTGMeshBuilder` | classe statica | `UPTGTerrainData` → `ArrayMesh` | Nessuna collisione |
-| `UPTGCollisionBuilder` | classe statica | `UPTGTerrainData` → `Shape3D` | Nessuna gestione di nodi |
-| `UPTGTerrain` | `Node3D` | Orchestrazione, nodi figli, rigenerazione, segnali, errori | Nessuna logica di gioco |
+| `UPTGConfig` | `Resource` | All parameters, validation, saving as a preset | No terrain computation |
+| `UPTGMountainRegion` | `Resource` | Parameters of a single mountain region | — |
+| `UPTGSeed` | static class | Deterministic derivation of sub-seeds | No global state |
+| `UPTGHeightfieldGenerator` | class with static functions only, stateless | Config → `UPTGTerrainData` | No access to the scene, nodes or graphics resources |
+| `UPTGTerrainData` | `RefCounted` | Terrain data contract and queries | No generation, no graphics |
+| `UPTGMeshBuilder` | static class | `UPTGTerrainData` → `ArrayMesh` | No collision |
+| `UPTGCollisionBuilder` | static class | `UPTGTerrainData` → `Shape3D` | No node management |
+| `UPTGTerrain` | `Node3D` | Orchestration, child nodes, regeneration, signals, errors | No game logic |
 
-Nota sui nomi: `UPTGGenerator` del Draft 0.1 diventa `UPTGHeightfieldGenerator` (la parte "orchestrazione" passa a `UPTGTerrain`); `UPTGTerrainBuilder` diventa `UPTGMeshBuilder`.
+Note on names: `UPTGGenerator` from Draft 0.1 becomes `UPTGHeightfieldGenerator` (the "orchestration" part moves to `UPTGTerrain`); `UPTGTerrainBuilder` becomes `UPTGMeshBuilder`.
 
 ---
 
-## 5. Configurazione: `UPTGConfig` [APPROVATO]
+## 5. Configuration: `UPTGConfig` [APPROVED]
 
-`class_name UPTGConfig extends Resource`. Proprietà esportate con `@export_group`, `@export_range` e tooltip (commenti `##`). I valori predefiniti sono provvisori e verranno tarati in Milestone D.
+`class_name UPTGConfig extends Resource`. Exported properties with `@export_group`, `@export_range` and tooltips (`##` comments). The default values are provisional and will be tuned in Milestone D.
 
-### 5.1 Parametri
+### 5.1 Parameters
 
-| Gruppo | Proprietà | Tipo | Intervallo valido | Predefinito provvisorio | Note |
+| Group | Property | Type | Valid range | Provisional default | Notes |
 |---|---|---|---|---|---|
-| Seed | `generation_seed` | `int` | 0 – 2 147 483 647 | 12345 | Limite a 31 bit, compatibile con `FastNoiseLite.seed` |
-| Griglia | `grid_cells_x` | `int` | 2 – 1024 | 256 | Numero di celle; vertici = celle + 1 |
-| Griglia | `grid_cells_z` | `int` | 2 – 1024 | 256 | Come sopra |
-| Griglia | `cell_size` | `float` | 0.25 – 64.0 m | 4.0 | Celle sempre quadrate |
-| Mare | `sea_level` | `float` | qualsiasi | 0.0 m | Quota del livello del mare |
-| Mare | `sea_floor_depth` | `float` | 0.5 – 500 m | 20.0 m | Profondità del fondale sotto `sea_level` dove la maschera vale 0 |
-| Isola | `island_radius` | `Vector2` | 0.1 – 0.85 per asse | (0.6, 0.6) | Raggi normalizzati dell'ellisse di base; vedi vincolo in 5.3 |
-| Isola | `coastline_irregularity` | `float` | 0.0 – 0.5 | 0.25 | Ampiezza della perturbazione della costa |
-| Isola | `coastline_noise_frequency` | `float` | 0.0001 – 0.1 | 0.004 | Frequenza in unità mondo (vedi 6.1) |
-| Isola | `coastline_falloff_width` | `float` | 0.01 – 0.8 | 0.25 | Larghezza normalizzata della transizione terra-mare |
-| Rilievo | `land_base_height` | `float` | 0 – 500 m | 8.0 m | Quota media dell'entroterra sopra `sea_level` |
-| Rilievo | `min_land_height` | `float` | 0 – 50 m | 2.5 m | Quota minima dell'entroterra (evita laghi in v0.1) |
-| Rilievo | `terrain_noise_frequency` | `float` | 0.0001 – 0.1 | 0.006 | Frequenza in unità mondo |
-| Rilievo | `terrain_noise_amplitude` | `float` | 0 – 500 m | 10.0 m | Ampiezza delle colline |
-| Rilievo | `noise_octaves` | `int` | 1 – 8 | 4 | `FastNoiseLite.fractal_octaves` |
-| Rilievo | `noise_lacunarity` | `float` | 1.0 – 4.0 | 2.0 | `FastNoiseLite.fractal_lacunarity` |
-| Rilievo | `noise_gain` | `float` | 0.0 – 1.0 | 0.5 | `FastNoiseLite.fractal_gain` |
-| Montagne | `mountain_regions` | `Array[UPTGMountainRegion]` | 0 – 16 elementi | 1 regione | Vedi 5.2 |
-| Collisione | `collision_mode` | `enum` | `HEIGHTMAP`, `TRIMESH`, `NONE` | `HEIGHTMAP` | Vedi sezione 9 |
-| Aspetto | `uv_tile_size` | `float` | 0.1 – 1000 m | 8.0 m | Metri coperti da una ripetizione UV |
-| Aspetto | `sand_color`, `grass_color`, `rock_color` | `Color` | — | toni neutri | Vertex colors |
-| Aspetto | `beach_height` | `float` | 0 – 50 m | 1.5 m | Fascia di sabbia sopra `sea_level` |
-| Aspetto | `rock_slope_degrees` | `float` | 0 – 90 | 38 | Pendenza oltre la quale il colore tende alla roccia |
-| Aspetto | `rock_height` | `float` | 0 – 2000 m | 60 m | Quota oltre la quale il colore tende alla roccia |
+| Seed | `generation_seed` | `int` | 0 – 2 147 483 647 | 12345 | 31-bit limit, compatible with `FastNoiseLite.seed` |
+| Grid | `grid_cells_x` | `int` | 2 – 1024 | 256 | Number of cells; vertices = cells + 1 |
+| Grid | `grid_cells_z` | `int` | 2 – 1024 | 256 | As above |
+| Grid | `cell_size` | `float` | 0.25 – 64.0 m | 4.0 | Cells are always square |
+| Sea | `sea_level` | `float` | any | 0.0 m | Height of the sea level |
+| Sea | `sea_floor_depth` | `float` | 0.5 – 500 m | 20.0 m | Depth of the sea floor below `sea_level` where the mask is 0 |
+| Island | `island_radius` | `Vector2` | 0.1 – 0.85 per axis | (0.6, 0.6) | Normalized radii of the base ellipse; see the constraint in 5.3 |
+| Island | `coastline_irregularity` | `float` | 0.0 – 0.5 | 0.25 | Amplitude of the coastline perturbation |
+| Island | `coastline_noise_frequency` | `float` | 0.0001 – 0.1 | 0.004 | Frequency in world units (see 6.1) |
+| Island | `coastline_falloff_width` | `float` | 0.01 – 0.8 | 0.25 | Normalized width of the land-sea transition |
+| Relief | `land_base_height` | `float` | 0 – 500 m | 8.0 m | Average inland height above `sea_level` |
+| Relief | `min_land_height` | `float` | 0 – 50 m | 2.5 m | Minimum inland height (avoids lakes in v0.1) |
+| Relief | `terrain_noise_frequency` | `float` | 0.0001 – 0.1 | 0.006 | Frequency in world units |
+| Relief | `terrain_noise_amplitude` | `float` | 0 – 500 m | 10.0 m | Amplitude of the hills |
+| Relief | `noise_octaves` | `int` | 1 – 8 | 4 | `FastNoiseLite.fractal_octaves` |
+| Relief | `noise_lacunarity` | `float` | 1.0 – 4.0 | 2.0 | `FastNoiseLite.fractal_lacunarity` |
+| Relief | `noise_gain` | `float` | 0.0 – 1.0 | 0.5 | `FastNoiseLite.fractal_gain` |
+| Mountains | `mountain_regions` | `Array[UPTGMountainRegion]` | 0 – 16 elements | 1 region | See 5.2 |
+| Collision | `collision_mode` | `enum` | `HEIGHTMAP`, `TRIMESH`, `NONE` | `HEIGHTMAP` | See section 9 |
+| Appearance | `uv_tile_size` | `float` | 0.1 – 1000 m | 8.0 m | Meters covered by one UV repeat |
+| Appearance | `sand_color`, `grass_color`, `rock_color` | `Color` | — | neutral tones | Vertex colors |
+| Appearance | `beach_height` | `float` | 0 – 50 m | 1.5 m | Sand band above `sea_level` |
+| Appearance | `rock_slope_degrees` | `float` | 0 – 90 | 38 | Slope beyond which the color tends to rock |
+| Appearance | `rock_height` | `float` | 0 – 2000 m | 60 m | Height beyond which the color tends to rock |
 
-### 5.2 `UPTGMountainRegion` [APPROVATO]
+### 5.2 `UPTGMountainRegion` [APPROVED]
 
 `class_name UPTGMountainRegion extends Resource`
 
-| Proprietà | Tipo | Intervallo | Significato |
+| Property | Type | Range | Meaning |
 |---|---|---|---|
-| `center` | `Vector2` | 0.0 – 1.0 per asse | Posizione normalizzata sul terreno (0,0 = angolo -X/-Z, 1,1 = angolo +X/+Z) |
-| `radius` | `float` | 0.01 – 1.0 | Raggio normalizzato rispetto alla dimensione minore del terreno |
-| `peak_height` | `float` | 0 – 2000 m | Altezza aggiunta al centro |
-| `falloff` | `float` | 0.25 – 8.0 | Esponente della curva di decadimento (1 = morbido, valori alti = picco più stretto) |
+| `center` | `Vector2` | 0.0 – 1.0 per axis | Normalized position on the terrain (0,0 = -X/-Z corner, 1,1 = +X/+Z corner) |
+| `radius` | `float` | 0.01 – 1.0 | Radius normalized to the smaller terrain dimension |
+| `peak_height` | `float` | 0 – 2000 m | Height added at the center |
+| `falloff` | `float` | 0.25 – 8.0 | Exponent of the decay curve (1 = soft, high values = narrower peak) |
 
-La regione predefinita del preset isola (D7, tarata in Milestone D) ha `center` (0.5, 0.5), `radius` 0.22, `peak_height` 80 m e `falloff` 1.2.
+The default region of the island preset (D7, tuned in Milestone D) has `center` (0.5, 0.5), `radius` 0.22, `peak_height` 80 m and `falloff` 1.2.
 
-Le coordinate normalizzate fanno sì che la montagna resti nella stessa posizione relativa quando cambiano `cell_size` o il numero di celle.
+Normalized coordinates keep the mountain in the same relative position when `cell_size` or the number of cells changes.
 
-### 5.3 Validazione
+### 5.3 Validation
 
-`UPTGConfig.validate() -> PackedStringArray` restituisce la lista degli errori (vuota se valida). Regole:
+`UPTGConfig.validate() -> PackedStringArray` returns the list of errors (empty if valid). Rules:
 
-- tutti i valori dentro gli intervalli della tabella 5.1;
-- **vincolo della costa:** `max(island_radius.x, island_radius.y) / (1 - coastline_irregularity) <= 0.9`. Con la perturbazione della sezione 8.2 la costa può allontanarsi dal centro fino a `raggio / (1 - irregolarità)`; oltre 0.9 verrebbe tagliata dalla fascia di bordo e diventerebbe un tratto rettilineo. Con i valori predefiniti: 0.6 / 0.75 = 0.8;
-- dimensione della griglia e costo stimato secondo la sezione 5.4;
-- `mountain_regions` senza elementi `null`, ciascuna regione valida;
-- tutti i valori `float` finiti (nessun NaN o infinito).
+- all values within the ranges of table 5.1;
+- **coastline constraint:** `max(island_radius.x, island_radius.y) / (1 - coastline_irregularity) <= 0.9`. With the perturbation of section 8.2 the coastline can move away from the center up to `radius / (1 - irregularity)`; beyond 0.9 it would be cut by the border band and become a straight stretch. With the default values: 0.6 / 0.75 = 0.8;
+- grid size and estimated cost according to section 5.4;
+- `mountain_regions` without `null` elements, each region valid;
+- all `float` values finite (no NaN or infinity).
 
-Se la validazione fallisce, la generazione non parte, il terreno precedente resta in scena e `UPTGTerrain` emette `generation_failed` con il messaggio.
+If validation fails, generation does not start, the previous terrain stays in the scene and `UPTGTerrain` emits `generation_failed` with the message.
 
-### 5.4 Protezione da configurazioni troppo costose [APPROVATO]
+### 5.4 Protection against expensive configurations [APPROVED]
 
-Obiettivo: impedire che un preset, un errore di battitura o un valore modificato a runtime blocchi il gioco o l'editor per molti secondi o esaurisca la memoria.
+Goal: prevent a preset, a typo or a value changed at runtime from freezing the game or the editor for many seconds or exhausting memory.
 
-**Stima preventiva.** `UPTGConfig.estimate_cost() -> Dictionary` calcola, senza generare nulla:
+**Pre-generation estimate.** `UPTGConfig.estimate_cost() -> Dictionary` computes, without generating anything:
 
-| Chiave | Calcolo |
+| Key | Computation |
 |---|---|
 | `cells` | `grid_cells_x * grid_cells_z` |
 | `vertices` | `(grid_cells_x + 1) * (grid_cells_z + 1)` |
 | `triangles` | `2 * cells` |
-| `noise_samples` | `vertices * (noise_octaves + 2)` (rilievo frattale + costa a 2 ottave) |
-| `estimated_bytes` | `vertices * 112 + cells * 48`, più `cells * 320` se `collision_mode == TRIMESH` |
-| `level` | `OK`, `LARGE` o `REJECTED` (tabella sotto) |
+| `noise_samples` | `vertices * (noise_octaves + 2)` (fractal relief + 2-octave coastline) |
+| `estimated_bytes` | `vertices * 112 + cells * 48`, plus `cells * 320` if `collision_mode == TRIMESH` |
+| `level` | `OK`, `LARGE` or `REJECTED` (table below) |
 
-I coefficienti di memoria sono stati calibrati in Milestone D con misure reali **[VERIFICATO MD]** (dettagli in `documentation/TESTING.md`). 112 byte per vertice coprono height field e maschera (8), array della mesh lato CPU (posizione, normale, UV, colore: 48), la copia lato GPU (48) e la heightmap di collisione (4, arrotondato): la memoria video misurata è di circa 54 byte per vertice, coerente con la stima. 48 byte per cella coprono gli indici lato CPU e GPU (le stime a priori ne contavano 24, solo lato CPU). 320 byte per cella sono il costo misurato della `ConcavePolygonShape3D` (circa 84 MB a 512 × 512 celle), che include le strutture interne del motore fisico: le stime a priori (72) lo sottovalutavano di oltre 4 volte. Le soglie della tabella seguente sono rimaste invariate: con i coefficienti calibrati, 512 × 512 celle in `HEIGHTMAP` stimano circa 40 MB (`OK`) e il caso peggiore ammesso, 1024 × 1024 in `TRIMESH`, circa 480 MB, sotto il limite di 512 MB.
+The memory coefficients were calibrated in Milestone D with real measurements **[VERIFIED MD]** (details in `documentation/TESTING.md`). 112 bytes per vertex cover the height field and mask (8), the CPU-side mesh arrays (position, normal, UV, color: 48), the GPU-side copy (48) and the collision heightmap (4, rounded): the measured video memory is about 54 bytes per vertex, consistent with the estimate. 48 bytes per cell cover the indices on the CPU and GPU sides (the a priori estimates counted 24, CPU side only). 320 bytes per cell are the measured cost of `ConcavePolygonShape3D` (about 84 MB at 512 × 512 cells), which includes the internal structures of the physics engine: the a priori estimates (72) underestimated it by more than 4 times. The thresholds in the following table stayed unchanged: with the calibrated coefficients, 512 × 512 cells in `HEIGHTMAP` are estimated at about 40 MB (`OK`) and the worst accepted case, 1024 × 1024 in `TRIMESH`, at about 480 MB, below the 512 MB limit.
 
-**Livelli e comportamento:**
+**Levels and behavior:**
 
-| Livello | Condizione | Comportamento |
+| Level | Condition | Behavior |
 |---|---|---|
-| `OK` | `cells <= 262 144` (512 × 512) e `estimated_bytes <= 128 MB` | Generazione normale |
-| `LARGE` | oltre la soglia `OK`, ma `cells <= 1 048 576` e `estimated_bytes <= 512 MB` | Generazione **rifiutata** con `generation_failed`, a meno che il nodo `UPTGTerrain` abbia `allow_large_terrain = true`; in quel caso procede con `push_warning()` |
-| `REJECTED` | `grid_cells_x` o `grid_cells_z` oltre 1024, oppure oltre i limiti `LARGE` | Generazione sempre rifiutata, anche con `allow_large_terrain` |
+| `OK` | `cells <= 262 144` (512 × 512) and `estimated_bytes <= 128 MB` | Normal generation |
+| `LARGE` | beyond the `OK` threshold, but `cells <= 1 048 576` and `estimated_bytes <= 512 MB` | Generation **refused** with `generation_failed`, unless the `UPTGTerrain` node has `allow_large_terrain = true`; in that case it proceeds with `push_warning()` |
+| `REJECTED` | `grid_cells_x` or `grid_cells_z` above 1024, or beyond the `LARGE` limits | Generation always refused, even with `allow_large_terrain` |
 
-Regole aggiuntive:
+Additional rules:
 
-- `allow_large_terrain` sta sul **nodo**, non nella Resource: un preset `.tres` condiviso o scaricato non può aggirare la protezione da solo.
-- Con `collision_mode == TRIMESH` la soglia `OK` scende a 65 536 celle (256 × 256), perché la trimesh è la parte più costosa da costruire e da interrogare.
-- Le soglie sono costanti nominate in `UPTGConfig` (`MAX_CELLS_OK`, `MAX_CELLS_HARD`, `MAX_BYTES_OK`, `MAX_BYTES_HARD`, `MAX_CELLS_OK_TRIMESH`), non valori sparsi nel codice. Potranno essere riviste dopo le misure di Milestone D, con approvazione.
-- La stima e il livello vengono riportati da `UPTGTerrain.get_last_stats()` e mostrati nella demo **prima** di generare.
-- **Rigenerazione:** `UPTGTerrain.generate()` non è rientrante: una chiamata durante una generazione in corso (per esempio da un gestore di `generation_finished`) viene ignorata con `push_warning()`. La demo applica la rigenerazione solo su azione esplicita (pulsante), non a ogni modifica di un campo.
-- **Tempo:** non si impone un timeout, perché la generazione è sincrona e non interrompibile in v0.1. Il tempo è controllato indirettamente da `cells` e `noise_samples`. Le misure di Milestone D (`documentation/TESTING.md`) danno, su un portatile con Intel UHD 620, circa 1.8 s per height field e mesh a 512 × 512 celle e circa 1.5 s in più per la trimesh: per questo nessuna soglia in secondi è stata aggiunta.
+- `allow_large_terrain` is on the **node**, not in the Resource: a shared or downloaded `.tres` preset cannot bypass the protection on its own.
+- With `collision_mode == TRIMESH` the `OK` threshold drops to 65 536 cells (256 × 256), because the trimesh is the most expensive part to build and to query.
+- The thresholds are named constants in `UPTGConfig` (`MAX_CELLS_OK`, `MAX_CELLS_HARD`, `MAX_BYTES_OK`, `MAX_BYTES_HARD`, `MAX_CELLS_OK_TRIMESH`), not values scattered through the code. They may be revised after the Milestone D measurements, with approval.
+- The estimate and the level are reported by `UPTGTerrain.get_last_stats()` and shown in the demo **before** generating.
+- **Regeneration:** `UPTGTerrain.generate()` is not re-entrant: a call during a generation in progress (for example from a `generation_finished` handler) is ignored with `push_warning()`. The demo applies regeneration only on an explicit action (button), not on every change to a field.
+- **Time:** no timeout is imposed, because generation is synchronous and cannot be interrupted in v0.1. Time is controlled indirectly by `cells` and `noise_samples`. The Milestone D measurements (`documentation/TESTING.md`) give, on a laptop with Intel UHD 620, about 1.8 s for height field and mesh at 512 × 512 cells and about 1.5 s more for the trimesh: for this reason no threshold in seconds was added.
 
 ---
 
-## 6. Sistema di coordinate e griglia [APPROVATO]
+## 6. Coordinate system and grid [APPROVED]
 
-- Godot è Y-up. Il terreno giace sul piano XZ, Y è l'altezza.
-- Il terreno è **centrato sull'origine** del nodo `UPTGTerrain`.
-- Vertici per asse: `vx = grid_cells_x + 1`, `vz = grid_cells_z + 1`.
-- Dimensioni: `size_x = grid_cells_x * cell_size`, `size_z = grid_cells_z * cell_size`.
-- Posizione locale del vertice `(ix, iz)`:
+- Godot is Y-up. The terrain lies on the XZ plane, Y is the height.
+- The terrain is **centered on the origin** of the `UPTGTerrain` node.
+- Vertices per axis: `vx = grid_cells_x + 1`, `vz = grid_cells_z + 1`.
+- Dimensions: `size_x = grid_cells_x * cell_size`, `size_z = grid_cells_z * cell_size`.
+- Local position of vertex `(ix, iz)`:
   - `x = (ix - grid_cells_x / 2.0) * cell_size`
   - `z = (iz - grid_cells_z / 2.0) * cell_size`
-- Indice nell'array: `i = iz * vx + ix` (righe lungo X). Questo ordine corrisponde all'ordine di `HeightMapShape3D.map_data` **[VERIFICATO M0]** (Godot Physics e Jolt; l'ipotesi trasposta dà errori di 23 m).
-- Tutte le funzioni di noise e di maschera ricevono coordinate **in metri** (spazio locale), non indici di griglia: cambiare la risoluzione cambia il dettaglio, non la forma dell'isola.
+- Array index: `i = iz * vx + ix` (rows along X). This order matches the order of `HeightMapShape3D.map_data` **[VERIFIED M0]** (Godot Physics and Jolt; the transposed hypothesis gives errors of 23 m).
+- All noise and mask functions receive coordinates **in meters** (local space), not grid indices: changing the resolution changes the detail, not the shape of the island.
 
-### 6.1 Unità delle frequenze
+### 6.1 Frequency units
 
-`FastNoiseLite` moltiplica le coordinate di input per `frequency`. Poiché l'input è in metri, una frequenza di 0.004 corrisponde a strutture con periodo dell'ordine di 1 / 0.004 = 250 m. La documentazione utente userà questa regola pratica.
+`FastNoiseLite` multiplies the input coordinates by `frequency`. Since the input is in meters, a frequency of 0.004 corresponds to structures with a period on the order of 1 / 0.004 = 250 m. The user documentation will use this rule of thumb.
 
 ---
 
-## 7. Sistema di seed e determinismo [APPROVATO]
+## 7. Seed system and determinism [APPROVED]
 
-### 7.1 Sub-seed
+### 7.1 Sub-seeds
 
-Ogni fase casuale usa un proprio sub-seed derivato dal seed principale con un "salt" costante:
+Each random stage uses its own sub-seed derived from the main seed with a constant "salt":
 
-| Salt | Costante | Uso in v0.1 |
+| Salt | Constant | Use in v0.1 |
 |---|---|---|
-| 1 | `SALT_COASTLINE` | `FastNoiseLite` della costa |
-| 2 | `SALT_TERRAIN` | `FastNoiseLite` del rilievo |
-| 3 | `SALT_MOUNTAINS` | Riservato (posizionamento casuale di montagne, non in v0.1) |
-| 4 | `SALT_COASTLINE_OFFSET` | Offset di campionamento del noise della costa (8.2) |
-| 5 | `SALT_TERRAIN_OFFSET` | Offset di campionamento del noise del rilievo (8.3) |
-| 6 – 99 | — | Riservati a UPTG |
+| 1 | `SALT_COASTLINE` | Coastline `FastNoiseLite` |
+| 2 | `SALT_TERRAIN` | Relief `FastNoiseLite` |
+| 3 | `SALT_MOUNTAINS` | Reserved (random mountain placement, not in v0.1) |
+| 4 | `SALT_COASTLINE_OFFSET` | Sampling offset of the coastline noise (8.2) |
+| 5 | `SALT_TERRAIN_OFFSET` | Sampling offset of the relief noise (8.3) |
+| 6 – 99 | — | Reserved for UPTG |
 
-Regole: i salt non vengono mai riordinati né riutilizzati; un nuovo uso riceve un nuovo numero.
+Rules: salts are never reordered or reused; a new use gets a new number.
 
-### 7.2 Funzione di derivazione
+### 7.2 Derivation function
 
-Hash intero a 32 bit (variante "lowbias32"), con moltiplicazione modulo 2^32 implementata senza overflow degli `int` a 64 bit di GDScript:
+32-bit integer hash ("lowbias32" variant), with multiplication modulo 2^32 implemented without overflowing GDScript's 64-bit `int`:
 
 ```gdscript
-# addons/uptg/core/uptg_seed.gd  (pseudocodice di riferimento, non ancora scritto)
+# addons/uptg/core/uptg_seed.gd  (reference pseudocode, not written yet)
 const MASK32 := 0xFFFFFFFF
 
 static func _mul32(a: int, b: int) -> int:
-    # (a * b) mod 2^32 senza superare 2^63
+    # (a * b) mod 2^32 without exceeding 2^63
     var lo := (a & 0xFFFF) * b
     var hi := ((a >> 16) * b) & 0xFFFF
     return (lo + (hi << 16)) & MASK32
@@ -321,35 +323,35 @@ static func derive(master_seed: int, salt: int) -> int:
     x = _mul32(x ^ (x >> 16), 0x7FEB352D)
     x = _mul32(x ^ (x >> 15), 0x846CA68B)
     x = x ^ (x >> 16)
-    return x & 0x7FFFFFFF   # 31 bit, valido come seed di FastNoiseLite
+    return x & 0x7FFFFFFF   # 31 bits, valid as a FastNoiseLite seed
 ```
 
-- Non si usa `String.hash()` né `hash()`: il loro risultato non è garantito stabile tra versioni del motore.
-- Il test `test_seed.gd` fissa valori di riferimento noti ("test vectors") per `derive()`; se cambiano, il test fallisce.
+- `String.hash()` and `hash()` are not used: their result is not guaranteed to be stable across engine versions.
+- The `test_seed.gd` test pins known reference values ("test vectors") for `derive()`; if they change, the test fails.
 
-### 7.3 Regole sulla casualità
+### 7.3 Rules on randomness
 
-- Vietati `randi()`, `randf()`, `randomize()`, `seed()` globale e qualsiasi stato casuale globale nel codice dell'addon.
-- Ogni eventuale passo casuale usa un `RandomNumberGenerator` locale con `seed` impostato da `UPTGSeed.derive()`.
-- Nessuna dipendenza da tempo, frame, ordine di caricamento o dimensioni della finestra.
+- `randi()`, `randf()`, `randomize()`, global `seed()` and any global random state are forbidden in the addon code.
+- Any random step uses a local `RandomNumberGenerator` with `seed` set by `UPTGSeed.derive()`.
+- No dependency on time, frame, loading order or window size.
 
-### 7.4 Garanzia di determinismo
+### 7.4 Determinism guarantee
 
-- **Garantito:** stessa configurazione + stesso `generation_seed` + stessa build di Godot + stessa piattaforma = height field identico bit per bit.
-- **Obiettivo, non garanzia:** identità tra piattaforme e CPU diverse. Verrà testata quando possibile e documentata.
-- `UPTGTerrainData` registra `ALGORITHM_VERSION` (intero, parte da 1). Ogni modifica alla formula che cambia l'output a parità di seed incrementa la versione e viene annotata nel CHANGELOG.
-- Il checksum dell'height field usa una funzione propria (FNV-1a a 32 bit sui byte di `heights`), non `hash()`, per lo stesso motivo del punto 7.2.
+- **Guaranteed:** same configuration + same `generation_seed` + same Godot build + same platform = bit-for-bit identical height field.
+- **Goal, not a guarantee:** identity across different platforms and CPUs. It will be tested when possible and documented.
+- `UPTGTerrainData` records `ALGORITHM_VERSION` (integer, starts at 1). Any change to the formula that changes the output for the same seed increments the version and is noted in the CHANGELOG.
+- The height field checksum uses its own function (32-bit FNV-1a on the bytes of `heights`), not `hash()`, for the same reason as in 7.2.
 
 ---
 
-## 8. Algoritmo del terreno [APPROVATO]
+## 8. Terrain algorithm [APPROVED]
 
 ### 8.1 Pipeline
 
 ```text
-per ogni vertice (ix, iz):
-  1. posizione locale (x, z) in metri                    [sezione 6]
-  2. mask      = shape_mask(x, z)        0 = mare, 1 = entroterra
+for each vertex (ix, iz):
+  1. local position (x, z) in meters                     [section 6]
+  2. mask      = shape_mask(x, z)        0 = sea, 1 = inland
   3. hills     = terrain_noise(x, z) * terrain_noise_amplitude
   4. mount     = mountains(x, z)
   5. land      = max(land_base_height + hills + mount, min_land_height)
@@ -357,207 +359,207 @@ per ogni vertice (ix, iz):
   7. heights[i] = height,  land_mask[i] = mask
 ```
 
-Le fasi 2, 3 e 4 sono funzioni separate. In futuro altre forme (continentale, pianura) sostituiranno solo la fase 2, senza modificare le altre (sezione 14).
+Stages 2, 3 and 4 are separate functions. In the future other shapes (continental, plain) will replace only stage 2, without changing the others (section 14).
 
-### 8.2 Maschera dell'isola (`shape_mask`)
+### 8.2 Island mask (`shape_mask`)
 
-Coordinate normalizzate `u = x / (size_x / 2)`, `v = z / (size_z / 2)`, entrambe in [-1, 1].
+Normalized coordinates `u = x / (size_x / 2)`, `v = z / (size_z / 2)`, both in [-1, 1].
 
 ```text
-d       = sqrt( (u / island_radius.x)^2 + (v / island_radius.y)^2 )   distanza ellittica, 1 = costa di base
-c       = clamp(coastline_noise(x, z), -1, 1)                          noise 2D sulla posizione, non sull'angolo
+d       = sqrt( (u / island_radius.x)^2 + (v / island_radius.y)^2 )   elliptical distance, 1 = base coastline
+c       = clamp(coastline_noise(x, z), -1, 1)                          2D noise on position, not on angle
 d_pert  = d * (1 + coastline_irregularity * c)
 mask    = 1 - smoothstep(1 - coastline_falloff_width, 1, d_pert)
-edge    = 1 - smoothstep(0.9, 1.0, max(|u|, |v|))                      garantisce mare sul bordo
+edge    = 1 - smoothstep(0.9, 1.0, max(|u|, |v|))                      guarantees sea at the border
 mask    = mask * edge
 ```
 
-- Il noise della costa è campionato sulla posizione (x, z) e non sull'angolo polare, per evitare la cucitura dove l'angolo passa da -π a π.
-- Il fattore `edge` garantisce che l'ultimo 10% della griglia sia sempre mare, qualunque sia la configurazione: il bordo della mesh resta sotto il livello del mare e non è visibile.
-- Il noise della costa usa `FastNoiseLite` con `seed = derive(generation_seed, SALT_COASTLINE)`, tipo Simplex Smooth, frattale FBM con 2 ottave fisse in v0.1.
-- **Offset di campionamento [APPROVATO, 0.2-r4]:** il noise simplex vale 0 nell'origine per qualunque seed, quindi senza correzione il centro dell'isola non riceverebbe mai variazioni di costa né colline. Il noise della costa viene quindi campionato in `(x, z) + offset_costa`, con `offset_costa = UPTGSeed.noise_offset(generation_seed, SALT_COASTLINE_OFFSET)`. Ogni componente è un numero intero di metri tra 1024 e 9215: `h = derive(generation_seed, salt)`, `offset = (1024 + (h & 0x1FFF), 1024 + ((h >> 13) & 0x1FFF))`. L'offset si somma alle coordinate in metri, quindi l'indipendenza dalla risoluzione (sezione 6) resta valida.
+- The coastline noise is sampled on position (x, z) and not on the polar angle, to avoid the seam where the angle goes from -π to π.
+- The `edge` factor guarantees that the last 10% of the grid is always sea, whatever the configuration: the edge of the mesh stays below sea level and is not visible.
+- The coastline noise uses `FastNoiseLite` with `seed = derive(generation_seed, SALT_COASTLINE)`, Simplex Smooth type, FBM fractal with 2 fixed octaves in v0.1.
+- **Sampling offset [APPROVED, 0.2-r4]:** simplex noise is 0 at the origin for any seed, so without a correction the center of the island would never receive coastline variation or hills. The coastline noise is therefore sampled at `(x, z) + coastline_offset`, with `coastline_offset = UPTGSeed.noise_offset(generation_seed, SALT_COASTLINE_OFFSET)`. Each component is a whole number of meters between 1024 and 9215: `h = derive(generation_seed, salt)`, `offset = (1024 + (h & 0x1FFF), 1024 + ((h >> 13) & 0x1FFF))`. The offset is added to the coordinates in meters, so resolution independence (section 6) still holds.
 
-### 8.3 Rilievo (`terrain_noise`)
+### 8.3 Relief (`terrain_noise`)
 
-Un solo `FastNoiseLite` [APPROVATO]: `seed = derive(generation_seed, SALT_TERRAIN)`, tipo Simplex Smooth, frattale FBM con `noise_octaves`, `noise_lacunarity`, `noise_gain`, `frequency = terrain_noise_frequency`. Il valore restituito da `get_noise_2d(x, z)` viene limitato a [-1, 1]. Come per la costa, il campionamento avviene in `(x, z) + offset_rilievo`, con `offset_rilievo = UPTGSeed.noise_offset(generation_seed, SALT_TERRAIN_OFFSET)` (sezione 8.2, 0.2-r4).
+A single `FastNoiseLite` [APPROVED]: `seed = derive(generation_seed, SALT_TERRAIN)`, Simplex Smooth type, FBM fractal with `noise_octaves`, `noise_lacunarity`, `noise_gain`, `frequency = terrain_noise_frequency`. The value returned by `get_noise_2d(x, z)` is clamped to [-1, 1]. As for the coastline, sampling happens at `(x, z) + relief_offset`, with `relief_offset = UPTGSeed.noise_offset(generation_seed, SALT_TERRAIN_OFFSET)` (section 8.2, 0.2-r4).
 
-### 8.4 Montagne (`mountains`)
+### 8.4 Mountains (`mountains`)
 
-Per ogni regione `r`:
+For each region `r`:
 
 ```text
-centro_m  = ((r.center.x - 0.5) * size_x, (r.center.y - 0.5) * size_z)
-raggio_m  = r.radius * min(size_x, size_z)
-t         = 1 - clamp(distanza((x, z), centro_m) / raggio_m, 0, 1)
+center_m  = ((r.center.x - 0.5) * size_x, (r.center.y - 0.5) * size_z)
+radius_m  = r.radius * min(size_x, size_z)
+t         = 1 - clamp(distance((x, z), center_m) / radius_m, 0, 1)
 contrib_r = r.peak_height * pow(smoothstep(0, 1, t), r.falloff)
 ```
 
-`mountains(x, z) = max(contrib_r)` su tutte le regioni. Si usa il massimo, non la somma, per evitare picchi anomali dove le regioni si sovrappongono. Poiché il risultato passa per il `lerp` con la maschera (fase 6), una montagna posta in mare non emerge.
+`mountains(x, z) = max(contrib_r)` over all regions. The maximum is used, not the sum, to avoid anomalous peaks where regions overlap. Since the result goes through the `lerp` with the mask (stage 6), a mountain placed in the sea does not emerge.
 
-### 8.5 Linea di costa
+### 8.5 Coastline
 
-Con la formula della fase 6, la quota è esattamente `sea_level` dove:
+With the formula of stage 6, the height is exactly `sea_level` where:
 
 ```text
 mask = sea_floor_depth / (sea_floor_depth + land)
 ```
 
-Con i valori predefiniti (fondale 20 m, entroterra circa 6 m) la costa cade dove la maschera vale circa 0.77. La documentazione utente spiegherà come `sea_floor_depth` e `coastline_falloff_width` controllano la pendenza della spiaggia.
+With the default values (sea floor 20 m, inland about 6 m) the coastline falls where the mask is about 0.77. The user documentation will explain how `sea_floor_depth` and `coastline_falloff_width` control the slope of the beach.
 
-### 8.6 Limiti noti dell'algoritmo in v0.1
+### 8.6 Known limits of the algorithm in v0.1
 
-- Nessun lago interno (impedito da `min_land_height`; esclusione confermata, D4 [APPROVATO]), nessun fiume, nessuna erosione.
-- Le montagne sono coni morbidi, non catene.
-- Le pendenze massime dipendono da `cell_size` e dall'ampiezza del noise; vanno misurate in Milestone D.
+- No inland lakes (prevented by `min_land_height`; exclusion confirmed, D4 [APPROVED]), no rivers, no erosion.
+- Mountains are soft cones, not ranges.
+- Maximum slopes depend on `cell_size` and on the noise amplitude; they are to be measured in Milestone D.
 
 ---
 
-## 9. Contratto dati: `UPTGTerrainData` [APPROVATO]
+## 9. Data contract: `UPTGTerrainData` [APPROVED]
 
-`class_name UPTGTerrainData extends RefCounted`. È il **contratto ufficiale** tra UPTG e qualsiasi sistema esterno. Dopo la generazione è da considerare in sola lettura.
+`class_name UPTGTerrainData extends RefCounted`. It is the **official contract** between UPTG and any external system. After generation it is to be considered read-only.
 
-### 9.1 Campi
+### 9.1 Fields
 
-| Campo | Tipo | Significato |
+| Field | Type | Meaning |
 |---|---|---|
-| `ALGORITHM_VERSION` | `const int` | Versione dell'algoritmo che ha prodotto i dati |
-| `generation_seed` | `int` | Seed usato |
-| `config_checksum` | `int` | FNV-1a a 32 bit di `var_to_bytes()` applicato a un `Array` ordinato dei soli parametri che influenzano le altezze (seed, griglia, mare, isola, rilievo, montagne). Stabile nella stessa versione di Godot, non garantito tra versioni |
-| `heights_checksum` | `int` | FNV-1a a 32 bit di `heights` |
-| `grid_cells_x`, `grid_cells_z` | `int` | Celle per asse |
-| `vertex_count_x`, `vertex_count_z` | `int` | Vertici per asse (celle + 1) |
-| `cell_size` | `float` | Lato della cella in metri |
-| `size` | `Vector2` | Dimensioni totali (X, Z) in metri |
-| `sea_level` | `float` | Livello del mare |
-| `sea_floor_depth` | `float` | Profondità del fondale sotto `sea_level` (usata anche fuori griglia) |
-| `min_height`, `max_height` | `float` | Estremi dell'height field |
-| `heights` | `PackedFloat32Array` | Altezze in spazio locale, indice `iz * vx + ix` |
-| `land_mask` | `PackedFloat32Array` | Valore della maschera (0–1) per vertice |
+| `ALGORITHM_VERSION` | `const int` | Version of the algorithm that produced the data |
+| `generation_seed` | `int` | Seed used |
+| `config_checksum` | `int` | 32-bit FNV-1a of `var_to_bytes()` applied to an ordered `Array` of only the parameters that affect heights (seed, grid, sea, island, relief, mountains). Stable within the same Godot version, not guaranteed across versions |
+| `heights_checksum` | `int` | 32-bit FNV-1a of `heights` |
+| `grid_cells_x`, `grid_cells_z` | `int` | Cells per axis |
+| `vertex_count_x`, `vertex_count_z` | `int` | Vertices per axis (cells + 1) |
+| `cell_size` | `float` | Cell side in meters |
+| `size` | `Vector2` | Total dimensions (X, Z) in meters |
+| `sea_level` | `float` | Sea level |
+| `sea_floor_depth` | `float` | Sea floor depth below `sea_level` (also used outside the grid) |
+| `min_height`, `max_height` | `float` | Extremes of the height field |
+| `heights` | `PackedFloat32Array` | Heights in local space, index `iz * vx + ix` |
+| `land_mask` | `PackedFloat32Array` | Mask value (0–1) per vertex |
 
-### 9.2 Metodi di query
+### 9.2 Query methods
 
-Tutte le coordinate sono nello **spazio locale** del nodo `UPTGTerrain`. Il nodo fornisce le versioni in spazio mondo.
+All coordinates are in the **local space** of the `UPTGTerrain` node. The node provides the world-space versions.
 
-| Metodo | Risultato |
+| Method | Result |
 |---|---|
-| `get_vertex_height(ix, iz) -> float` | Altezza del vertice |
-| `get_vertex_position(ix, iz) -> Vector3` | Posizione locale del vertice |
-| `is_inside(x, z) -> bool` | Se il punto cade dentro la griglia |
-| `get_height_at(x, z) -> float` | Altezza interpolata sui **triangoli**, con la stessa diagonale della mesh e della collisione (sezione 10.2), così coincide con ciò che il giocatore vede e tocca |
-| `get_normal_at(x, z) -> Vector3` | Normale interpolata |
-| `get_mask_at(x, z) -> float` | Maschera interpolata |
+| `get_vertex_height(ix, iz) -> float` | Height of the vertex |
+| `get_vertex_position(ix, iz) -> Vector3` | Local position of the vertex |
+| `is_inside(x, z) -> bool` | Whether the point falls inside the grid |
+| `get_height_at(x, z) -> float` | Height interpolated on the **triangles**, with the same diagonal as the mesh and the collision (section 10.2), so it matches what the player sees and touches |
+| `get_normal_at(x, z) -> Vector3` | Interpolated normal |
+| `get_mask_at(x, z) -> float` | Interpolated mask |
 | `is_land_at(x, z) -> bool` | `get_height_at(x, z) > sea_level` |
 
-Fuori dalla griglia, `get_height_at` restituisce `sea_level - sea_floor_depth` e `is_inside` restituisce `false`.
+Outside the grid, `get_height_at` returns `sea_level - sea_floor_depth` and `is_inside` returns `false`.
 
-### 9.3 Uso da parte di moduli futuri
+### 9.3 Use by future modules
 
-Un modulo strade o vegetazione riceve un `UPTGTerrainData` (direttamente o tramite `UPTGTerrain.get_terrain_data()`) e usa solo i campi e i metodi di questa sezione. Ogni cambiamento incompatibile del contratto richiede un incremento di versione maggiore e una nota nel CHANGELOG.
+A road or vegetation module receives a `UPTGTerrainData` (directly or through `UPTGTerrain.get_terrain_data()`) and uses only the fields and methods of this section. Any incompatible change to the contract requires a major version increment and a note in the CHANGELOG.
 
-La modifica del terreno da parte di moduli futuri (per esempio spianare una strada) non è prevista in v0.1; sarà oggetto di una decisione futura.
+Modification of the terrain by future modules (for example flattening a road) is not planned in v0.1; it will be the subject of a future decision.
 
 ---
 
-## 10. Mesh [APPROVATO]
+## 10. Mesh [APPROVED]
 
 `UPTGMeshBuilder.build(data: UPTGTerrainData, config: UPTGConfig) -> ArrayMesh`
 
-### 10.1 Dati geometrici
+### 10.1 Geometric data
 
-- Un vertice per punto della griglia (`vx * vz` vertici), geometria **indicizzata**.
-- Array `PackedVector3Array`, `PackedVector2Array`, `PackedColorArray`, `PackedInt32Array` pre-dimensionati con `resize()`.
-- Una sola superficie, creata con `ArrayMesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)`.
-- Oltre 65 535 vertici gli indici restano integri **[VERIFICATO M0]**: mesh di 90 000 vertici e 536 406 indici, indice massimo 89 999 riletto correttamente, sia headless sia con il renderer Forward+ (Vulkan).
+- One vertex per grid point (`vx * vz` vertices), **indexed** geometry.
+- `PackedVector3Array`, `PackedVector2Array`, `PackedColorArray`, `PackedInt32Array` arrays pre-sized with `resize()`.
+- A single surface, created with `ArrayMesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)`.
+- Beyond 65 535 vertices the indices stay intact **[VERIFIED M0]**: mesh of 90 000 vertices and 536 406 indices, maximum index 89 999 read back correctly, both headless and with the Forward+ renderer (Vulkan).
 
-### 10.2 Triangoli, winding e diagonale
+### 10.2 Triangles, winding and diagonal
 
-- Ogni cella produce 2 triangoli, quindi `2 * grid_cells_x * grid_cells_z` triangoli.
-- Ordine di avvolgimento: la faccia frontale è quella con vertici in senso **orario visti dall'osservatore** **[VERIFICATO M0]**. Verificato nel rendering (culling predefinito `CULL_BACK`: il triangolo orario visto dalla camera è visibile, quello antiorario no) e nella fisica (`ConcavePolygonShape3D` con `backface_collision = false`: il raggio colpisce solo dal lato da cui i vertici appaiono orari), su entrambi i backend. Per un terreno visto dall'alto, ogni triangolo va quindi emesso in senso orario visto da +Y.
-- Tutte le celle usano la **stessa diagonale**: quella che unisce il vertice `(ix + 1, iz)` al vertice `(ix, iz + 1)` **[VERIFICATO M0]**. È la diagonale usata da `HeightMapShape3D` in tutte le celle, con Godot Physics e con Jolt. Ogni cella si divide quindi nei triangoli `(00, 10, 01)` e `(10, 11, 01)`. Con la diagonale opposta l'errore misurato su un terreno di prova arriva a 31.6 cm. La stessa regola vale per `get_height_at`: se `fx + fz <= 1` si interpola sul triangolo `(00, 10, 01)`, altrimenti su `(10, 11, 01)`.
+- Each cell produces 2 triangles, hence `2 * grid_cells_x * grid_cells_z` triangles.
+- Winding order: the front face is the one with vertices **clockwise as seen by the observer** **[VERIFIED M0]**. Verified in rendering (default `CULL_BACK` culling: the triangle that is clockwise from the camera is visible, the counterclockwise one is not) and in physics (`ConcavePolygonShape3D` with `backface_collision = false`: the ray hits only from the side where the vertices appear clockwise), on both backends. For a terrain seen from above, each triangle must therefore be emitted clockwise as seen from +Y.
+- All cells use the **same diagonal**: the one joining vertex `(ix + 1, iz)` to vertex `(ix, iz + 1)` **[VERIFIED M0]**. It is the diagonal used by `HeightMapShape3D` in all cells, with Godot Physics and with Jolt. Each cell therefore splits into triangles `(00, 10, 01)` and `(10, 11, 01)`. With the opposite diagonal the error measured on a test terrain reaches 31.6 cm. The same rule applies to `get_height_at`: if `fx + fz <= 1` it interpolates on triangle `(00, 10, 01)`, otherwise on `(10, 11, 01)`.
 
-### 10.3 Normali
+### 10.3 Normals
 
-Calcolate dall'height field con differenze centrali (differenze unilaterali sui bordi):
+Computed from the height field with central differences (one-sided differences at the edges):
 
 ```text
 n = normalize( Vector3( h(ix-1, iz) - h(ix+1, iz),  2 * cell_size,  h(ix, iz-1) - h(ix, iz+1) ) )
 ```
 
-Non si usa `SurfaceTool.generate_normals()`. Le tangenti non vengono generate in v0.1 (nessuna normal map).
+`SurfaceTool.generate_normals()` is not used. Tangents are not generated in v0.1 (no normal map).
 
 ### 10.4 UV
 
-Proiezione planare in metri: `uv = Vector2(x, z) / uv_tile_size`. Limite noto: allungamento della texture sulle pendenze ripide. La proiezione triplanare è rimandata.
+Planar projection in meters: `uv = Vector2(x, z) / uv_tile_size`. Known limit: texture stretching on steep slopes. Triplanar projection is postponed.
 
 ### 10.5 Vertex colors
 
-Colore per vertice calcolato da quota e pendenza, con transizioni morbide (`smoothstep`):
+Per-vertex color computed from height and slope, with soft transitions (`smoothstep`):
 
-- sabbia: quota entro `beach_height` sopra `sea_level`;
-- roccia: pendenza oltre `rock_slope_degrees` o quota oltre `rock_height`;
-- erba: altrove.
+- sand: height within `beach_height` above `sea_level`;
+- rock: slope beyond `rock_slope_degrees` or height beyond `rock_height`;
+- grass: elsewhere.
 
-La sabbia ha la precedenza sulla roccia (`grass.lerp(rock, w_rock).lerp(sand, w_sand)`): una scarpata costiera bassa resta sabbia e non diventa roccia. Scelta fatta in Milestone D durante la taratura del preset.
+Sand takes precedence over rock (`grass.lerp(rock, w_rock).lerp(sand, w_sand)`): a low coastal cliff stays sand and does not become rock. Choice made in Milestone D during the preset tuning.
 
-### 10.6 Materiale [APPROVATO]
+### 10.6 Material [APPROVED]
 
-Un `StandardMaterial3D` (`addons/uptg/materials/uptg_terrain_default.tres`) con `vertex_color_use_as_albedo = true`. Nessuno shader custom in v0.1. Il nodo permette di sostituirlo con un materiale del gioco.
+A `StandardMaterial3D` (`addons/uptg/materials/uptg_terrain_default.tres`) with `vertex_color_use_as_albedo = true`. No custom shader in v0.1. The node allows replacing it with a game material.
 
 ---
 
-## 11. Collisione [APPROVATO]
+## 11. Collision [APPROVED]
 
-`UPTGCollisionBuilder.build(data: UPTGTerrainData, mode) -> Shape3D` (oppure `null` per `NONE`).
+`UPTGCollisionBuilder.build(data: UPTGTerrainData, mode) -> Shape3D` (or `null` for `NONE`).
 
-### 11.1 `HEIGHTMAP` (predefinito)
+### 11.1 `HEIGHTMAP` (default)
 
-- `HeightMapShape3D` con `map_width = vertex_count_x`, `map_depth = vertex_count_z`.
-- `map_data` = `heights` divise per `cell_size`, perché la shape usa campioni distanziati di 1 unità.
-- Il `CollisionShape3D` riceve una scala **uniforme** `Vector3(cell_size, cell_size, cell_size)`; dividere le altezze e scalare uniformemente evita la scala non uniforme, non affidabile sulle collision shape.
-- La shape è centrata sulla propria origine, come la mesh (sezione 6).
-- **[VERIFICATO M0]** (D5): la shape è centrata sull'origine; `map_data` segue l'ordine `iz * vx + ix`; la diagonale è quella della sezione 10.2; la scala uniforme del `CollisionShape3D` con altezze divise per `cell_size` funziona (provata con `cell_size` 1 e 4, errore massimo 0.09 mm con Godot Physics e 0.13 mm con Jolt). Le stesse regole valgono per griglie non quadrate (7×4, 4×9, 65×33 vertici; errore massimo 0.22 mm). Nessuna collisione fuori dalla griglia.
-- **Backend fisico (D3, [APPROVATO]):** i test iniziali usano il backend predefinito; lo stesso test viene ripetuto sull'altro backend e il risultato è documentato.
-- **[VERIFICATO M0]** Con il `project.godot` di UPTG l'impostazione `physics/3d/physics_engine` vale `DEFAULT` e il backend effettivo è **Godot Physics**: i valori dei raggi coincidono bit per bit con quelli ottenuti forzando `GodotPhysics3D` e differiscono da quelli con Jolt. `PhysicsServer3D.get_class()` restituisce `PhysicsServer3D` con entrambi i backend e non serve a identificarli. Jolt è stato provato tramite un `override.cfg` temporaneo: ordine, centratura, diagonale, winding e scala si comportano in modo identico.
+- `HeightMapShape3D` with `map_width = vertex_count_x`, `map_depth = vertex_count_z`.
+- `map_data` = `heights` divided by `cell_size`, because the shape uses samples spaced 1 unit apart.
+- The `CollisionShape3D` receives a **uniform** scale `Vector3(cell_size, cell_size, cell_size)`; dividing the heights and scaling uniformly avoids non-uniform scale, which is not reliable on collision shapes.
+- The shape is centered on its own origin, like the mesh (section 6).
+- **[VERIFIED M0]** (D5): the shape is centered on the origin; `map_data` follows the order `iz * vx + ix`; the diagonal is the one of section 10.2; the uniform scale of the `CollisionShape3D` with heights divided by `cell_size` works (tested with `cell_size` 1 and 4, maximum error 0.09 mm with Godot Physics and 0.13 mm with Jolt). The same rules apply to non-square grids (7×4, 4×9, 65×33 vertices; maximum error 0.22 mm). No collision outside the grid.
+- **Physics backend (D3, [APPROVED]):** the initial tests use the default backend; the same test is repeated on the other backend and the result is documented.
+- **[VERIFIED M0]** With UPTG's `project.godot` the setting `physics/3d/physics_engine` is `DEFAULT` and the actual backend is **Godot Physics**: the ray values match bit for bit those obtained by forcing `GodotPhysics3D` and differ from those with Jolt. `PhysicsServer3D.get_class()` returns `PhysicsServer3D` with both backends and cannot identify them. Jolt was tested through a temporary `override.cfg`: order, centering, diagonal, winding and scale behave identically.
 
-### 11.2 `TRIMESH` (alternativa)
+### 11.2 `TRIMESH` (alternative)
 
-`ConcavePolygonShape3D` costruita dagli stessi triangoli della mesh con `set_faces()`. Più costosa in memoria e tempo di costruzione; utile se `HEIGHTMAP` mostrasse limiti in un caso specifico. Con `backface_collision = false` (valore predefinito) i triangoli devono essere orari visti da +Y, come nella mesh, altrimenti i raggi dall'alto non li colpiscono **[VERIFICATO M0]**.
+`ConcavePolygonShape3D` built from the same triangles as the mesh with `set_faces()`. More expensive in memory and build time; useful if `HEIGHTMAP` showed limits in a specific case. With `backface_collision = false` (the default) the triangles must be clockwise as seen from +Y, as in the mesh, otherwise rays from above do not hit them **[VERIFIED M0]**.
 
 ### 11.3 `NONE`
 
-Nessuna collisione; `UPTGTerrain` rimuove o disattiva lo `StaticBody3D`.
+No collision; `UPTGTerrain` removes or disables the `StaticBody3D`.
 
-### 11.4 Regole
+### 11.4 Rules
 
-- La collisione è sempre su uno `StaticBody3D`, mai su un corpo dinamico.
-- `collision_layer` e `collision_mask` sono esportati sul nodo `UPTGTerrain`.
-- Il test di allineamento (A8) lancia raggi verticali su una griglia di punti e confronta il punto d'impatto con `get_height_at`; la differenza deve restare entro la tolleranza. **D6:** 1 cm **[VERIFICATO M0]**. Su una griglia 64 × 64 con `cell_size` 4 e 2000 raggi, l'errore massimo con la diagonale corretta è 0.19 mm (Godot Physics) e 0.15 mm (Jolt) per `HEIGHTMAP`, 0.20 mm o meno per `TRIMESH`: la tolleranza di 1 cm ha un ampio margine e viene confermata.
+- Collision is always on a `StaticBody3D`, never on a dynamic body.
+- `collision_layer` and `collision_mask` are exported on the `UPTGTerrain` node.
+- The alignment test (A8) casts vertical rays on a grid of points and compares the hit point with `get_height_at`; the difference must stay within the tolerance. **D6:** 1 cm **[VERIFIED M0]**. On a 64 × 64 grid with `cell_size` 4 and 2000 rays, the maximum error with the correct diagonal is 0.19 mm (Godot Physics) and 0.15 mm (Jolt) for `HEIGHTMAP`, 0.20 mm or less for `TRIMESH`: the 1 cm tolerance has a wide margin and is confirmed.
 
 ---
 
-## 12. Nodo `UPTGTerrain` [APPROVATO]
+## 12. `UPTGTerrain` node [APPROVED]
 
-`class_name UPTGTerrain extends Node3D`. È il punto di ingresso per qualsiasi gioco.
+`class_name UPTGTerrain extends Node3D`. It is the entry point for any game.
 
-### 12.1 Interfaccia
+### 12.1 Interface
 
-| Tipo | Nome | Descrizione |
+| Type | Name | Description |
 |---|---|---|
-| `@export` | `config: UPTGConfig` | Preset da usare |
-| `@export` | `generate_on_ready: bool = true` | Genera in `_ready()` |
-| `@export` | `material_override: Material` | Opzionale; se vuoto usa il materiale predefinito |
-| `@export` | `allow_large_terrain: bool = false` | Autorizza configurazioni di livello `LARGE` (sezione 5.4) |
-| `@export_flags_3d_physics` | `collision_layer`, `collision_mask` | Layer della collisione |
-| metodo | `generate() -> bool` | Valida, genera, sostituisce mesh e collisione |
-| metodo | `clear()` | Rimuove mesh e collisione |
-| metodo | `get_terrain_data() -> UPTGTerrainData` | Ultimo risultato valido o `null` |
-| metodo | `get_height_at_world(pos: Vector3) -> float` | Query in spazio mondo |
-| metodo | `get_last_stats() -> Dictionary` | Tempi (µs) per fase, vertici, triangoli, stima di costo e livello (5.4) |
-| segnale | `generation_started` | — |
-| segnale | `generation_finished(data: UPTGTerrainData)` | — |
-| segnale | `generation_failed(message: String)` | — |
+| `@export` | `config: UPTGConfig` | Preset to use |
+| `@export` | `generate_on_ready: bool = true` | Generates in `_ready()` |
+| `@export` | `material_override: Material` | Optional; if empty uses the default material |
+| `@export` | `allow_large_terrain: bool = false` | Authorizes `LARGE` level configurations (section 5.4) |
+| `@export_flags_3d_physics` | `collision_layer`, `collision_mask` | Collision layers |
+| method | `generate() -> bool` | Validates, generates, replaces mesh and collision |
+| method | `clear()` | Removes mesh and collision |
+| method | `get_terrain_data() -> UPTGTerrainData` | Last valid result or `null` |
+| method | `get_height_at_world(pos: Vector3) -> float` | World-space query |
+| method | `get_last_stats() -> Dictionary` | Times (µs) per stage, vertices, triangles, cost estimate and level (5.4) |
+| signal | `generation_started` | — |
+| signal | `generation_finished(data: UPTGTerrainData)` | — |
+| signal | `generation_failed(message: String)` | — |
 
-### 12.2 Nodi figli
+### 12.2 Child nodes
 
 ```text
 UPTGTerrain (Node3D)
@@ -566,246 +568,246 @@ UPTGTerrain (Node3D)
     └── UPTGShape  (CollisionShape3D)
 ```
 
-- Creati alla prima generazione, con nomi fissi.
-- Non ricevono un `owner`: non vengono salvati nella scena `.tscn`, così i file di scena restano piccoli e senza dati generati.
-- Alla rigenerazione si **sostituiscono le risorse** (`mesh`, `shape`), non i nodi. Nessun nodo duplicato, mai.
+- Created at the first generation, with fixed names.
+- They do not receive an `owner`: they are not saved in the `.tscn` scene, so scene files stay small and free of generated data.
+- On regeneration the **resources are replaced** (`mesh`, `shape`), not the nodes. No duplicated nodes, ever.
 
-### 12.3 Atomicità ed errori
+### 12.3 Atomicity and errors
 
-- Prima si genera tutto (dati, mesh, shape); solo se ogni passo riesce si sostituiscono le risorse nei nodi. In caso di errore il terreno precedente resta intatto.
-- Gli errori vengono emessi con `push_error()` e con il segnale `generation_failed`.
-- La generazione è sincrona; non va chiamata dentro `_physics_process` o callback fisiche.
-- Limite noto: corpi fisici appoggiati sul terreno durante una rigenerazione possono attraversarlo o essere spinti; documentato, non gestito in v0.1.
+- Everything is generated first (data, mesh, shape); only if every step succeeds are the resources in the nodes replaced. In case of error the previous terrain stays intact.
+- Errors are emitted with `push_error()` and with the `generation_failed` signal.
+- Generation is synchronous; it must not be called inside `_physics_process` or physics callbacks.
+- Known limit: physics bodies resting on the terrain during a regeneration may pass through it or be pushed; documented, not handled in v0.1.
 
-### 12.4 Runtime soltanto [APPROVATO]
+### 12.4 Runtime only [APPROVED]
 
-Nessuno script usa `@tool`. Non esistono anteprima nell'editor, editor dock o baking in v0.1.
-
----
-
-## 13. Prestazioni
-
-Le misure di Milestone D **[VERIFICATO MD]** sono registrate in `documentation/TESTING.md` e si ripetono con `tests/benchmark.gd`. Valgono solo per la macchina su cui sono state prese. Si misurano, per 128 × 128, 256 × 256 e 512 × 512 celle:
-
-- tempo di generazione dell'height field, della mesh e della collisione (separatamente);
-- numero di vertici e triangoli;
-- memoria stimata di mesh e shape;
-- tempo di costruzione della collisione in `HEIGHTMAP` e `TRIMESH`;
-- frame time nella demo.
-
-La misura `TRIMESH` a 512 × 512 celle supera la soglia `OK` della trimesh (sezione 5.4) e richiede `allow_large_terrain = true` nella scena di misura.
-
-Rischio noto: il ciclo per vertice in GDScript è la parte più costosa. Il generatore è puro proprio per poterlo spostare in futuro su `WorkerThreadPool` senza riscriverlo (fuori perimetro v0.1).
-
-Limite noto: una sola mesh significa che il frustum culling vale per tutto il terreno o per niente.
+No script uses `@tool`. There is no editor preview, editor dock or baking in v0.1.
 
 ---
 
-## 14. Estendibilità futura (solo progettazione, non implementata)
+## 13. Performance
 
-| Futuro | Come si inserisce senza riscrivere il core |
+The Milestone D measurements **[VERIFIED MD]** are recorded in `documentation/TESTING.md` and are repeated with `tests/benchmark.gd`. They are valid only for the machine on which they were taken. The following are measured for 128 × 128, 256 × 256 and 512 × 512 cells:
+
+- generation time of the height field, the mesh and the collision (separately);
+- number of vertices and triangles;
+- estimated memory of mesh and shape;
+- collision build time in `HEIGHTMAP` and `TRIMESH`;
+- frame time in the demo.
+
+The `TRIMESH` measurement at 512 × 512 cells exceeds the trimesh `OK` threshold (section 5.4) and requires `allow_large_terrain = true` in the measurement scene.
+
+Known risk: the per-vertex loop in GDScript is the most expensive part. The generator is pure precisely so that it can move to `WorkerThreadPool` in the future without being rewritten (out of scope for v0.1).
+
+Known limit: a single mesh means that frustum culling applies to the whole terrain or to none of it.
+
+---
+
+## 14. Future extensibility (design only, not implemented)
+
+| Future | How it fits without rewriting the core |
 |---|---|
-| Terreno continentale, pianure | Nuova funzione di forma al posto di `shape_mask` (fase 2), selezionata da un enum in `UPTGConfig` |
-| Colline e varianti di rilievo | Nuovi parametri o profili di noise nella fase 3 |
-| Catene montuose | Nuovo tipo di regione (per esempio a polilinea) accanto a `UPTGMountainRegion` |
-| Ambienti survival o fantasy | Preset `.tres` e materiali diversi; il core non cambia |
-| Strade, vegetazione, world generation | Moduli separati che leggono `UPTGTerrainData` |
-| Erosione, laghi, fiumi | Fasi di post-elaborazione sull'height field |
-| Mondi grandi | Chunking e LOD costruiti sopra `UPTGTerrainData`, generazione in thread |
-| Anteprima editor e baking | `UPTGTerrainData` potrà diventare `Resource` salvabile; script `@tool` |
+| Continental terrain, plains | New shape function in place of `shape_mask` (stage 2), selected by an enum in `UPTGConfig` |
+| Hills and relief variants | New parameters or noise profiles in stage 3 |
+| Mountain ranges | New region type (for example polyline-based) alongside `UPTGMountainRegion` |
+| Survival or fantasy environments | Different `.tres` presets and materials; the core does not change |
+| Roads, vegetation, world generation | Separate modules that read `UPTGTerrainData` |
+| Erosion, lakes, rivers | Post-processing stages on the height field |
+| Large worlds | Chunking and LOD built on top of `UPTGTerrainData`, threaded generation |
+| Editor preview and baking | `UPTGTerrainData` may become a saveable `Resource`; `@tool` scripts |
 
 ---
 
-## 15. Test e criteri di accettazione [APPROVATO]
+## 15. Tests and acceptance criteria [APPROVED]
 
-### 15.1 Infrastruttura
+### 15.1 Infrastructure
 
-- Test headless con script GDScript eseguiti da riga di comando (`godot --headless --path <progetto> -s res://tests/run_tests.gd`) **[VERIFICATO M0]**: lo script estende `SceneTree`, la fisica funziona in headless (raggi e corpi statici), `quit(n)` restituisce il codice d'uscita `n` e un errore di parsing restituisce 1. Il rendering in headless è fittizio: i test che leggono pixel richiedono una finestra.
-- Godot 4.7.2 genera un file `.gd.uid` accanto a ogni script: va committato insieme allo script **[VERIFICATO M0]**.
-- Nessun framework esterno (per esempio GUT) in v0.1, per non introdurre dipendenze.
-- Il test di collisione richiede una scena con fisica attiva (`tests/collision/collision_test.tscn`).
-- `documentation/TESTING.md` descrive come eseguire ogni test e come verificare a mano la demo.
+- Headless tests with GDScript scripts run from the command line (`godot --headless --path <project> -s res://tests/run_tests.gd`) **[VERIFIED M0]**: the script extends `SceneTree`, physics works headless (rays and static bodies), `quit(n)` returns exit code `n` and a parse error returns 1. Headless rendering is a dummy: tests that read pixels require a window.
+- Godot 4.7.2 generates a `.gd.uid` file next to each script: it must be committed together with the script **[VERIFIED M0]**.
+- No external framework (for example GUT) in v0.1, so as not to introduce dependencies.
+- The collision test requires a scene with active physics (`tests/collision/collision_test.tscn`).
+- `documentation/TESTING.md` describes how to run each test and how to check the demo by hand.
 
-### 15.2 Criteri di accettazione v0.1
+### 15.2 v0.1 acceptance criteria
 
-| # | Criterio | Verifica |
+| # | Criterion | Verification |
 |---|---|---|
-| A1 | Il progetto si apre in Godot 4.7.2 senza nuovi errori o warning dell'addon | Manuale |
-| A2 | La demo si avvia autonomamente | Manuale |
-| A3 | Viene generata un'isola 3D con costa visibilmente irregolare | Manuale + screenshot |
-| A4 | Sono presenti colline e almeno una regione montuosa | Manuale |
-| A5 | La validazione rifiuta configurazioni non valide con messaggi chiari | `test_validation.gd` |
-| A5b | La protezione della sezione 5.4 classifica correttamente `OK`, `LARGE` e `REJECTED`; `LARGE` è rifiutato senza `allow_large_terrain`; `REJECTED` è rifiutato sempre; un rifiuto non altera il terreno esistente | `test_validation.gd` (solo stima, senza generare terreni grandi) |
-| A6 | Mesh valida: indici nei limiti, nessun NaN, normali unitarie, numero di triangoli atteso | `test_mesh.gd` |
-| A7 | Stesso seed e stessa configurazione producono lo stesso checksum; seed diverso lo cambia; i test vector di `UPTGSeed` sono rispettati | `test_determinism.gd`, `test_seed.gd` |
-| A8 | Collisione allineata alla mesh entro la tolleranza, in modalità `HEIGHTMAP` e `TRIMESH`, sul backend predefinito; risultato sull'altro backend documentato | `collision_test` |
-| A9 | Corpi `RigidBody3D` lasciati cadere su una griglia di punti si fermano sulla superficie; una capsula `CharacterBody3D` percorre le pendenze moderate | `collision_test` + demo |
-| A10 | 20 rigenerazioni consecutive non aumentano il numero di nodi né la memoria in modo continuo | Test + monitor della demo |
-| A11 | Il bordo della griglia è sempre sotto `sea_level` | `test_determinism.gd` |
-| A12 | La configurazione si salva e si ricarica come preset `.tres` con risultato identico | Test |
-| A13 | Il codice in `addons/uptg/` non fa riferimento a percorsi esterni all'addon né a giochi specifici | Ricerca testuale |
-| A14 | Nessun uso di RNG globale nell'addon (`randi`, `randf`, `randomize`, `seed(`) | Ricerca testuale |
-| A15 | Tutti i nuovi file sono documentati; nessun file esistente non correlato è stato modificato | Revisione |
-| A16 | Le misure della sezione 13 sono registrate in `TESTING.md` | Revisione |
+| A1 | The project opens in Godot 4.7.2 without new errors or warnings from the addon | Manual |
+| A2 | The demo starts on its own | Manual |
+| A3 | A 3D island with a visibly irregular coastline is generated | Manual + screenshot |
+| A4 | Hills and at least one mountain region are present | Manual |
+| A5 | Validation rejects invalid configurations with clear messages | `test_validation.gd` |
+| A5b | The protection of section 5.4 correctly classifies `OK`, `LARGE` and `REJECTED`; `LARGE` is refused without `allow_large_terrain`; `REJECTED` is always refused; a refusal does not alter the existing terrain | `test_validation.gd` (estimate only, without generating large terrains) |
+| A6 | Valid mesh: indices within bounds, no NaN, unit normals, expected number of triangles | `test_mesh.gd` |
+| A7 | Same seed and same configuration produce the same checksum; a different seed changes it; the `UPTGSeed` test vectors are respected | `test_determinism.gd`, `test_seed.gd` |
+| A8 | Collision aligned with the mesh within the tolerance, in `HEIGHTMAP` and `TRIMESH` modes, on the default backend; result on the other backend documented | `collision_test` |
+| A9 | `RigidBody3D` bodies dropped on a grid of points come to rest on the surface; a `CharacterBody3D` capsule walks across moderate slopes | `collision_test` + demo |
+| A10 | 20 consecutive regenerations do not continuously increase the number of nodes or the memory | Test + demo monitor |
+| A11 | The grid edge is always below `sea_level` | `test_determinism.gd` |
+| A12 | The configuration saves and reloads as a `.tres` preset with an identical result | Test |
+| A13 | The code in `addons/uptg/` does not reference paths outside the addon or specific games | Text search |
+| A14 | No use of global RNG in the addon (`randi`, `randf`, `randomize`, `seed(`) | Text search |
+| A15 | All new files are documented; no unrelated existing file was changed | Review |
+| A16 | The measurements of section 13 are recorded in `TESTING.md` | Review |
 
 ---
 
-## 16. Stato delle decisioni
+## 16. Status of decisions
 
-### 16.1 Decisioni approvate [APPROVATO]
+### 16.1 Approved decisions [APPROVED]
 
-| # | Decisione | Sezione |
+| # | Decision | Section |
 |---|---|---|
-| — | Le 15 decisioni architetturali approvate il 2026-11-06 (contratto dati, nodo, collisione, griglia, seed, determinismo, formula, montagne, noise, mesh, materiali, solo runtime, addon portabile, generatore puro, test) | 1–15 |
-| D1 | Struttura R12: `core/`, `builders/`, `nodes/`, `materials/`, `presets/` dentro `addons/uptg/`; documenti generali del repository non modificati ora | 3 |
-| D2 | Licenza "All rights reserved"; nessuna licenza permissiva né distribuzione pubblica | 3 |
-| D3 | Test iniziali sul backend fisico predefinito di Godot 4.7.2; verifica documentata sull'altro backend | 11.1 |
-| D4 | Nessun lago interno in v0.1 | 8.6 |
-| D6 | Tolleranza iniziale di allineamento: 1 cm (da confermare, vedi 16.2) | 11.4 |
-| D8 | La documentazione nel repository è ufficiale; le copie esterne sono riferimenti locali | 0 |
-| D9 | Le decisioni fondamentali hanno ADR sintetici: ADR-0001 … ADR-0006 in `Documentation/architecture/decisions/` (creati in Milestone 0) | 16.3 |
-| — | Protezione da configurazioni troppo costose | 5.4 |
+| — | The 15 architectural decisions approved on 2026-11-06 (data contract, node, collision, grid, seed, determinism, formula, mountains, noise, mesh, materials, runtime only, portable addon, pure generator, tests) | 1–15 |
+| D1 | R12 structure: `core/`, `builders/`, `nodes/`, `materials/`, `presets/` inside `addons/uptg/`; general repository documents not changed now | 3 |
+| D2 | "All rights reserved" license; no permissive license or public distribution | 3 |
+| D3 | Initial tests on the default physics backend of Godot 4.7.2; documented verification on the other backend | 11.1 |
+| D4 | No inland lakes in v0.1 | 8.6 |
+| D6 | Initial alignment tolerance: 1 cm (to be confirmed, see 16.2) | 11.4 |
+| D8 | The documentation in the repository is official; external copies are local references | 0 |
+| D9 | Fundamental decisions have concise ADRs: ADR-0001 … ADR-0006 in `Documentation/architecture/decisions/` (created in Milestone 0) | 16.3 |
+| — | Protection against expensive configurations | 5.4 |
 
-### 16.2 Verifiche sperimentali
+### 16.2 Experimental verifications
 
-**Eseguite in Milestone 0 [VERIFICATO M0]** (dettagli in `documentation/M0_VERIFICATION.md`):
+**Carried out in Milestone 0 [VERIFIED M0]** (details in `documentation/M0_VERIFICATION.md`):
 
-| Tema | Risultato |
+| Topic | Result |
 |---|---|
-| Apertura del progetto in 4.7.2 | Editor headless e con interfaccia (Vulkan Forward+, Intel UHD 620): nessun errore, codice d'uscita 0 |
-| Backend fisico predefinito | `DEFAULT`, che per questo progetto corrisponde a Godot Physics |
-| API dell'architettura | Tutte disponibili e funzionanti (elenco in M0_VERIFICATION) |
-| Seed di `FastNoiseLite` | 2 147 483 647 viene conservato; 3 000 000 000 diventa -1 294 967 296: il limite a 31 bit della sezione 5.1 è necessario |
-| Funzione `derive()` della sezione 7.2 | Risultati identici ai valori calcolati in modo indipendente (4 test vector) |
-| D5: ordine di `map_data` e centratura | `iz * vx + ix`, centrata sull'origine, entrambi i backend |
-| D5: diagonale | `(ix + 1, iz)`–`(ix, iz + 1)` in tutte le celle, entrambi i backend, anche su griglie non quadrate |
-| D5: winding | Frontale = orario visto dall'osservatore, rendering e fisica |
-| Scala uniforme del `CollisionShape3D` | Funziona, entrambi i backend |
-| D6: tolleranza | 1 cm confermato (errore massimo misurato 0.2 mm) |
-| Altro backend (Jolt) | Stesso comportamento; differenze numeriche di circa 0.1 mm |
-| Indici a 32 bit | Integri oltre 65 535 vertici |
-| Test headless | Funzionano, con codice d'uscita affidabile |
+| Opening the project in 4.7.2 | Editor headless and with interface (Vulkan Forward+, Intel UHD 620): no errors, exit code 0 |
+| Default physics backend | `DEFAULT`, which for this project corresponds to Godot Physics |
+| Architecture APIs | All available and working (list in M0_VERIFICATION) |
+| `FastNoiseLite` seed | 2 147 483 647 is preserved; 3 000 000 000 becomes -1 294 967 296: the 31-bit limit of section 5.1 is necessary |
+| `derive()` function of section 7.2 | Results identical to independently computed values (4 test vectors) |
+| D5: `map_data` order and centering | `iz * vx + ix`, centered on the origin, both backends |
+| D5: diagonal | `(ix + 1, iz)`–`(ix, iz + 1)` in all cells, both backends, also on non-square grids |
+| D5: winding | Front = clockwise as seen by the observer, rendering and physics |
+| Uniform scale of `CollisionShape3D` | Works, both backends |
+| D6: tolerance | 1 cm confirmed (maximum measured error 0.2 mm) |
+| Other backend (Jolt) | Same behavior; numerical differences of about 0.1 mm |
+| 32-bit indices | Intact beyond 65 535 vertices |
+| Headless tests | They work, with a reliable exit code |
 
-**Eseguite in Milestone D [VERIFICATO MD]** (dettagli in `documentation/TESTING.md`): coefficienti di memoria della sezione 5.4, misure della sezione 13, collisione A8 e A9 ripetuta su entrambi i backend dopo la taratura.
+**Carried out in Milestone D [VERIFIED MD]** (details in `documentation/TESTING.md`): memory coefficients of section 5.4, measurements of section 13, collision A8 and A9 repeated on both backends after the tuning.
 
-**Ancora da verificare:**
+**Still to verify:**
 
-| Tema | Quando | Azione |
+| Topic | When | Action |
 |---|---|---|
-| Backend assegnato da Godot a un progetto creato dal Project Manager (il `project.godot` di UPTG è stato scritto a mano) | Se servirà | Non influisce su UPTG: entrambi i backend si comportano allo stesso modo |
-| Determinismo cross-platform | Quando sarà disponibile una seconda piattaforma | Documentare; resta un obiettivo, non una garanzia |
+| Backend assigned by Godot to a project created by the Project Manager (UPTG's `project.godot` was written by hand) | If needed | Does not affect UPTG: both backends behave the same way |
+| Cross-platform determinism | When a second platform is available | Document; it remains a goal, not a guarantee |
 
-### 16.3 Decisioni rinviate [RINVIATO]
+### 16.3 Deferred decisions [DEFERRED]
 
-| Tema | Rinviato a | Note |
+| Topic | Deferred to | Notes |
 |---|---|---|
-| D7: valori definitivi del preset isola | Eseguita in Milestone D | Valori della tabella 5.1 e della regione 5.2 aggiornati; preset `addons/uptg/presets/uptg_island_default.tres` |
-| Allineamento di `Documentation/architecture/README.md`, README di modulo e cartella `presets/` di modulo alla struttura R12 | Aggiornamento documentale separato, da approvare | Fino ad allora prevale questo documento per UPTG |
-| Soglie di tempo in secondi per la protezione | Milestone D | Dopo le misure reali |
-| Spostamento della generazione su thread | Dopo v0.1 | Reso possibile dal generatore puro |
-| Anteprima editor, `@tool`, baking su file | v0.2.0 o successiva | Fuori perimetro v0.1 |
-| Modifica del terreno da parte di moduli futuri (per esempio strade) | Progettazione di UPRG | `UPTGTerrainData` resta in sola lettura in v0.1 |
-| Licenza permissiva o distribuzione | Solo con decisione esplicita di Stefano | D2 |
+| D7: final values of the island preset | Carried out in Milestone D | Values of table 5.1 and of region 5.2 updated; preset `addons/uptg/presets/uptg_island_default.tres` |
+| Alignment of `Documentation/architecture/README.md`, module README and module-level `presets/` folder with the R12 structure | Separate documentation update, to be approved | Until then this document prevails for UPTG |
+| Time thresholds in seconds for the protection | Milestone D | After real measurements |
+| Moving generation to threads | After v0.1 | Made possible by the pure generator |
+| Editor preview, `@tool`, baking to file | v0.2.0 or later | Out of scope for v0.1 |
+| Modification of the terrain by future modules (for example roads) | UPRG design | `UPTGTerrainData` stays read-only in v0.1 |
+| Permissive license or distribution | Only with an explicit decision by Stefano | D2 |
 
 ---
 
-## 17. Sequenza di implementazione
+## 17. Implementation sequence
 
-Ogni milestone inizia solo dopo l'approvazione esplicita di Stefano e termina con un report: file creati o modificati, test eseguiti realmente, limiti, proposta per la milestone successiva.
+Each milestone starts only after Stefano's explicit approval and ends with a report: files created or changed, tests actually run, limits, proposal for the next milestone.
 
-### Milestone 0 — Setup e verifica delle API
+### Milestone 0 — Setup and API verification
 
-- Su un branch `uptg/milestone-0-setup` del repository esistente, creare `project.godot` in `UPTG/UniversalProceduralTerrainGenerator/` e le cartelle secondo la decisione D1; nessuna modifica ai documenti esistenti senza approvazione.
-- Verificare che il progetto si apra in 4.7.2 e registrare il backend fisico.
-- Uno script temporaneo che verifica ogni API usata dal progetto (`FastNoiseLite`, `ArrayMesh`, `HeightMapShape3D`, `ConcavePolygonShape3D`, `Array[Resource]` esportati, raycast, esecuzione headless). Eliminato al termine.
-- Test sperimentale su una griglia 4 × 4 con altezze note per determinare D5 e confermare D6, prima sul backend predefinito e poi sull'altro (D3).
-- Scrivere gli ADR sintetici previsti da D9 (sezione 16.3), solo dopo l'approvazione dell'avvio della Milestone 0.
-- Aggiornare le parti **[DA VERIFICARE]** di questo documento con i risultati.
-- **Stato:** completata il 2026-11-06 (risultati in `documentation/M0_VERIFICATION.md`).
+- On a `uptg/milestone-0-setup` branch of the existing repository, create `project.godot` in `UPTG/UniversalProceduralTerrainGenerator/` and the folders according to decision D1; no change to existing documents without approval.
+- Verify that the project opens in 4.7.2 and record the physics backend.
+- A temporary script that verifies every API used by the project (`FastNoiseLite`, `ArrayMesh`, `HeightMapShape3D`, `ConcavePolygonShape3D`, exported `Array[Resource]`, raycast, headless execution). Deleted at the end.
+- Experimental test on a 4 × 4 grid with known heights to determine D5 and confirm D6, first on the default backend and then on the other (D3).
+- Write the concise ADRs planned by D9 (section 16.3), only after approval to start Milestone 0.
+- Update the **[TO VERIFY]** parts of this document with the results.
+- **Status:** completed on 2026-11-06 (results in `documentation/M0_VERIFICATION.md`).
 
-### Milestone A — Dati e height field (senza scena)
+### Milestone A — Data and height field (no scene)
 
-- `UPTGConfig`, `UPTGMountainRegion`, validazione, stima di costo e protezione (5.4).
-- `UPTGSeed` con test vector.
-- `UPTGTerrainData` con metodi di query.
-- `UPTGHeightfieldGenerator`: maschera, noise, montagne, formula.
-- Test: A5, A5b, A7, A11, A12.
+- `UPTGConfig`, `UPTGMountainRegion`, validation, cost estimate and protection (5.4).
+- `UPTGSeed` with test vectors.
+- `UPTGTerrainData` with query methods.
+- `UPTGHeightfieldGenerator`: mask, noise, mountains, formula.
+- Tests: A5, A5b, A7, A11, A12.
 
-### Milestone B — Mesh, nodo e demo
+### Milestone B — Mesh, node and demo
 
-- `UPTGMeshBuilder`: geometria, normali, UV, vertex colors, materiale predefinito.
-- `UPTGTerrain`: segnali, nodi figli, rigenerazione atomica.
-- Demo: generazione all'avvio, pulsante di rigenerazione, campo seed, pannello informazioni (tempi, vertici, triangoli), wireframe, piano d'acqua al `sea_level` (solo nella demo).
-- Test: A2, A3, A4, A6, A10.
+- `UPTGMeshBuilder`: geometry, normals, UVs, vertex colors, default material.
+- `UPTGTerrain`: signals, child nodes, atomic regeneration.
+- Demo: generation at startup, regenerate button, seed field, information panel (times, vertices, triangles), wireframe, water plane at `sea_level` (demo only).
+- Tests: A2, A3, A4, A6, A10.
 
-### Milestone C — Collisione
+### Milestone C — Collision
 
 - `UPTGCollisionBuilder`: `HEIGHTMAP`, `TRIMESH`, `NONE`.
-- Scena di test con raycast, corpi che cadono e capsula.
-- Test: A8, A9.
+- Test scene with raycasts, falling bodies and a capsule.
+- Tests: A8, A9.
 
-### Milestone D — Qualità, misure e documentazione
+### Milestone D — Quality, measurements and documentation
 
-- Taratura del preset isola dopo la demo (D7).
-- Calibrazione dei coefficienti di memoria e delle soglie della sezione 5.4 con le misure reali.
-- Misure della sezione 13 in `TESTING.md`.
-- README dell'addon, TESTING, CHANGELOG; verifica A1, A13 – A16.
-- Versione `0.1.0`.
-- **Stato:** completata il 2026-11-06. Coefficienti di memoria calibrati (5.4), soglie invariate, preset isola tarato (5.1, 5.2, 10.5), misure in `documentation/TESTING.md`.
-
----
-
-## 18. Documentazione e versioni
-
-- `UPTG_ARCHITECTURE.md` — Draft 0.1, conservato invariato.
-- `UPTG_ARCHITECTURE_0.2.md` — questo documento, aggiornato dopo Milestone 0.
-- `addons/uptg/README.md` — come usare l'addon in un altro progetto.
-- `documentation/TESTING.md` — procedure di verifica e misure.
-- `CHANGELOG.md` — modifiche per versione, incluse le variazioni di `ALGORITHM_VERSION`.
-
-Versioni previste (provvisorie): `0.1.0` primo generatore di isole funzionante; `0.2.0` controlli migliorati, eventuale anteprima editor e baking; `1.0.0` modulo stabile dopo test e documentazione.
+- Tuning of the island preset after the demo (D7).
+- Calibration of the memory coefficients and thresholds of section 5.4 with real measurements.
+- Measurements of section 13 in `TESTING.md`.
+- Addon README, TESTING, CHANGELOG; verification of A1, A13 – A16.
+- Version `0.1.0`.
+- **Status:** completed on 2026-11-06. Memory coefficients calibrated (5.4), thresholds unchanged, island preset tuned (5.1, 5.2, 10.5), measurements in `documentation/TESTING.md`.
 
 ---
 
-## 19. Protocollo di lavoro con Claude
+## 18. Documentation and versions
 
-Prima di ogni milestone: ispezionare i file, confermare il piano, attendere l'approvazione.
-Durante: milestone piccole, verifica della sintassi, esecuzione della demo e dei test quando possibile, nessuna modifica a file non correlati.
-Dopo: elenco dei file creati e modificati, test realmente eseguiti, limiti, proposta della milestone successiva senza avviarla.
+- `UPTG_ARCHITECTURE.md` — Draft 0.1, kept unchanged.
+- `UPTG_ARCHITECTURE_0.2.md` — this document, updated after Milestone 0.
+- `addons/uptg/README.md` — how to use the addon in another project.
+- `documentation/TESTING.md` — verification procedures and measurements.
+- `CHANGELOG.md` — changes by version, including changes to `ALGORITHM_VERSION`.
 
-Questo documento definisce l'architettura. Non autorizza implementazioni, modifiche distruttive o sistemi fuori perimetro.
+Planned versions (provisional): `0.1.0` first working island generator; `0.2.0` improved controls, possible editor preview and baking; `1.0.0` stable module after testing and documentation.
 
 ---
 
-## Appendice A — Modifiche rispetto al Draft 0.1
+## 19. Working protocol with Claude
 
-| Area | Draft 0.1 | Versione 0.2 |
+Before each milestone: inspect the files, confirm the plan, wait for approval.
+During: small milestones, syntax verification, running the demo and the tests when possible, no changes to unrelated files.
+After: list of files created and changed, tests actually run, limits, proposal for the next milestone without starting it.
+
+This document defines the architecture. It does not authorize implementations, destructive changes or out-of-scope systems.
+
+---
+
+## Appendix A — Changes from Draft 0.1
+
+| Area | Draft 0.1 | Version 0.2 |
 |---|---|---|
-| Output | "restituire o esporre il risultato" | Contratto `UPTGTerrainData` con campi e query definiti |
-| Integrazione | Solo scena demo | Nodo riutilizzabile `UPTGTerrain` |
-| Nomi classi | `UPTGGenerator`, `UPTGTerrainBuilder` | `UPTGHeightfieldGenerator` (puro), `UPTGMeshBuilder`; più `UPTGSeed`, `UPTGMountainRegion` |
-| Griglia | `terrain_size_x/z` + `resolution_x/z` | `grid_cells_x/z` + `cell_size`, celle quadrate, terreno centrato |
-| Collisione | Trimesh | `HeightMapShape3D` predefinita, trimesh alternativa, `NONE` |
-| Seed | `seed` senza meccanismo | `generation_seed` a 31 bit, sub-seed con funzione documentata, RNG locali |
-| Determinismo | Requisito generico | Garanzia precisa, `ALGORITHM_VERSION`, checksum |
-| Formula | Componenti elencate | Formula esplicita, `sea_level`, `sea_floor_depth`, bordo garantito in mare |
-| Montagne | Elenco di proprietà | `UPTGMountainRegion` Resource, coordinate normalizzate, combinazione con `max` |
-| Noise | Fino a tre livelli | Due `FastNoiseLite` (rilievo frattale, costa) |
-| Materiali | Erba/roccia/sabbia generici | `StandardMaterial3D` con vertex colors |
-| Editor | Non specificato | Solo runtime, niente `@tool` né baking |
-| Struttura | `materials/` fuori dall'addon, presets in demo | Addon autosufficiente, progetto Godot per modulo, `tests/` |
-| Test | Criteri manuali, riferimento a un veicolo e a Nitro Underground | Test automatici, corpi fisici generici, criteri verificabili |
-| Sequenza | Collisione in Milestone C con griglia libera | Milestone 0 di verifica API; vincoli della collisione fissati prima del codice |
-| Testo | Caratteri invisibili in due nomi di classe | Rimossi |
+| Output | "return or expose the result" | `UPTGTerrainData` contract with defined fields and queries |
+| Integration | Demo scene only | Reusable `UPTGTerrain` node |
+| Class names | `UPTGGenerator`, `UPTGTerrainBuilder` | `UPTGHeightfieldGenerator` (pure), `UPTGMeshBuilder`; plus `UPTGSeed`, `UPTGMountainRegion` |
+| Grid | `terrain_size_x/z` + `resolution_x/z` | `grid_cells_x/z` + `cell_size`, square cells, centered terrain |
+| Collision | Trimesh | `HeightMapShape3D` by default, trimesh as alternative, `NONE` |
+| Seed | `seed` with no mechanism | 31-bit `generation_seed`, sub-seeds with a documented function, local RNGs |
+| Determinism | Generic requirement | Precise guarantee, `ALGORITHM_VERSION`, checksums |
+| Formula | Listed components | Explicit formula, `sea_level`, `sea_floor_depth`, border guaranteed at sea |
+| Mountains | List of properties | `UPTGMountainRegion` Resource, normalized coordinates, combination with `max` |
+| Noise | Up to three layers | Two `FastNoiseLite` (fractal relief, coastline) |
+| Materials | Generic grass/rock/sand | `StandardMaterial3D` with vertex colors |
+| Editor | Not specified | Runtime only, no `@tool` or baking |
+| Structure | `materials/` outside the addon, presets in demo | Self-contained addon, Godot project per module, `tests/` |
+| Tests | Manual criteria, reference to a vehicle and to Nitro Underground | Automated tests, generic physics bodies, verifiable criteria |
+| Sequence | Collision in Milestone C with a free grid | API verification Milestone 0; collision constraints fixed before the code |
+| Text | Invisible characters in two class names | Removed |
 
 ---
 
-## Appendice B — Storico del documento
+## Appendix B — Document history
 
-| Revisione | Data | Modifiche |
+| Revision | Date | Changes |
 |---|---|---|
-| 0.2-r1 | 2026-11-06 | Prima stesura in italiano con le 15 decisioni approvate |
-| 0.2-r2 | 2026-11-06 | Incorporate D1–D9; aggiunta la protezione da configurazioni costose (5.4, A5b); sezione 16 divisa in approvato, da verificare, rinviato; corretti il vincolo raggio/irregolarità della costa e i valori predefiniti di `island_radius`, il campo mancante `sea_floor_depth` in `UPTGTerrainData`, la definizione di `config_checksum` e il tipo di `UPTGHeightfieldGenerator` |
-| 0.2-r3 | 2026-11-06 | Risultati della Milestone 0: aggiunta l'etichetta [VERIFICATO M0]; registrati ordine di `map_data`, centratura, diagonale `(ix + 1, iz)`–`(ix, iz + 1)`, winding orario, scala uniforme, tolleranza di 1 cm confermata, backend predefinito (Godot Physics), comportamento identico di Jolt, indici a 32 bit, test headless e file `.gd.uid`. Nessuna decisione architetturale modificata |
-| 0.2-r4 | 2026-11-06 | Durante la Milestone A: offset di campionamento del noise derivato dal seed (salt 4 e 5, sezioni 7.1, 8.2 e 8.3), approvato da Stefano, perché il noise simplex vale 0 nell'origine e il centro dell'isola restava uguale con ogni seed. `ALGORITHM_VERSION` resta 1, perché la formula precedente non è mai stata rilasciata |
-| 0.2-r5 | 2026-11-06 | Milestone D: valori predefiniti del preset isola tarati (5.1, 5.2; D7); coefficienti di memoria calibrati con misure reali, 48 byte per cella per gli indici e 320 per la trimesh, soglie invariate (5.4); precedenza della sabbia sulla roccia nei vertex colors (10.5); misure della sezione 13 in `TESTING.md`; nuova etichetta [VERIFICATO MD]. Nessuna decisione architetturale modificata |
+| 0.2-r1 | 2026-11-06 | First draft in Italian with the 15 approved decisions |
+| 0.2-r2 | 2026-11-06 | Incorporated D1–D9; added the protection against expensive configurations (5.4, A5b); section 16 split into approved, to verify, deferred; corrected the coastline radius/irregularity constraint and the default values of `island_radius`, the missing `sea_floor_depth` field in `UPTGTerrainData`, the definition of `config_checksum` and the type of `UPTGHeightfieldGenerator` |
+| 0.2-r3 | 2026-11-06 | Milestone 0 results: added the [VERIFIED M0] label; recorded `map_data` order, centering, diagonal `(ix + 1, iz)`–`(ix, iz + 1)`, clockwise winding, uniform scale, 1 cm tolerance confirmed, default backend (Godot Physics), identical behavior of Jolt, 32-bit indices, headless tests and `.gd.uid` files. No architectural decision changed |
+| 0.2-r4 | 2026-11-06 | During Milestone A: noise sampling offset derived from the seed (salts 4 and 5, sections 7.1, 8.2 and 8.3), approved by Stefano, because simplex noise is 0 at the origin and the center of the island stayed the same with every seed. `ALGORITHM_VERSION` stays 1, because the earlier formula was never released |
+| 0.2-r5 | 2026-11-06 | Milestone D: island preset default values tuned (5.1, 5.2; D7); memory coefficients calibrated with real measurements, 48 bytes per cell for indices and 320 for the trimesh, thresholds unchanged (5.4); sand precedence over rock in vertex colors (10.5); section 13 measurements in `TESTING.md`; new [VERIFIED MD] label. No architectural decision changed |

@@ -69,7 +69,7 @@ Il terreno è centrato sul nodo: copre `grid_cells_x * cell_size` per `grid_cell
 | Collisione | `collision_mode`: `HEIGHTMAP` (predefinito, il più economico), `TRIMESH` o `NONE`. |
 | Aspetto | `uv_tile_size`, `sand_color`, `grass_color`, `rock_color`, `beach_height`, `rock_slope_degrees`, `rock_height`. |
 
-Le frequenze sono in unità mondo: se si mantiene la stessa dimensione in metri (`grid_cells * cell_size`) e si cambia il numero di celle, cambia solo la risoluzione, non la forma dell'isola. L'elenco completo, con intervalli e valori predefiniti, è nella sezione 5 di `documentation/UPTG_ARCHITECTURE_0.2.md`.
+Le frequenze sono in unità mondo: se si mantiene la stessa dimensione in metri (`grid_cells * cell_size`) e si cambia il numero di celle, cambia solo la risoluzione, non la forma dell'isola. L'elenco completo, con intervalli e valori predefiniti, è nella sezione 5 di `documentation/UPTG_ARCHITECTURE_0.2.it.md`.
 
 `config.validate()` restituisce l'elenco degli errori (vuoto se la configurazione è valida); `generate()` rifiuta una configurazione non valida ed emette `generation_failed` con i messaggi.
 

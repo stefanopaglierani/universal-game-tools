@@ -57,7 +57,7 @@ Ogni strumento dovrebbe contenere: implementazione core, risorse di configurazio
 - [Istruzioni di progetto](Documentation/development/PROJECT_INSTRUCTIONS.it.md): identità, principi e workflow con l'IA
 - [Workflow di sviluppo](Documentation/development/WORKFLOW.it.md): branch, commit, versionamento
 - [Panoramica dell'architettura](Documentation/architecture/README.it.md): convenzioni comuni ai moduli
-- [Architettura UPTG 0.2](UPTG/UniversalProceduralTerrainGenerator/documentation/UPTG_ARCHITECTURE_0.2.md), in italiano ([bozza 0.1](UPTG/UniversalProceduralTerrainGenerator/documentation/UPTG_ARCHITECTURE.md), in inglese, resta come riferimento storico)
+- [Architettura UPTG 0.2](UPTG/UniversalProceduralTerrainGenerator/documentation/UPTG_ARCHITECTURE_0.2.it.md) ([bozza 0.1](UPTG/UniversalProceduralTerrainGenerator/documentation/UPTG_ARCHITECTURE.md), in inglese, resta come riferimento storico)
 - [Guida dell'addon UPTG](UPTG/UniversalProceduralTerrainGenerator/addons/uptg/README.it.md): installazione e utilizzo
 - [Test di UPTG](UPTG/UniversalProceduralTerrainGenerator/documentation/TESTING.it.md): suite di test, benchmark, verifiche manuali
 
