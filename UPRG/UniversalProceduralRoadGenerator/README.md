@@ -5,7 +5,7 @@
 **Status:** first version in development (0.1.0, not tagged yet)
 **Target engine:** Godot 4.7.2 (GDScript)
 
-A private development tool: it adds roads to a terrain baked by UPTG and writes a new world file. It flattens the terrain under the road and adds the road surface and its collision. A game opens the result without any UPTG or UPRG code.
+A private development tool: it takes a terrain baked by UPTG and writes a new world file with terrain changes, roads, places with buildings, and custom textures. A game opens the result without any UPTG or UPRG code.
 
 ## Folders
 
@@ -24,11 +24,20 @@ Open a command prompt in this folder (the first command is needed once, after a 
 
 ```
 godot --headless --editor --quit
-godot --headless --path . -s res://tools/uprg_bake.gd -- --in=C:/Temp/island.scn --road=res://presets/example_road_island.tres --out=C:/Temp/island_road.scn
-godot --path . res://demo/uprg_viewer.tscn -- --file=C:/Temp/island_road.scn
+godot --headless --path . -s res://tools/uprg_bake.gd -- --in=C:/Temp/island.scn --world=res://presets/example_world_island.tres --out=C:/Temp/world.scn
+godot --path . res://demo/uprg_viewer.tscn -- --file=C:/Temp/world.scn
 ```
 
-The road follows the points in the `.tres` file, in meters from the center of the terrain. Open it in the Godot editor to change points, width and slope, or duplicate it for a new road. Repeat `--road=` to add more roads.
+The world description is one `.tres` file: open `presets/example_world_island.tres` in the Godot editor, or duplicate it for a new world.
+
+| Section | What you set |
+|---|---|
+| `terrain_edits` | Circular areas to raise, lower (`ADD`) or level (`LEVEL`) |
+| `places` | Name, center, radius, number and size of buildings, wall and roof colors, seed |
+| `roads` | Points in meters from the terrain center, width, slope |
+| `skin` | Images for roads, terrain and buildings, and color tints |
+
+A road alone also works: `--road=<road.tres>`, repeatable.
 
 ## Documentation
 

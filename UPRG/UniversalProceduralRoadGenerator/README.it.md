@@ -5,7 +5,7 @@
 **Stato:** prima versione in sviluppo (0.1.0, non ancora taggata)
 **Motore:** Godot 4.7.2 (GDScript)
 
-Uno strumento di sviluppo privato: aggiunge strade a un terreno esportato da UPTG e scrive un nuovo file del mondo. Spiana il terreno sotto la strada e aggiunge la superficie stradale e la sua collisione. Un gioco apre il risultato senza codice UPTG o UPRG.
+Uno strumento di sviluppo privato: prende un terreno esportato da UPTG e scrive un nuovo file del mondo con modifiche al terreno, strade, luoghi con edifici e texture personalizzate. Un gioco apre il risultato senza codice UPTG o UPRG.
 
 ## Cartelle
 
@@ -24,11 +24,20 @@ Apri un prompt dei comandi in questa cartella (il primo comando serve una volta,
 
 ```
 godot --headless --editor --quit
-godot --headless --path . -s res://tools/uprg_bake.gd -- --in=C:/Temp/isola.scn --road=res://presets/example_road_island.tres --out=C:/Temp/isola_strada.scn
-godot --path . res://demo/uprg_viewer.tscn -- --file=C:/Temp/isola_strada.scn
+godot --headless --path . -s res://tools/uprg_bake.gd -- --in=C:/Temp/isola.scn --world=res://presets/example_world_island.tres --out=C:/Temp/mondo.scn
+godot --path . res://demo/uprg_viewer.tscn -- --file=C:/Temp/mondo.scn
 ```
 
-La strada segue i punti del file `.tres`, in metri dal centro del terreno. Aprilo nell'editor di Godot per cambiare punti, larghezza e pendenza, oppure duplicalo per una nuova strada. Ripeti `--road=` per aggiungere altre strade.
+La descrizione del mondo è un unico file `.tres`: apri `presets/example_world_island.tres` nell'editor di Godot, oppure duplicalo per un nuovo mondo.
+
+| Sezione | Cosa imposti |
+|---|---|
+| `terrain_edits` | Aree circolari da alzare, abbassare (`ADD`) o livellare (`LEVEL`) |
+| `places` | Nome, centro, raggio, numero e dimensioni degli edifici, colori di muri e tetti, seed |
+| `roads` | Punti in metri dal centro del terreno, larghezza, pendenza |
+| `skin` | Immagini per strade, terreno ed edifici, e tinte di colore |
+
+Funziona anche una sola strada: `--road=<strada.tres>`, ripetibile.
 
 ## Documentazione
 

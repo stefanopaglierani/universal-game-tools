@@ -10,7 +10,7 @@ var heights: PackedFloat32Array
 
 ## Builds the plan for [param road] on [param grid]. Returns null when the road leaves the terrain.
 static func plan(road: UPRGRoadConfig, grid: UPRGTerrainGrid) -> UPRGRoadShape:
-	var margin := road.width * 0.5 + road.shoulder + road.blend + grid.cell_size
+	var margin := road.width * 0.5 + road.shoulder + road.blend + grid.cell_size * 2.5
 	var shape := UPRGRoadShape.new()
 	shape.path = _smooth_path(road.points, road.sample_spacing)
 	for p in shape.path:
@@ -93,7 +93,9 @@ static func _limit_grade(h: PackedFloat32Array, max_step: float) -> void:
 ## Flattens the terrain under the road and blends it back to its own shape at the sides.
 ## Returns the number of vertices changed.
 func apply_to_terrain(road: UPRGRoadConfig, grid: UPRGTerrainGrid) -> int:
-	var flat := road.width * 0.5 + road.shoulder
+	# The leveled strip extends past the road by more than one cell diagonal, so that no terrain
+	# triangle crosses the road edge and the edge stays clean on a coarse grid.
+	var flat := road.width * 0.5 + road.shoulder + grid.cell_size * 1.5
 	var reach := flat + road.blend
 	var best := {}
 	for s in path.size() - 1:

@@ -46,3 +46,4 @@ Significant architectural decisions are recorded as ADRs in [`decisions/`](decis
 - [ADR-0007: UPTG noise sampling offsets derived from the seed](decisions/ADR-0007-uptg-seed-derived-noise-offsets.md)
 - [ADR-0008: UPTG cost estimate calibration from measurements](decisions/ADR-0008-uptg-cost-calibration.md)
 - [ADR-0009: UPTG is a private tool, only its baked output goes into a game](decisions/ADR-0009-uptg-tool-only-baked-output.md)
+- [ADR-0010: UPRG works on the baked terrain file](decisions/ADR-0010-uprg-reads-baked-terrain.md)

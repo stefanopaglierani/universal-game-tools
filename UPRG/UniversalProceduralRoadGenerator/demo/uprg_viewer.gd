@@ -27,7 +27,8 @@ func _ready() -> void:
 	add_child(world)
 	var meta: Dictionary = world.get_meta("terrain_data", {})
 	var roads: Array = meta.get("roads", [])
-	info.text = "%s\nSeed %s, %d road(s)\nDrag: rotate   Wheel: zoom" % [path.get_file(), str(meta.get("generation_seed", "?")), roads.size()]
+	var places: Array = meta.get("places", [])
+	info.text = "%s\nSeed %s, %d road(s), %d place(s)\nDrag: rotate   Wheel: zoom" % [path.get_file(), str(meta.get("generation_seed", "?")), roads.size(), places.size()]
 	_update_camera()
 
 

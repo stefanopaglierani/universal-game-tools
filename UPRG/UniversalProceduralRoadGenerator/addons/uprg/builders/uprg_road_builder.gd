@@ -5,7 +5,7 @@ extends RefCounted
 
 
 ## Returns the road surface. Triangles are clockwise seen from above, as in Godot's front faces.
-static func build_mesh(road: UPRGRoadConfig, shape: UPRGRoadShape) -> ArrayMesh:
+static func build_mesh(road: UPRGRoadConfig, shape: UPRGRoadShape, skin: UPRGSkin = null, errors: PackedStringArray = PackedStringArray()) -> ArrayMesh:
 	var count := shape.path.size()
 	var vertices := PackedVector3Array()
 	var normals := PackedVector3Array()
@@ -15,7 +15,9 @@ static func build_mesh(road: UPRGRoadConfig, shape: UPRGRoadShape) -> ArrayMesh:
 	uvs.resize(count * 4)
 	var half := road.width * 0.5
 	var offsets: Array[float] = [-half - road.shoulder, -half, half, half + road.shoulder]
-	var drops: Array[float] = [road.sink, 0.0, 0.0, road.sink]
+	# The outer points stay just above the leveled terrain.
+	var outer := road.sink * 0.5
+	var drops: Array[float] = [outer, 0.0, 0.0, outer]
 	var across: Array[float] = [0.0, 0.1, 0.9, 1.0]
 	for i in count:
 		var p := shape.path[i]
@@ -43,8 +45,10 @@ static func build_mesh(road: UPRGRoadConfig, shape: UPRGRoadShape) -> ArrayMesh:
 	var mesh := ArrayMesh.new()
 	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
 	var material := StandardMaterial3D.new()
-	material.albedo_color = road.road_color
+	material.albedo_color = road.road_color * (skin.road_tint if skin != null else Color.WHITE)
 	material.roughness = 0.95
+	if skin != null:
+		material.albedo_texture = UPRGSkin.load_texture(skin.road_texture_path, errors)
 	mesh.surface_set_material(0, material)
 	return mesh
 
