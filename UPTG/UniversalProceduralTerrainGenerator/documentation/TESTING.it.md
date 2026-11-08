@@ -115,6 +115,19 @@ Aprire il progetto in Godot 4.7.2 ed eseguire `res://demo/uptg_demo.tscn` (F6 co
 
 Piano d'acqua, cielo, luce e camera appartengono solo alla demo, non all'addon.
 
+## Screenshot
+
+Le catture della demo eseguita in Godot 4.7.2 sono in `documentation/screenshots/`. La cartella contiene un file `.gdignore`, quindi Godot non importa le immagini. Le immagini delle Milestone B e C sono precedenti alla taratura del preset della Milestone D (altezze fino a circa 47 m invece di circa 88 m).
+
+| File | Mostra |
+|---|---|
+| [`milestone-d/preset_seed12345.png`](screenshots/milestone-d/preset_seed12345.png) | Preset predefinito tarato, seed 12345 |
+| [`milestone-d/preset_seed777.png`](screenshots/milestone-d/preset_seed777.png) | Preset predefinito tarato, seed 777 |
+| [`milestone-c/demo_balls.png`](screenshots/milestone-c/demo_balls.png) | **Drop balls**: sfere ferme sul terreno e sott'acqua |
+| [`milestone-b/demo_seed12345.png`](screenshots/milestone-b/demo_seed12345.png) | Prima isola della demo, seed 12345 |
+| [`milestone-b/demo_seed777_close.png`](screenshots/milestone-b/demo_seed777_close.png) | Vista ravvicinata, seed 777 |
+| [`milestone-b/demo_wireframe.png`](screenshots/milestone-b/demo_wireframe.png) | Vista **Wireframe** della griglia di triangoli |
+
 ## Aggiungere una suite
 
 1. Creare `tests/test_<argomento>.gd` che estende `RefCounted`, con `func run(t: Object) -> void`.

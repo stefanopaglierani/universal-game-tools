@@ -13,7 +13,7 @@ Si segue la [guida di stile ufficiale di GDScript](https://docs.godotengine.org/
 | Funzioni, variabili | `snake_case` | `build_height_field()` |
 | Costanti | `UPPER_SNAKE_CASE` | `MIN_RESOLUTION` |
 | Scene | `snake_case.tscn` | `uptg_demo.tscn` |
-| Preset | `snake_case.tres` | `island_default.tres` |
+| Preset | `snake_case.tres` | `uptg_island_default.tres` |
 
 Il codice (nomi, commenti) è scritto in inglese.
 

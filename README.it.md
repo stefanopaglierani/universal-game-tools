@@ -10,7 +10,7 @@ Gli strumenti sono indipendenti dal gioco: ognuno è progettato per poter essere
 
 | Modulo | Nome | Stato |
 |---|---|---|
-| [UPTG](UPTG/UniversalProceduralTerrainGenerator/README.it.md) | Universal Procedural Terrain Generator | Bozza di architettura 0.1, non ancora implementato |
+| [UPTG](UPTG/UniversalProceduralTerrainGenerator/README.it.md) | Universal Procedural Terrain Generator | Versione 0.1.0 rilasciata (tag `uptg-v0.1.0`): generatore procedurale di isole con mesh, collisione e demo |
 | [UPRG](UPRG/UniversalProceduralRoadGenerator/README.it.md) | Universal Procedural Road Generator | Pianificato, non iniziato |
 | [UPWG](UPWG/UniversalProceduralWorldGenerator/README.it.md) | Universal Procedural World Generator | Pianificato, non iniziato |
 
@@ -25,10 +25,13 @@ universal-game-tools/
 ├── LICENSE
 ├── UPTG/
 │   └── UniversalProceduralTerrainGenerator/
-│       ├── addons/           Codice dell'addon Godot (runtime, risorse)
-│       ├── demo/             Scene demo / di test autonome
-│       ├── presets/          Preset di configurazione (.tres)
-│       ├── documentation/    Architettura, test, documenti del modulo
+│       ├── project.godot     Progetto Godot autonomo del modulo
+│       ├── addons/uptg/      Addon portabile: core, builders, nodes, materials, presets
+│       ├── demo/             Scena demo autonoma
+│       ├── tests/            Suite di test headless, test di collisione, benchmark
+│       ├── presets/          Riservata, vuota in v0.1 (il preset è in addons/uptg/presets/)
+│       ├── documentation/    Architettura, test, verifiche, screenshot
+│       ├── CHANGELOG.md      Modifiche del modulo
 │       └── README.md
 ├── UPRG/
 │   └── UniversalProceduralRoadGenerator/    (segnaposto)
@@ -54,7 +57,9 @@ Ogni strumento dovrebbe contenere: implementazione core, risorse di configurazio
 - [Istruzioni di progetto](Documentation/development/PROJECT_INSTRUCTIONS.it.md): identità, principi e workflow con l'IA
 - [Workflow di sviluppo](Documentation/development/WORKFLOW.it.md): branch, commit, versionamento
 - [Panoramica dell'architettura](Documentation/architecture/README.it.md): convenzioni comuni ai moduli
-- [Architettura UPTG](UPTG/UniversalProceduralTerrainGenerator/documentation/UPTG_ARCHITECTURE.md) (solo in inglese, in revisione)
+- [Architettura UPTG 0.2](UPTG/UniversalProceduralTerrainGenerator/documentation/UPTG_ARCHITECTURE_0.2.md), in italiano ([bozza 0.1](UPTG/UniversalProceduralTerrainGenerator/documentation/UPTG_ARCHITECTURE.md), in inglese, resta come riferimento storico)
+- [Guida dell'addon UPTG](UPTG/UniversalProceduralTerrainGenerator/addons/uptg/README.it.md): installazione e utilizzo
+- [Test di UPTG](UPTG/UniversalProceduralTerrainGenerator/documentation/TESTING.it.md): suite di test, benchmark, verifiche manuali
 
 ## Principi di sviluppo
 

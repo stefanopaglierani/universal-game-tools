@@ -7,6 +7,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ## [Unreleased]
 
+### Added
+- Demo screenshots from Milestones B, C and D in `documentation/screenshots/`, listed in `documentation/TESTING.md`.
+
+### Changed
+- Module README updated for version 0.1.0 and the R12 addon layout.
+
 ## [0.1.0] - 2026-11-06
 
 First working island generator. `ALGORITHM_VERSION` is 1.

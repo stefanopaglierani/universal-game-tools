@@ -13,7 +13,7 @@ Follows the official [GDScript style guide](https://docs.godotengine.org/en/stab
 | Functions, variables | `snake_case` | `build_height_field()` |
 | Constants | `UPPER_SNAKE_CASE` | `MIN_RESOLUTION` |
 | Scenes | `snake_case.tscn` | `uptg_demo.tscn` |
-| Presets | `snake_case.tres` | `island_default.tres` |
+| Presets | `snake_case.tres` | `uptg_island_default.tres` |
 
 Code (names, comments) is written in English.
 

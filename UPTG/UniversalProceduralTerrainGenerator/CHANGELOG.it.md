@@ -7,6 +7,12 @@ Il formato segue [Keep a Changelog](https://keepachangelog.com/it-IT/1.1.0/) e i
 
 ## [Non rilasciato]
 
+### Aggiunto
+- Screenshot della demo delle Milestone B, C e D in `documentation/screenshots/`, elencati in `documentation/TESTING.it.md`.
+
+### Modificato
+- README del modulo aggiornato per la versione 0.1.0 e per la struttura R12 dell'addon.
+
 ## [0.1.0] - 2026-11-06
 
 Primo generatore di isole funzionante. `ALGORITHM_VERSION` vale 1.
