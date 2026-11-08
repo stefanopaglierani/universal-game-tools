@@ -3,7 +3,7 @@
 # Changelog
 
 Qui sono documentate tutte le modifiche rilevanti al repository.
-Ogni modulo avrà anche il proprio `CHANGELOG.md` quando inizierà l'implementazione.
+Ogni modulo implementato ha anche il proprio `CHANGELOG.md`.
 
 Il formato segue [Keep a Changelog](https://keepachangelog.com/it-IT/1.1.0/) e i moduli usano il [Versionamento Semantico](https://semver.org/lang/it/).
 

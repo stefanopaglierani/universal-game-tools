@@ -3,7 +3,7 @@
 # Changelog
 
 All notable changes to this repository are documented here.
-Each module also keeps its own `CHANGELOG.md` once implementation starts.
+Each implemented module also keeps its own `CHANGELOG.md`.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and modules use [Semantic Versioning](https://semver.org/).
 
