@@ -1,14 +1,11 @@
-[gd_resource type="Resource" script_class="UPTGConfig" format=3 uid="uid://c006wvj5t5cb4"]
+[gd_resource type="Resource" script_class="UPTGConfig" format=3]
 
-[ext_resource type="Script" uid="uid://nvxe8tkv6s7l" path="res://addons/uptg/core/uptg_mountain_region.gd" id="1_kp6tp"]
-[ext_resource type="Script" uid="uid://cua0e34ja6d1m" path="res://addons/uptg/core/uptg_config.gd" id="2_wc268"]
+[ext_resource type="Script" path="res://addons/uptg/core/uptg_mountain_region.gd" id="1_kp6tp"]
+[ext_resource type="Script" path="res://addons/uptg/core/uptg_config.gd" id="2_wc268"]
+
+[sub_resource type="Resource" id="Resource_4vmqu"]
+script = ExtResource("1_kp6tp")
 
 [resource]
 script = ExtResource("2_wc268")
-sea_floor_depth = 180.3
-coastline_irregularity = 0.423
-coastline_noise_frequency = 0.08700000000000001
-coastline_falloff_width = 0.721
-land_base_height = 124.9
-min_land_height = 36.0
-grass_color = Color(0.34901962, 0.85490197, 0.2509804, 1)
+mountain_regions = Array[ExtResource("1_kp6tp")]([SubResource("Resource_4vmqu")])
