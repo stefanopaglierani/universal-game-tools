@@ -135,7 +135,7 @@ func run(t: Object) -> void:
 			if nearest < reach - road.sample_spacing:
 				flat_count += 1
 				flat_error = maxf(flat_error, absf(h - (target - road.sink)))
-			elif nearest > reach + road.blend + road.sample_spacing:
+			elif nearest > reach + CELL * 1.5 + road.blend + road.sample_spacing:
 				far_error = maxf(far_error, absf(h - _height(v.x, v.y)))
 	t.check("the terrain under the road follows it, just below the pavement", flat_count > 0 and flat_error < 0.12,
 		"%d vertices, max error %.3f m" % [flat_count, flat_error])

@@ -46,3 +46,4 @@ Le decisioni architetturali importanti sono registrate come ADR in [`decisions/`
 - [ADR-0007: Offset di campionamento del noise di UPTG derivati dal seed](decisions/ADR-0007-uptg-seed-derived-noise-offsets.it.md)
 - [ADR-0008: Calibrazione della stima dei costi di UPTG con misure reali](decisions/ADR-0008-uptg-cost-calibration.it.md)
 - [ADR-0009: UPTG è uno strumento privato, in un gioco entra solo il risultato esportato](decisions/ADR-0009-uptg-tool-only-baked-output.it.md)
+- [ADR-0010: UPRG lavora sul file del terreno esportato](decisions/ADR-0010-uprg-reads-baked-terrain.it.md)

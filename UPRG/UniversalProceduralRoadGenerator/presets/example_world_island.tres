@@ -1,0 +1,39 @@
+[gd_resource type="Resource" script_class="UPRGWorldConfig" load_steps=11 format=3]
+
+[ext_resource type="Script" path="res://addons/uprg/core/uprg_world_config.gd" id="1"]
+[ext_resource type="Script" path="res://addons/uprg/core/uprg_terrain_edit.gd" id="2"]
+[ext_resource type="Script" path="res://addons/uprg/core/uprg_place.gd" id="3"]
+[ext_resource type="Script" path="res://addons/uprg/core/uprg_road_config.gd" id="4"]
+[ext_resource type="Script" path="res://addons/uprg/core/uprg_skin.gd" id="5"]
+
+[sub_resource type="Resource" id="edit_hill"]
+script = ExtResource("2")
+kind = 0
+center = Vector2(60, 200)
+radius = 35.0
+blend = 40.0
+amount = 18.0
+
+[sub_resource type="Resource" id="village"]
+script = ExtResource("3")
+place_name = "Porto Vecchio"
+center = Vector2(-205, 45)
+radius = 55.0
+blend = 25.0
+building_count = 12
+seed_value = 7
+
+[sub_resource type="Resource" id="road"]
+script = ExtResource("4")
+points = PackedVector2Array(-40, 226.5, -147.8, 176.2, -216.1, 78.7, -226.5, -39.9, -176.2, -147.8, -78.7, -216.1)
+
+[sub_resource type="Resource" id="skin"]
+script = ExtResource("5")
+terrain_tint = Color(0.92, 0.92, 0.88, 1)
+
+[resource]
+script = ExtResource("1")
+terrain_edits = Array[ExtResource("2")]([SubResource("edit_hill")])
+places = Array[ExtResource("3")]([SubResource("village")])
+roads = Array[ExtResource("4")]([SubResource("road")])
+skin = SubResource("skin")
