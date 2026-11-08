@@ -11,9 +11,10 @@ Un modulo di generazione del terreno per Godot, riutilizzabile e indipendente da
 
 | Cartella | Contenuto |
 |---|---|
-| `addons/uptg/` | L'addon portabile, e l'unica cartella da copiare in un gioco: `core/`, `builders/`, `nodes/`, `materials/`, `presets/` |
+| `addons/uptg/` | Il generatore: `core/`, `builders/`, `nodes/`, `materials/`, `presets/` |
 | `demo/` | Scena demo autonoma |
 | `tests/` | Suite di test headless, test di collisione e benchmark |
+| `tools/` | Strumento di bake: scrive un mondo generato su file per un gioco |
 | `presets/` | Riservata e vuota in v0.1: il preset predefinito è `addons/uptg/presets/uptg_island_default.tres` |
 | `documentation/` | Architettura, procedure di test, risultati delle verifiche e screenshot |
 
@@ -28,4 +29,13 @@ Un modulo di generazione del terreno per Godot, riutilizzabile e indipendente da
 
 ## Utilizzo
 
-Segui la [guida dell'addon](addons/uptg/README.it.md) per copiare `addons/uptg/` in un progetto Godot 4.7.2. Per vedere il generatore in funzione, apri questa cartella come progetto ed esegui `res://demo/uptg_demo.tscn`.
+UPTG è uno strumento di sviluppo privato e non entra in un gioco (ADR-0009). Per vederlo in funzione, apri questa cartella come progetto ed esegui `res://demo/uptg_demo.tscn`.
+
+Per dare un mondo a un gioco, esportalo da questa cartella (il primo comando serve una volta, dopo un nuovo clone o un nuovo script):
+
+```
+godot --headless --editor --quit
+godot --headless --path . -s res://tools/uptg_bake.gd -- --out=C:/percorso/del/gioco/mondo/isola.scn --seed=12345
+```
+
+Il file `.scn` contiene mesh, materiale, collisione e altezze, senza script e senza riferimenti a UPTG. Nel gioco si istanzia come qualsiasi altra scena. Dopo un aggiornamento di Godot va esportato di nuovo.

@@ -4,7 +4,7 @@
 ## Specifica di architettura — Versione 0.2
 
 **Stato:** architettura approvata (0.2-r2). Milestone 0 eseguita il 2026-11-06: i risultati sperimentali sono riportati con l'etichetta [VERIFICATO M0]. Milestone A, B, C e D completate: versione `0.1.0`; le misure reali sono etichettate [VERIFICATO MD].
-**Revisione:** 0.2-r5 (vedi Appendice B)
+**Revisione:** 0.2-r6 (vedi Appendice B)
 **Progetto:** Universal Game Tools
 **Engine di riferimento:** Godot 4.7.2
 **Linguaggio:** GDScript (static typing)
@@ -60,7 +60,7 @@ UPTG è un modulo riutilizzabile per generare terreni procedurali 3D in Godot. I
 - Terreno infinito, streaming, chunking, LOD.
 - Generazione in thread separati.
 - Script `@tool`, anteprima nell'editor, editor dock, `EditorPlugin`.
-- Baking del terreno su file.
+- Baking dentro l'addon o dall'editor (lo strumento di bake della sezione 12.5 è fuori dall'addon).
 - Erosione, fiumi, laghi.
 - Modalità di forma diverse dall'isola (continentale, ecc.).
 - Gameplay, navigazione AI, logica veicoli.
@@ -128,6 +128,9 @@ universal-game-tools/                         radice del repository Git (esisten
         │   └── collision/
         │       ├── collision_test.tscn
         │       └── collision_test.gd
+        ├── tools/
+        │   ├── uptg_baker.gd
+        │   └── uptg_bake.gd
         ├── documentation/
         │   ├── UPTG_ARCHITECTURE.md          Draft 0.1, invariato
         │   ├── UPTG_ARCHITECTURE_0.2.md      questo documento
@@ -581,7 +584,17 @@ UPTGTerrain (Node3D)
 
 ### 12.4 Runtime soltanto [APPROVATO]
 
-Nessuno script usa `@tool`. Non esistono anteprima nell'editor, editor dock o baking in v0.1.
+Nessuno script usa `@tool`. Non esistono anteprima nell'editor o editor dock in v0.1, e l'addon stesso non fa baking.
+
+### 12.5 Strumento di bake [APPROVATO, 0.2-r6]
+
+UPTG e i suoi sotto-programmi sono strumenti di sviluppo privati: creano mondi e oggetti 3D per altri software e non ne fanno parte (D10, ADR-0009). Il gioco riceve solo il risultato generato.
+
+- `tools/uptg_baker.gd` (`UPTGBaker.bake(config, out_path, allow_large)`) genera con le funzioni pubbliche delle sezioni 8, 10 e 11, invariate, e scrive un unico file `.scn` compresso.
+- `tools/uptg_bake.gd` è il punto di ingresso da riga di comando (`-- --out=<file.scn> [--preset=<res path>] [--seed=<n>] [--allow-large]`).
+- Il file contiene un `Node3D` di nome `Terrain` con `Mesh` (`MeshInstance3D`) e `Body/Shape` (`StaticBody3D`, `CollisionShape3D`). Mesh, materiale e shape sono dentro il file: nessuno script, nessuna dipendenza esterna, nessun riferimento a UPTG.
+- Metadati `terrain_data` sulla radice: `format_version`, `algorithm_version`, `generation_seed`, `config_checksum`, `heights_checksum`, `grid_cells_x`, `grid_cells_z`, `cell_size`, `sea_level`, `sea_floor_depth`, `heights`.
+- Il file è legato alla versione di Godot che lo ha scritto. Dopo un aggiornamento del motore va rigenerato.
 
 ---
 
@@ -667,6 +680,7 @@ Limite noto: una sola mesh significa che il frustum culling vale per tutto il te
 | D8 | La documentazione nel repository è ufficiale; le copie esterne sono riferimenti locali | 0 |
 | D9 | Le decisioni fondamentali hanno ADR sintetici: ADR-0001 … ADR-0006 in `Documentation/architecture/decisions/` (creati in Milestone 0) | 16.3 |
 | — | Protezione da configurazioni troppo costose | 5.4 |
+| D10 | UPTG e i suoi sotto-programmi sono strumenti privati; in un gioco entra solo ciò che generano (ADR-0009) | 12.5 |
 
 ### 16.2 Verifiche sperimentali
 
@@ -705,7 +719,7 @@ Limite noto: una sola mesh significa che il frustum culling vale per tutto il te
 | Allineamento di `Documentation/architecture/README.md`, README di modulo e cartella `presets/` di modulo alla struttura R12 | Aggiornamento documentale separato, da approvare | Fino ad allora prevale questo documento per UPTG |
 | Soglie di tempo in secondi per la protezione | Milestone D | Dopo le misure reali |
 | Spostamento della generazione su thread | Dopo v0.1 | Reso possibile dal generatore puro |
-| Anteprima editor, `@tool`, baking su file | v0.2.0 o successiva | Fuori perimetro v0.1 |
+| Anteprima editor, `@tool` | v0.2.0 o successiva | Fuori perimetro v0.1 |
 | Modifica del terreno da parte di moduli futuri (per esempio strade) | Progettazione di UPRG | `UPTGTerrainData` resta in sola lettura in v0.1 |
 | Licenza permissiva o distribuzione | Solo con decisione esplicita di Stefano | D2 |
 
@@ -765,7 +779,7 @@ Ogni milestone inizia solo dopo l'approvazione esplicita di Stefano e termina co
 - `documentation/TESTING.md` — procedure di verifica e misure.
 - `CHANGELOG.md` — modifiche per versione, incluse le variazioni di `ALGORITHM_VERSION`.
 
-Versioni previste (provvisorie): `0.1.0` primo generatore di isole funzionante; `0.2.0` controlli migliorati, eventuale anteprima editor e baking; `1.0.0` modulo stabile dopo test e documentazione.
+Versioni previste (provvisorie): `0.1.0` primo generatore di isole funzionante; `0.2.0` controlli migliorati, strumento di bake, eventuale anteprima editor; `1.0.0` modulo stabile dopo test e documentazione.
 
 ---
 
@@ -811,3 +825,4 @@ Questo documento definisce l'architettura. Non autorizza implementazioni, modifi
 | 0.2-r3 | 2026-11-06 | Risultati della Milestone 0: aggiunta l'etichetta [VERIFICATO M0]; registrati ordine di `map_data`, centratura, diagonale `(ix + 1, iz)`–`(ix, iz + 1)`, winding orario, scala uniforme, tolleranza di 1 cm confermata, backend predefinito (Godot Physics), comportamento identico di Jolt, indici a 32 bit, test headless e file `.gd.uid`. Nessuna decisione architetturale modificata |
 | 0.2-r4 | 2026-11-06 | Durante la Milestone A: offset di campionamento del noise derivato dal seed (salt 4 e 5, sezioni 7.1, 8.2 e 8.3), approvato da Stefano, perché il noise simplex vale 0 nell'origine e il centro dell'isola restava uguale con ogni seed. `ALGORITHM_VERSION` resta 1, perché la formula precedente non è mai stata rilasciata |
 | 0.2-r5 | 2026-11-06 | Milestone D: valori predefiniti del preset isola tarati (5.1, 5.2; D7); coefficienti di memoria calibrati con misure reali, 48 byte per cella per gli indici e 320 per la trimesh, soglie invariate (5.4); precedenza della sabbia sulla roccia nei vertex colors (10.5); misure della sezione 13 in `TESTING.md`; nuova etichetta [VERIFICATO MD]. Nessuna decisione architetturale modificata |
+| 0.2-r6 | 2026-11-08 | Deciso da Stefano: UPTG è uno strumento privato e in un gioco entra solo ciò che genera (D10, ADR-0009); strumento di bake fuori dall'addon (12.5, struttura in 3). Generatore, seed, mesh e collisione invariati |

@@ -8,6 +8,7 @@ Il formato segue [Keep a Changelog](https://keepachangelog.com/it-IT/1.1.0/) e i
 ## [Non rilasciato]
 
 ### Aggiunto
+- Strumento di bake (`tools/uptg_bake.gd`, `tools/uptg_baker.gd`): scrive un mondo in un file `.scn` autonomo che un gioco apre senza UPTG. Provato da `tests/test_bake.gd`. Architettura 0.2-r6, ADR-0009.
 - Versione inglese dell'architettura 0.2 (`documentation/UPTG_ARCHITECTURE_0.2.md`). Il testo italiano, invariato, è ora in `documentation/UPTG_ARCHITECTURE_0.2.it.md`.
 - Screenshot della demo delle Milestone B, C e D in `documentation/screenshots/`, elencati in `documentation/TESTING.it.md`.
 

@@ -11,9 +11,10 @@ A reusable, game-agnostic terrain generation module for Godot. Version 0.1 is a 
 
 | Folder | Content |
 |---|---|
-| `addons/uptg/` | The portable addon, and the only folder to copy into a game: `core/`, `builders/`, `nodes/`, `materials/`, `presets/` |
+| `addons/uptg/` | The generator: `core/`, `builders/`, `nodes/`, `materials/`, `presets/` |
 | `demo/` | Standalone demo scene |
 | `tests/` | Headless test suites, collision test and benchmark |
+| `tools/` | Bake tool: writes a generated world to a file for a game |
 | `presets/` | Reserved and empty in v0.1: the default preset is `addons/uptg/presets/uptg_island_default.tres` |
 | `documentation/` | Architecture, testing procedures, verification results and screenshots |
 
@@ -28,4 +29,13 @@ A reusable, game-agnostic terrain generation module for Godot. Version 0.1 is a 
 
 ## Usage
 
-Follow the [addon guide](addons/uptg/README.md) to copy `addons/uptg/` into a Godot 4.7.2 project. To see the generator working, open this folder as a project and run `res://demo/uptg_demo.tscn`.
+UPTG is a private development tool and does not go inside a game (ADR-0009). To see it working, open this folder as a project and run `res://demo/uptg_demo.tscn`.
+
+To give a game a world, bake it from this folder (the first command is needed once, after a fresh clone or a new script):
+
+```
+godot --headless --editor --quit
+godot --headless --path . -s res://tools/uptg_bake.gd -- --out=C:/path/to/game/world/island.scn --seed=12345
+```
+
+The `.scn` file holds the mesh, material, collision and height data, with no scripts and no reference to UPTG. In the game, instance it like any other scene. Bake again after a Godot upgrade.

@@ -20,6 +20,7 @@ Each tool lives in `<CODE>/<FullName>/` and should ideally contain:
 
 - Modules are game-agnostic: no gameplay, vehicle, quest or game-specific logic in the core.
 - A module must be transferable to an independent Godot project with documented steps.
+- Modules are private development tools: only what they generate goes into a game, never their code (ADR-0009).
 - Core systems and optional extensions are clearly separated.
 - Dependencies between modules are one-directional and documented (e.g. UPRG may depend on UPTG output, never the reverse).
 - Generation is deterministic from a seed where randomness is involved.
@@ -44,3 +45,4 @@ Significant architectural decisions are recorded as ADRs in [`decisions/`](decis
 - [ADR-0006: UPTG protection against expensive configurations](decisions/ADR-0006-uptg-cost-protection.md)
 - [ADR-0007: UPTG noise sampling offsets derived from the seed](decisions/ADR-0007-uptg-seed-derived-noise-offsets.md)
 - [ADR-0008: UPTG cost estimate calibration from measurements](decisions/ADR-0008-uptg-cost-calibration.md)
+- [ADR-0009: UPTG is a private tool, only its baked output goes into a game](decisions/ADR-0009-uptg-tool-only-baked-output.md)

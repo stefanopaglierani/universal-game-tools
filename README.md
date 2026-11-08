@@ -4,7 +4,7 @@
 
 A personal collection of reusable, modular and documented game development tools, procedural generators and systems built with **Godot 4.7.2**, **GDScript**, **Blender** and AI-assisted workflows.
 
-The tools are game-agnostic: each one is designed so it can be copied into, or installed as an addon in, an independent Godot project. None of them depends on a specific game.
+The tools are private and game-agnostic: they create worlds and 3D objects for other software. Only what they generate goes into a game, never their code. None of them depends on a specific game.
 
 ## Status
 
@@ -29,6 +29,7 @@ universal-game-tools/
 │       ├── addons/uptg/      Portable addon: core, builders, nodes, materials, presets
 │       ├── demo/             Standalone demo scene
 │       ├── tests/            Headless test suites, collision test, benchmark
+│       ├── tools/            Bake tool: writes a world to a file for a game
 │       ├── presets/          Reserved, empty in v0.1 (the preset is in addons/uptg/presets/)
 │       ├── documentation/    Architecture, testing, verification, screenshots
 │       ├── CHANGELOG.md      Module changes
