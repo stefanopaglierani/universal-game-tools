@@ -120,6 +120,9 @@ static func _merge(instances: Array, entry: Dictionary, max_triangles: int, max_
 	for mi: MeshInstance3D in instances:
 		var world := fix * mi.global_transform
 		for s in mi.mesh.get_surface_count():
+			# Some model files also hold lines or points: they would break the merged triangles.
+			if mi.mesh.surface_get_primitive_type(s) != Mesh.PRIMITIVE_TRIANGLES:
+				continue
 			var arrays := mi.mesh.surface_get_arrays(s)
 			var vertices: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
 			var indices: PackedInt32Array = arrays[Mesh.ARRAY_INDEX]

@@ -12,5 +12,8 @@
 - Junctions: roads that cross or end on each other meet at one height on a shared surface with rounded corners.
 - Streets inside places, joined to the nearest road, with buildings along them and turned toward the street.
 
+### Fixed
+- Model parts made of lines or points no longer enter the model library.
+
 ### Changed
 - Road edges stay clean on a coarse terrain grid.
