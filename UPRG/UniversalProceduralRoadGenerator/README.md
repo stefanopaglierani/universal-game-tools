@@ -11,8 +11,8 @@ A private development tool: it takes a terrain baked by UPTG and writes a new wo
 
 | Folder | Content |
 |---|---|
-| `addons/uprg/` | The generator: `core/`, `builders/` |
-| `tools/` | `uprg_bake.gd`, the command-line entry point |
+| `addons/uprg/` | The generator: `core/`, `builders/`, `assets/` |
+| `tools/` | `uprg_bake.gd`, the command-line entry point; `uprg_library.gd`, builds the model library |
 | `presets/` | Road descriptions saved as `.tres` |
 | `demo/` | `uprg_viewer.tscn`, shows any baked world file |
 | `tests/` | Headless test suite |
@@ -36,8 +36,19 @@ The world description is one `.tres` file: open `presets/example_world_island.tr
 | `places` | Name, center, radius, number and size of buildings, wall and roof colors, seed |
 | `roads` | Points in meters from the terrain center, width, slope |
 | `skin` | Images for roads, terrain and buildings, and color tints |
+| `dressing` | How many trees, plants, rocks and roadside objects, and how far they stay visible |
 
 A road alone also works: `--road=<road.tres>`, repeatable.
+
+## 3D models
+
+A world with `dressing` takes its buildings, trees, rocks and roadside objects from a model library. The library is built once from the models folder and stays out of the repository; `presets/ambientazione_catalog.json` lists the chosen models. The example world needs it:
+
+```
+godot --headless --path . -s res://tools/uprg_library.gd -- --models=<models folder>
+```
+
+The bake writes `<world>.credits.md` next to the world file: CC BY 4.0 models listed there must be credited in any game that uses the world.
 
 ## Documentation
 

@@ -8,6 +8,8 @@ extends Resource
 @export var roads: Array[UPRGRoadConfig] = []
 ## Optional appearance.
 @export var skin: UPRGSkin
+## Optional 3D models: buildings, trees, rocks, roadside objects.
+@export var dressing: UPRGDressing
 
 
 ## Returns the list of errors, empty when the world description is valid.

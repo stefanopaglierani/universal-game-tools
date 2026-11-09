@@ -105,6 +105,11 @@ static func _add_world(root: Node3D, world: UPRGWorldConfig, out_path: String) -
 			"width": roads[i].width,
 			"sample_spacing": roads[i].sample_spacing,
 		})
+	var library: UPRGLibrary = null
+	if world.dressing != null:
+		library = UPRGLibrary.open(world.dressing.library_path)
+		if library == null:
+			return _fail("cannot open the model library: %s (build it with tools/uprg_library.gd)" % world.dressing.library_path)
 	var buildings_total := 0
 	var place_meta: Array[Dictionary] = []
 	var places_group := Node3D.new()
@@ -115,10 +120,17 @@ static func _add_world(root: Node3D, world: UPRGWorldConfig, out_path: String) -
 		var place := world.places[i]
 		var buildings := UPRGPlaceBuilder.plan_buildings(place, road_paths, road_clearances)
 		buildings_total += buildings.size()
-		_add_place_nodes(places_group, root, "Place%d" % i, world.skin, buildings, grid, skin_errors)
+		if library != null and library.has_kind("house"):
+			UPRGDresser.add_place(places_group, root, "Place%d" % i, place, buildings, grid, library, world.dressing)
+		else:
+			_add_place_nodes(places_group, root, "Place%d" % i, world.skin, buildings, grid, skin_errors)
 		place_meta.append({"name": place.place_name, "center": place.center, "radius": place.radius, "buildings": buildings.size()})
 	if not skin_errors.is_empty():
 		return _fail("; ".join(skin_errors))
+
+	var dress_stats := {}
+	if library != null:
+		dress_stats = UPRGDresser.dress(root, world.dressing, library, grid, road_paths, road_clearances, roads, world.places)
 
 	meta = meta.duplicate()
 	meta.source_heights_checksum = meta.get("heights_checksum", 0)
@@ -139,8 +151,15 @@ static func _add_world(root: Node3D, world: UPRGWorldConfig, out_path: String) -
 	var save_error := ResourceSaver.save(scene, out_path, ResourceSaver.FLAG_COMPRESS)
 	if save_error != OK:
 		return _fail("could not save %s (error %d)" % [out_path, save_error])
+	if library != null:
+		var credits := FileAccess.open(out_path.get_basename() + ".credits.md", FileAccess.WRITE)
+		if credits == null:
+			return _fail("could not write the credits next to %s" % out_path)
+		credits.store_string(library.credits_text())
+		credits.close()
 	return {
 		"ok": true,
+		"dressing": dress_stats,
 		"path": out_path,
 		"bytes": FileAccess.get_file_as_bytes(out_path).size(),
 		"roads": roads.size(),
