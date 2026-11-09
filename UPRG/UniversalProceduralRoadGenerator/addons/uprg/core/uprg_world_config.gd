@@ -1,7 +1,7 @@
 class_name UPRGWorldConfig
 extends Resource
 ## Everything to add to a baked terrain, in one .tres file.
-## Applied in this order: terrain edits, ground of the places, roads, buildings.
+## Applied in this order: terrain edits, ground of the places, roads and streets, buildings.
 
 @export var terrain_edits: Array[UPRGTerrainEdit] = []
 @export var places: Array[UPRGPlace] = []

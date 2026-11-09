@@ -6,13 +6,15 @@ extends RefCounted
 var path: PackedVector2Array
 ## Road height at each centerline position.
 var heights: PackedFloat32Array
+## True when the road meets another one: its height changes abruptly next to the junctions.
+var joined: bool = false
 
 
 ## Builds the plan for [param road] on [param grid]. Returns null when the road leaves the terrain.
 static func plan(road: UPRGRoadConfig, grid: UPRGTerrainGrid) -> UPRGRoadShape:
 	var margin := road.width * 0.5 + road.shoulder + road.blend + grid.cell_size * 2.5
 	var shape := UPRGRoadShape.new()
-	shape.path = _smooth_path(road.points, road.sample_spacing)
+	shape.path = smooth_path(road.points, road.sample_spacing)
 	for p in shape.path:
 		if not grid.is_inside(p, margin):
 			return null
@@ -21,7 +23,7 @@ static func plan(road: UPRGRoadConfig, grid: UPRGTerrainGrid) -> UPRGRoadShape:
 
 
 ## Catmull-Rom curve through the points, resampled at equal distances.
-static func _smooth_path(points: PackedVector2Array, spacing: float) -> PackedVector2Array:
+static func smooth_path(points: PackedVector2Array, spacing: float) -> PackedVector2Array:
 	const STEPS := 24
 	var dense := PackedVector2Array()
 	var count := points.size()
@@ -90,14 +92,16 @@ static func _limit_grade(h: PackedFloat32Array, max_step: float) -> void:
 		h[i] = clampf(h[i], h[i + 1] - max_step, h[i + 1] + max_step)
 
 
-## Flattens the terrain under the road and blends it back to its own shape at the sides.
-## Returns the number of vertices changed.
-func apply_to_terrain(road: UPRGRoadConfig, grid: UPRGTerrainGrid) -> int:
+## Records how this road flattens the terrain and blends it back to its own shape at the sides.
+## [param targets] maps a vertex to Vector3(blend, height, distance): the road that leaves the
+## vertex least of its own shape wins, so that one road's slope never covers another road.
+func collect_terrain(road: UPRGRoadConfig, grid: UPRGTerrainGrid, targets: Dictionary) -> void:
 	# The leveled strip extends past the road by more than one cell diagonal, so that no terrain
 	# triangle crosses the road edge and the edge stays clean on a coarse grid.
 	var flat := road.width * 0.5 + road.shoulder + grid.cell_size * 1.5
 	var reach := flat + road.blend
 	var best := {}
+	var sag := _sag(road, grid)
 	for s in path.size() - 1:
 		var a := path[s]
 		var b := path[s + 1]
@@ -116,9 +120,32 @@ func apply_to_terrain(road: UPRGRoadConfig, grid: UPRGTerrainGrid) -> int:
 					continue
 				var key := grid.index(ix, iz)
 				if not best.has(key) or distance < best[key].x:
-					best[key] = Vector2(distance, lerpf(heights[s], heights[s + 1], u))
+					best[key] = Vector2(distance, lerpf(heights[s] - sag[s], heights[s + 1] - sag[s + 1], u))
 	for key: int in best:
 		var hit: Vector2 = best[key]
 		var k := smoothstep(0.0, 1.0, (hit.x - flat) / road.blend) if hit.x > flat else 0.0
-		grid.heights[key] = lerpf(hit.y - road.sink, grid.heights[key], k)
-	return best.size()
+		var old: Variant = targets.get(key)
+		if old == null or k < old.x or (is_equal_approx(k, old.x) and hit.x < old.z):
+			targets[key] = Vector3(k, hit.y - road.sink, hit.x)
+
+
+## How far the terrain must go lower where the road bends upward: a straight terrain triangle
+## spanning the bend would otherwise rise through the pavement.
+func _sag(road: UPRGRoadConfig, grid: UPRGTerrainGrid) -> PackedFloat32Array:
+	var reach := int(ceil(grid.cell_size * 1.5 / road.sample_spacing))
+	var last := path.size() - 1
+	var sag := PackedFloat32Array()
+	sag.resize(path.size())
+	if not joined:
+		return sag
+	for i in path.size():
+		sag[i] = maxf(0.0, (heights[maxi(i - reach, 0)] + heights[mini(i + reach, last)]) * 0.5 - heights[i])
+	return sag
+
+
+## Changes the terrain as recorded by [method collect_terrain]. Returns the number of vertices changed.
+static func apply_targets(grid: UPRGTerrainGrid, targets: Dictionary) -> int:
+	for key: int in targets:
+		var target: Vector3 = targets[key]
+		grid.heights[key] = lerpf(target.y, grid.heights[key], target.x)
+	return targets.size()

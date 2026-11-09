@@ -6,6 +6,7 @@ extends RefCounted
 const CHUNK_SIZE := 160.0
 const TREE_KINDS: Array[String] = ["tree", "pine", "plant"]
 const SOLID_KINDS: Array[String] = ["tree", "pine", "rock", "lamp", "landmark"]
+const STREET_LAMP_SPACING := 30.0
 
 
 ## Scatters plants and rocks, and adds roadside objects. Returns counts for the report.
@@ -24,7 +25,7 @@ static func dress(root: Node3D, dressing: UPRGDressing, library: UPRGLibrary, gr
 	counts.scatter += _scatter("bush", dressing.bush_density, 1.5, 1000.0, 0.75, grid, near_road, places, library, rng, placements, solids)
 	counts.scatter += _scatter("rock", dressing.rock_density, 1.5, 1000.0, 0.5, grid, near_road, places, library, rng, placements, solids)
 	for r in roads.size():
-		counts.roadside += _roadside(road_paths[r], roads[r], dressing, grid, library, rng, placements, solids)
+		counts.roadside += _roadside(r, road_paths, road_clearances, roads[r], dressing, grid, library, rng, placements, solids)
 
 	var group := Node3D.new()
 	group.name = "Dressing"
@@ -92,12 +93,15 @@ static func _inside_place(p: Vector2, places: Array[UPRGPlace]) -> bool:
 	return false
 
 
-static func _roadside(path: PackedVector2Array, road: UPRGRoadConfig, dressing: UPRGDressing, grid: UPRGTerrainGrid, library: UPRGLibrary,
-		rng: RandomNumberGenerator, placements: Dictionary, solids: Array[Dictionary]) -> int:
+static func _roadside(road_index: int, road_paths: Array[PackedVector2Array], road_clearances: PackedFloat32Array, road: UPRGRoadConfig,
+		dressing: UPRGDressing, grid: UPRGTerrainGrid, library: UPRGLibrary, rng: RandomNumberGenerator, placements: Dictionary,
+		solids: Array[Dictionary]) -> int:
+	var path := road_paths[road_index]
 	var count := 0
 	var offset := road.width * 0.5 + road.shoulder + 1.2
-	var lamp_every := int(dressing.lamp_spacing / road.sample_spacing)
-	var prop_every := int(dressing.roadside_spacing / road.sample_spacing)
+	# Streets inside a place get lamps only, closer together.
+	var lamp_every := int(minf(dressing.lamp_spacing, STREET_LAMP_SPACING if road.is_street else dressing.lamp_spacing) / road.sample_spacing)
+	var prop_every := 0 if road.is_street else int(dressing.roadside_spacing / road.sample_spacing)
 	var side := 1.0
 	for i in range(1, path.size() - 1):
 		var kind := ""
@@ -111,9 +115,21 @@ static func _roadside(path: PackedVector2Array, road: UPRGRoadConfig, dressing: 
 		var across := Vector2(tangent.y, -tangent.x)
 		var p := path[i] + across * offset * side
 		side = -side
+		if not _clear_of_other_roads(p, road_index, road_paths, road_clearances):
+			continue
 		_place(library.pick(kind, rng), p, grid.height_at(p), atan2(tangent.x, tangent.y), 1.0, placements, solids)
 		count += 1
 	return count
+
+
+static func _clear_of_other_roads(p: Vector2, road_index: int, road_paths: Array[PackedVector2Array], road_clearances: PackedFloat32Array) -> bool:
+	for r in road_paths.size():
+		if r == road_index:
+			continue
+		for q in road_paths[r]:
+			if p.distance_to(q) < road_clearances[r] - 0.8:
+				return false
+	return true
 
 
 static func _place(item: Dictionary, p: Vector2, y: float, yaw: float, size: float, placements: Dictionary, solids: Array[Dictionary]) -> void:
@@ -197,7 +213,7 @@ static func _add_solids(group: Node3D, root: Node3D, solids: Array[Dictionary]) 
 
 ## Builds a place from library models instead of plain boxes.
 static func add_place(group: Node3D, root: Node3D, place_name: String, place: UPRGPlace, buildings: Array[Dictionary],
-		grid: UPRGTerrainGrid, library: UPRGLibrary, dressing: UPRGDressing) -> void:
+		grid: UPRGTerrainGrid, library: UPRGLibrary, dressing: UPRGDressing, road_paths: Array[PackedVector2Array], road_clearances: PackedFloat32Array) -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = place.seed_value
 	var node := Node3D.new()
@@ -216,9 +232,10 @@ static func add_place(group: Node3D, root: Node3D, place_name: String, place: UP
 		if mesh == null:
 			continue
 		var extent := Vector3(float(item.size[0]), float(item.size[1]), float(item.size[2]))
-		var room := place.building_size.y + place.spacing * 0.6
+		var room := UPRGPlaceBuilder.plot_room(place)
 		var factor := minf(room / maxf(extent.x, extent.z), 1.0)
-		var yaw := rng.randi_range(0, 3) * PI * 0.5
+		var random_yaw := rng.randi_range(0, 3) * PI * 0.5
+		var yaw: float = b.get("yaw", random_yaw)
 		var at := Vector3(b.center.x, grid.height_at(b.center) - 0.05, b.center.y)
 		var instance := MeshInstance3D.new()
 		instance.name = "Building%d" % i
@@ -242,8 +259,9 @@ static func add_place(group: Node3D, root: Node3D, place_name: String, place: UP
 		var mesh := library.mesh_of(item)
 		if mesh == null:
 			continue
-		var angle := rng.randf() * TAU
-		var p := place.center + Vector2(cos(angle), sin(angle)) * rng.randf_range(0.3, 0.95) * place.radius
+		var p := _free_spot(place, buildings, road_paths, road_clearances, rng)
+		if p == Vector2.INF:
+			continue
 		var instance := MeshInstance3D.new()
 		instance.name = "Prop%d" % i
 		instance.mesh = mesh
@@ -252,3 +270,16 @@ static func add_place(group: Node3D, root: Node3D, place_name: String, place: UP
 		instance.visibility_range_end = dressing.small_view_distance
 		node.add_child(instance)
 		instance.owner = root
+
+
+## A spot of the place away from roads and buildings, or Vector2.INF when none turns up.
+static func _free_spot(place: UPRGPlace, buildings: Array[Dictionary], road_paths: Array[PackedVector2Array], road_clearances: PackedFloat32Array,
+		rng: RandomNumberGenerator) -> Vector2:
+	var room := UPRGPlaceBuilder.plot_room(place)
+	for attempt in 12:
+		var angle := rng.randf() * TAU
+		var p := place.center + Vector2(cos(angle), sin(angle)) * rng.randf_range(0.3, 0.95) * place.radius
+		if _clear_of_other_roads(p, -1, road_paths, road_clearances) and buildings.all(
+				func(b: Dictionary) -> bool: return (b.center as Vector2).distance_to(p) > room * 0.75):
+			return p
+	return Vector2.INF

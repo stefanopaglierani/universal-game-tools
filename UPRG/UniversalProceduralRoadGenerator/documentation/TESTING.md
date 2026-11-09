@@ -13,4 +13,6 @@ godot --headless --path . -s res://tests/run_tests.gd
 
 `tests/test_dressing.gd` builds its own small model library and checks how models are chosen and placed, the credits file, and that a missing library is refused.
 
+`tests/test_network.gd` checks junctions (crossings, T junctions, surfaces joined to the roads, heights, grades, refused inputs) and streets inside places (connections, buildings clear of streets).
+
 To look at a result: `godot --path . res://demo/uprg_viewer.tscn -- --file=<world.scn>`.
