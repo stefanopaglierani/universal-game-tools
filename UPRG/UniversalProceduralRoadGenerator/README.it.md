@@ -54,6 +54,14 @@ godot --headless --path . -s res://tools/uprg_library.gd -- --models=<cartella d
 
 Il bake scrive `<mondo>.credits.md` accanto al file del mondo: i modelli CC BY 4.0 elencati lì vanno accreditati in ogni gioco che usa il mondo.
 
+## Mondi molto grandi
+
+Un mondo grande si può tagliare in tessere che un gioco carica mentre si guida. Ogni tessera ha una mesh dettagliata, una leggera per la distanza e la sua collisione. Le celle per tessera devono dividere la griglia del terreno:
+
+```
+godot --headless --path . -s res://tools/uprg_tiles.gd -- --in=C:/Temp/mondo.scn --out=C:/Temp/mondo_tessere --cells=64
+```
+
 ## Documentazione
 
 - [Architettura](documentation/UPRG_ARCHITECTURE_0.1.it.md)

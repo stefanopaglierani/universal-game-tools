@@ -54,6 +54,14 @@ godot --headless --path . -s res://tools/uprg_library.gd -- --models=<models fol
 
 The bake writes `<world>.credits.md` next to the world file: CC BY 4.0 models listed there must be credited in any game that uses the world.
 
+## Very large worlds
+
+A big world can be cut into tiles that a game loads while the player drives. Each tile has a detailed mesh, a light mesh for the distance and its own collision. Tile cells must divide the terrain grid:
+
+```
+godot --headless --path . -s res://tools/uprg_tiles.gd -- --in=C:/Temp/world.scn --out=C:/Temp/world_tiles --cells=64
+```
+
 ## Documentation
 
 - [Architecture](documentation/UPRG_ARCHITECTURE_0.1.md)

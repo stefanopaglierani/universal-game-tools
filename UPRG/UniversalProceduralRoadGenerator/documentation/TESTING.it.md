@@ -15,4 +15,6 @@ godot --headless --path . -s res://tests/run_tests.gd
 
 `tests/test_network.gd` controlla gli incroci (attraversamenti, incroci a T, superfici unite alle strade, altezze, pendenze, input rifiutati) e le strade interne ai luoghi (collegamenti, edifici lontani dalle strade).
 
+`tests/test_tiles.gd` controlla le tessere (livelli di dettaglio, bordi comuni, collisione, cosa resta nel file del mondo, dimensioni rifiutate).
+
 Per vedere un risultato: `godot --path . res://demo/uprg_viewer.tscn -- --file=<mondo.scn>`.
