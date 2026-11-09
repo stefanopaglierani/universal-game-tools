@@ -15,4 +15,6 @@ godot --headless --path . -s res://tests/run_tests.gd
 
 `tests/test_network.gd` checks junctions (crossings, T junctions, surfaces joined to the roads, heights, grades, refused inputs) and streets inside places (connections, buildings clear of streets).
 
+`tests/test_tiles.gd` checks tiles (detail levels, shared borders, collision, what stays in the world file, refused sizes).
+
 To look at a result: `godot --path . res://demo/uprg_viewer.tscn -- --file=<world.scn>`.

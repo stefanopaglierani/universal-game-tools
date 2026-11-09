@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="UPRGWorldConfig" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://addons/uprg/core/uprg_world_config.gd" id="1"]
+[ext_resource type="Script" path="res://addons/uprg/core/uprg_road_config.gd" id="4"]
+[ext_resource type="Script" path="res://addons/uprg/core/uprg_skin.gd" id="5"]
+
+[sub_resource type="Resource" id="race_road"]
+script = ExtResource("4")
+points = PackedVector2Array(893.5, 239.4, 565.7, 565.7, 253.6, 946.6, -196.7, 734.1, -671.8, 671.8, -792.1, 212.2, -956.3, -256.2, -551.5, -551.5, -243.3, -908.0, 207.1, -772.7, 693.0, -693.0, 821.0, -220.0)
+width = 12.0
+
+[sub_resource type="Resource" id="skin"]
+script = ExtResource("5")
+terrain_tint = Color(0.92, 0.92, 0.88, 1)
+
+[resource]
+script = ExtResource("1")
+roads = Array[ExtResource("4")]([SubResource("race_road")])
+skin = SubResource("skin")
