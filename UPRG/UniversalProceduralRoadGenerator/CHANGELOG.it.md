@@ -12,5 +12,8 @@
 - Incroci: le strade che si attraversano o finiscono l'una sull'altra si incontrano alla stessa altezza, su una superficie comune con angoli arrotondati.
 - Strade interne ai luoghi, collegate alla strada più vicina, con gli edifici lungo di esse e rivolti verso la strada.
 
+### Corretto
+- Le parti dei modelli fatte di linee o punti non entrano più nella libreria dei modelli.
+
 ### Modificato
 - I bordi della strada restano puliti su una griglia del terreno rada.
