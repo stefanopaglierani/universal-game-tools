@@ -20,3 +20,6 @@ desktop.ini
 .vscode/
 .idea/
 *.tmp
+
+# Built from the models folder with tools/uprg_library.gd
+UPRG/UniversalProceduralRoadGenerator/library/
