@@ -46,7 +46,7 @@ static func _add_world(root: Node3D, world: UPRGWorldConfig, out_path: String) -
 	if mesh_node == null or shape_node == null or not shape_node.shape is HeightMapShape3D:
 		return _fail("the terrain needs a Mesh and a height map collision")
 
-	var roads := world.roads
+	var roads: Array[UPRGRoadConfig] = world.roads.duplicate()
 	var skin_errors := PackedStringArray()
 	var plans: Array[UPRGRoadShape] = []
 	var changed := 0
@@ -61,8 +61,6 @@ static func _add_world(root: Node3D, world: UPRGWorldConfig, out_path: String) -
 		var plan := UPRGRoadShape.plan(road, grid)
 		if plan == null:
 			return _fail("a road leaves the terrain or comes too close to its border")
-		changed += plan.apply_to_terrain(road, grid)
-		total_length += (plan.path.size() - 1) * road.sample_spacing
 		plans.append(plan)
 
 	var road_paths: Array[PackedVector2Array] = []
@@ -70,6 +68,28 @@ static func _add_world(root: Node3D, world: UPRGWorldConfig, out_path: String) -
 	for i in roads.size():
 		road_paths.append(plans[i].path)
 		road_clearances.append(roads[i].width * 0.5 + roads[i].shoulder + 2.0)
+	var street_count := 0
+	for place in world.places:
+		if not place.streets:
+			continue
+		for street in UPRGStreetPlanner.plan(place, road_paths, road_clearances):
+			var plan := UPRGRoadShape.plan(street, grid)
+			if plan == null:
+				return _fail("a street of %s comes too close to the terrain border" % place.place_name)
+			roads.append(street)
+			plans.append(plan)
+			road_paths.append(plan.path)
+			road_clearances.append(street.width * 0.5 + street.shoulder + 2.0)
+			street_count += 1
+	var network := UPRGRoadNetwork.solve(roads, plans)
+	if not network.ok:
+		return _fail(network.error)
+	var junctions: Array[Dictionary] = network.junctions
+	var targets := {}
+	for i in roads.size():
+		plans[i].collect_terrain(roads[i], grid, targets)
+		total_length += (plans[i].path.size() - 1) * roads[i].sample_spacing
+	changed += UPRGRoadShape.apply_targets(grid, targets)
 
 	var new_mesh := _rebuild_terrain_mesh(mesh_node.mesh as ArrayMesh, grid)
 	if new_mesh == null:
@@ -98,13 +118,19 @@ static func _add_world(root: Node3D, world: UPRGWorldConfig, out_path: String) -
 	group.owner = root
 	var road_meta: Array[Dictionary] = []
 	for i in roads.size():
-		_add_road_nodes(group, root, "Road%d" % i, roads[i], plans[i], world.skin, skin_errors)
+		var road_mesh := UPRGRoadBuilder.build_mesh(roads[i], plans[i], world.skin, skin_errors, UPRGRoadNetwork.spans_of(i, junctions))
+		_add_surface_node(group, root, "Road%d" % i, road_mesh)
 		road_meta.append({
 			"path": plans[i].path,
 			"heights": plans[i].heights,
 			"width": roads[i].width,
 			"sample_spacing": roads[i].sample_spacing,
+			"street": roads[i].is_street,
 		})
+	var junction_meta: Array[Dictionary] = []
+	for i in junctions.size():
+		_add_surface_node(group, root, "Junction%d" % i, UPRGRoadBuilder.build_junction_mesh(junctions[i], roads, plans, world.skin, skin_errors))
+		junction_meta.append({"center": junctions[i].center, "height": junctions[i].height, "radius": junctions[i].trim, "roads": junctions[i].roads.keys(), "arms": junctions[i].arms.size()})
 	var library: UPRGLibrary = null
 	if world.dressing != null:
 		library = UPRGLibrary.open(world.dressing.library_path)
@@ -121,7 +147,7 @@ static func _add_world(root: Node3D, world: UPRGWorldConfig, out_path: String) -
 		var buildings := UPRGPlaceBuilder.plan_buildings(place, road_paths, road_clearances)
 		buildings_total += buildings.size()
 		if library != null and library.has_kind("house"):
-			UPRGDresser.add_place(places_group, root, "Place%d" % i, place, buildings, grid, library, world.dressing)
+			UPRGDresser.add_place(places_group, root, "Place%d" % i, place, buildings, grid, library, world.dressing, road_paths, road_clearances)
 		else:
 			_add_place_nodes(places_group, root, "Place%d" % i, world.skin, buildings, grid, skin_errors)
 		place_meta.append({"name": place.place_name, "center": place.center, "radius": place.radius, "buildings": buildings.size()})
@@ -138,6 +164,7 @@ static func _add_world(root: Node3D, world: UPRGWorldConfig, out_path: String) -
 	meta.heights_checksum = _fnv1a(grid.heights.to_byte_array())
 	meta.roads_format_version = ROADS_FORMAT
 	meta.roads = road_meta
+	meta.junctions = junction_meta
 	meta.places = place_meta
 	root.set_meta(META_KEY, meta)
 
@@ -162,7 +189,9 @@ static func _add_world(root: Node3D, world: UPRGWorldConfig, out_path: String) -
 		"dressing": dress_stats,
 		"path": out_path,
 		"bytes": FileAccess.get_file_as_bytes(out_path).size(),
-		"roads": roads.size(),
+		"roads": roads.size() - street_count,
+		"streets": street_count,
+		"junctions": junctions.size(),
 		"road_length": total_length,
 		"places": world.places.size(),
 		"buildings": buildings_total,
@@ -224,11 +253,9 @@ static func _add_place_nodes(group: Node3D, root: Node3D, place_name: String, sk
 	shape_node.owner = root
 
 
-static func _add_road_nodes(group: Node3D, root: Node3D, road_name: String, road: UPRGRoadConfig, plan: UPRGRoadShape,
-		skin: UPRGSkin, errors: PackedStringArray) -> void:
-	var mesh := UPRGRoadBuilder.build_mesh(road, plan, skin, errors)
+static func _add_surface_node(group: Node3D, root: Node3D, node_name: String, mesh: ArrayMesh) -> void:
 	var mesh_node := MeshInstance3D.new()
-	mesh_node.name = road_name
+	mesh_node.name = node_name
 	mesh_node.mesh = mesh
 	group.add_child(mesh_node)
 	mesh_node.owner = root

@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="UPRGWorldConfig" load_steps=13 format=3]
+[gd_resource type="Resource" script_class="UPRGWorldConfig" load_steps=15 format=3]
 
 [ext_resource type="Script" path="res://addons/uprg/core/uprg_world_config.gd" id="1"]
 [ext_resource type="Script" path="res://addons/uprg/core/uprg_terrain_edit.gd" id="2"]
@@ -23,10 +23,19 @@ radius = 55.0
 blend = 25.0
 building_count = 12
 seed_value = 7
+streets = true
 
 [sub_resource type="Resource" id="road"]
 script = ExtResource("4")
 points = PackedVector2Array(-40, 226.5, -147.8, 176.2, -216.1, 78.7, -226.5, -39.9, -176.2, -147.8, -78.7, -216.1)
+
+[sub_resource type="Resource" id="road_east"]
+script = ExtResource("4")
+points = PackedVector2Array(-192, 134, -100, 135, -20, 130, 30, 115)
+
+[sub_resource type="Resource" id="road_north"]
+script = ExtResource("4")
+points = PackedVector2Array(-97, 207, -100, 135, -96, 75)
 
 [sub_resource type="Resource" id="skin"]
 script = ExtResource("5")
@@ -39,6 +48,6 @@ script = ExtResource("6")
 script = ExtResource("1")
 terrain_edits = Array[ExtResource("2")]([SubResource("edit_hill")])
 places = Array[ExtResource("3")]([SubResource("village")])
-roads = Array[ExtResource("4")]([SubResource("road")])
+roads = Array[ExtResource("4")]([SubResource("road"), SubResource("road_east"), SubResource("road_north")])
 skin = SubResource("skin")
 dressing = SubResource("dressing")

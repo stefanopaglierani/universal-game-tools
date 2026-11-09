@@ -26,6 +26,8 @@ static func level_ground(place: UPRGPlace, grid: UPRGTerrainGrid) -> float:
 ## Chooses building footprints on a grid of plots, away from the roads. Each is
 ## {center: Vector2, size: Vector2, wall: float, wall_color: Color, roof_color: Color}.
 static func plan_buildings(place: UPRGPlace, road_paths: Array[PackedVector2Array], road_clearances: PackedFloat32Array) -> Array[Dictionary]:
+	if place.streets:
+		return _plan_along_streets(place, road_paths, road_clearances)
 	var rng := RandomNumberGenerator.new()
 	rng.seed = place.seed_value
 	var plot := place.building_size.y + place.spacing
@@ -38,22 +40,72 @@ static func plan_buildings(place: UPRGPlace, road_paths: Array[PackedVector2Arra
 				continue
 			if _clear_of_roads(at, place.building_size.y * 0.71, road_paths, road_clearances):
 				plots.append(at)
-	# Fisher-Yates with the local generator, so that the same seed gives the same village.
-	for i in range(plots.size() - 1, 0, -1):
-		var j := rng.randi_range(0, i)
-		var swap := plots[i]
-		plots[i] = plots[j]
-		plots[j] = swap
+	_shuffle(plots, rng)
 	var buildings: Array[Dictionary] = []
 	for i in mini(place.building_count, plots.size()):
-		buildings.append({
-			"center": plots[i],
-			"size": Vector2(rng.randf_range(place.building_size.x, place.building_size.y), rng.randf_range(place.building_size.x, place.building_size.y)),
-			"wall": rng.randf_range(place.wall_height.x, place.wall_height.y),
-			"wall_color": place.wall_colors[rng.randi_range(0, place.wall_colors.size() - 1)],
-			"roof_color": place.roof_colors[rng.randi_range(0, place.roof_colors.size() - 1)],
-		})
+		buildings.append(_building(place, plots[i], rng))
 	return buildings
+
+
+## Room of one building plot, as used for buildings made from models too.
+static func plot_room(place: UPRGPlace) -> float:
+	return place.building_size.y + place.spacing * 0.6
+
+
+## Plots on both sides of every road and street inside the place, each turned toward its street.
+static func _plan_along_streets(place: UPRGPlace, road_paths: Array[PackedVector2Array], road_clearances: PackedFloat32Array) -> Array[Dictionary]:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = place.seed_value
+	var room := plot_room(place)
+	var free := PackedFloat32Array()
+	for clearance in road_clearances:
+		free.append(clearance - 0.5)
+	var plots: Array[Dictionary] = []
+	for r in road_paths.size():
+		var path := road_paths[r]
+		var walked := 0.0
+		for i in path.size() - 1:
+			walked += path[i].distance_to(path[i + 1])
+			if walked < room + 1.0:
+				continue
+			walked = 0.0
+			var along := (path[i + 1] - path[i]).normalized()
+			var across := Vector2(-along.y, along.x)
+			# +Z of a building is its front: it looks at the street on both sides.
+			var yaw := atan2(-along.y, along.x)
+			for side: float in [-1.0, 1.0]:
+				var at := path[i] + across * side * (road_clearances[r] + room * 0.5)
+				if at.distance_to(place.center) + room * 0.5 <= place.radius and _clear_of_roads(at, room * 0.5, road_paths, free):
+					plots.append({"at": at, "yaw": yaw + (PI if side > 0.0 else 0.0)})
+	_shuffle(plots, rng)
+	var buildings: Array[Dictionary] = []
+	for plot in plots:
+		if buildings.size() >= place.building_count:
+			break
+		if buildings.all(func(b: Dictionary) -> bool: return (b.center as Vector2).distance_to(plot.at) >= room * 1.15):
+			var building := _building(place, plot.at, rng)
+			building.yaw = plot.yaw
+			buildings.append(building)
+	return buildings
+
+
+## Fisher-Yates with the local generator, so that the same seed gives the same village.
+static func _shuffle(items: Array, rng: RandomNumberGenerator) -> void:
+	for i in range(items.size() - 1, 0, -1):
+		var j := rng.randi_range(0, i)
+		var swap: Variant = items[i]
+		items[i] = items[j]
+		items[j] = swap
+
+
+static func _building(place: UPRGPlace, at: Vector2, rng: RandomNumberGenerator) -> Dictionary:
+	return {
+		"center": at,
+		"size": Vector2(rng.randf_range(place.building_size.x, place.building_size.y), rng.randf_range(place.building_size.x, place.building_size.y)),
+		"wall": rng.randf_range(place.wall_height.x, place.wall_height.y),
+		"wall_color": place.wall_colors[rng.randi_range(0, place.wall_colors.size() - 1)],
+		"roof_color": place.roof_colors[rng.randi_range(0, place.roof_colors.size() - 1)],
+	}
 
 
 static func _clear_of_roads(at: Vector2, half_size: float, road_paths: Array[PackedVector2Array], clearances: PackedFloat32Array) -> bool:
@@ -73,6 +125,7 @@ static func build_mesh(buildings: Array[Dictionary], grid: UPRGTerrainGrid, uv_s
 	var c := PackedColorArray()
 	var uv := PackedVector2Array()
 	for b: Dictionary in buildings:
+		var first_vertex := v.size()
 		var ground := grid.height_at(b.center)
 		var half: Vector2 = b.size * 0.5
 		var x0: float = b.center.x - half.x
@@ -99,6 +152,7 @@ static func build_mesh(buildings: Array[Dictionary], grid: UPRGTerrainGrid, uv_s
 		_quad(v, n, c, uv, p11, r1, r0, p10, roof, uv_size)
 		_triangle(v, n, c, uv, p10, r0, p00, wall, uv_size)
 		_triangle(v, n, c, uv, p01, r1, p11, wall, uv_size)
+		_turn(v, n, first_vertex, b)
 	var arrays := []
 	arrays.resize(Mesh.ARRAY_MAX)
 	arrays[Mesh.ARRAY_VERTEX] = v
@@ -108,6 +162,17 @@ static func build_mesh(buildings: Array[Dictionary], grid: UPRGTerrainGrid, uv_s
 	var mesh := ArrayMesh.new()
 	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
 	return mesh
+
+
+## Turns the vertices of a building around its center, when it follows a street.
+static func _turn(v: PackedVector3Array, n: PackedVector3Array, first_vertex: int, building: Dictionary) -> void:
+	if not building.has("yaw"):
+		return
+	var turn := Basis(Vector3.UP, building.yaw)
+	var pivot := Vector3(building.center.x, 0.0, building.center.y)
+	for i in range(first_vertex, v.size()):
+		v[i] = pivot + turn * (v[i] - pivot)
+		n[i] = turn * n[i]
 
 
 static func _quad(v: PackedVector3Array, n: PackedVector3Array, c: PackedColorArray, uv: PackedVector2Array,

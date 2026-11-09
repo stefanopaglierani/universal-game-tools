@@ -33,12 +33,16 @@ La descrizione del mondo è un unico file `.tres`: apri `presets/example_world_i
 | Sezione | Cosa imposti |
 |---|---|
 | `terrain_edits` | Aree circolari da alzare, abbassare (`ADD`) o livellare (`LEVEL`) |
-| `places` | Nome, centro, raggio, numero e dimensioni degli edifici, colori di muri e tetti, seed |
+| `places` | Nome, centro, raggio, numero e dimensioni degli edifici, colori di muri e tetti, seed; `streets` aggiunge strade collegate alla strada più vicina, con gli edifici lungo di esse |
 | `roads` | Punti in metri dal centro del terreno, larghezza, pendenza |
 | `skin` | Immagini per strade, terreno ed edifici, e tinte di colore |
 | `dressing` | Quanti alberi, piante, rocce e oggetti a bordo strada, e fino a che distanza restano visibili |
 
 Funziona anche una sola strada: `--road=<strada.tres>`, ripetibile.
+
+## Incroci
+
+Le strade che si attraversano, o una strada che finisce su un'altra, diventano da sole un incrocio: si incontrano alla stessa altezza, con un'unica superficie e angoli arrotondati. Le strade elencate per prime mantengono la loro altezza e le altre si adattano. Tutti gli incroci sono a raso, e due strade devono incontrarsi con un angolo di almeno 25 gradi.
 
 ## Modelli 3D
 

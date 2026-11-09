@@ -25,6 +25,9 @@ extends Resource
 ## Color of the pavement.
 @export var road_color: Color = Color(0.22, 0.22, 0.24)
 
+## Set on the streets generated inside a place.
+var is_street: bool = false
+
 
 ## Returns the list of errors, empty when the road is valid.
 func validate() -> PackedStringArray:

@@ -33,12 +33,16 @@ The world description is one `.tres` file: open `presets/example_world_island.tr
 | Section | What you set |
 |---|---|
 | `terrain_edits` | Circular areas to raise, lower (`ADD`) or level (`LEVEL`) |
-| `places` | Name, center, radius, number and size of buildings, wall and roof colors, seed |
+| `places` | Name, center, radius, number and size of buildings, wall and roof colors, seed; `streets` adds streets joined to the nearest road, with the buildings along them |
 | `roads` | Points in meters from the terrain center, width, slope |
 | `skin` | Images for roads, terrain and buildings, and color tints |
 | `dressing` | How many trees, plants, rocks and roadside objects, and how far they stay visible |
 
 A road alone also works: `--road=<road.tres>`, repeatable.
+
+## Junctions
+
+Roads that cross, or a road that ends on another, become a junction by themselves: they meet at one height, with one surface and rounded corners. Roads listed first keep their height and the others adapt to them. All crossings are at ground level, and two roads must meet at 25 degrees or more.
 
 ## 3D models
 

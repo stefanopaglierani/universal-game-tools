@@ -13,4 +13,6 @@ godot --headless --path . -s res://tests/run_tests.gd
 
 `tests/test_dressing.gd` costruisce una propria piccola libreria di modelli e controlla come i modelli vengono scelti e collocati, il file dei crediti e il rifiuto di una libreria mancante.
 
+`tests/test_network.gd` controlla gli incroci (attraversamenti, incroci a T, superfici unite alle strade, altezze, pendenze, input rifiutati) e le strade interne ai luoghi (collegamenti, edifici lontani dalle strade).
+
 Per vedere un risultato: `godot --path . res://demo/uprg_viewer.tscn -- --file=<mondo.scn>`.
