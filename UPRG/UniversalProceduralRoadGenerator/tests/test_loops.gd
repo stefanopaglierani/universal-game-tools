@@ -54,6 +54,16 @@ func run(t: Object) -> void:
 	world.roads = two
 	result = UPRGBaker.bake_world(BASE.IN_PATH, world, OUT_PATH)
 	t.check("a road can end on a ring", result.ok and result.junctions == 1, str(result))
+	var lonely := UPRGRoadConfig.new()
+	lonely.points = PackedVector2Array([Vector2(-200, -200), Vector2(-200, 200)])
+	var three: Array[UPRGRoadConfig] = [ring, branch, lonely]
+	world.roads = three
+	t.check("a road on its own is allowed by default", UPRGBaker.bake_world(BASE.IN_PATH, world, OUT_PATH).ok)
+	world.connected_roads = true
+	result = UPRGBaker.bake_world(BASE.IN_PATH, world, BASE.DIR + "/refused.scn")
+	t.check("with connected_roads, a road on its own is refused and named", not result.ok and str(result.error).ends_with(": 2"), str(result))
+	world.roads = two
+	t.check("with connected_roads, a joined network bakes", UPRGBaker.bake_world(BASE.IN_PATH, world, OUT_PATH).ok)
 	var short := UPRGRoadConfig.new()
 	short.closed = true
 	short.points = PackedVector2Array([Vector2(0, 0), Vector2(50, 0)])

@@ -15,6 +15,7 @@
 - `--road-colors` for tiles: the red vertex color marks the ground next to the roads.
 - Levels of detail: the model library stores up to six lighter versions of each model, and the renderer picks them by distance. `UPRGDressing.chunk_size` sets how objects are grouped.
 - The x5 example world has two villages with streets, trees, rocks and roadside objects.
+- `UPRGWorldConfig.connected_roads`: the bake fails, naming the roads, when a road is not joined to the rest of the network. The x5 world uses it.
 - Closed roads (`UPRGRoadConfig.closed`): a ring that goes back to its first point, with a smooth closing and junctions kept away from it. The x5 example world has the Costa circuit as a ring on its west coast, joined to the main ring by a link road.
 
 ### Fixed

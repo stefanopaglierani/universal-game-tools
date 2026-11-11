@@ -68,3 +68,4 @@ places = Array[ExtResource("3")]([SubResource("village_coast"), SubResource("vil
 roads = Array[ExtResource("4")]([SubResource("race_road"), SubResource("costa_road"), SubResource("link_road")])
 skin = SubResource("skin")
 dressing = SubResource("dressing")
+connected_roads = true
