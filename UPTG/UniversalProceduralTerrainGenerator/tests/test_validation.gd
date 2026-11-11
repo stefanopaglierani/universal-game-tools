@@ -15,7 +15,7 @@ func run(t: Object) -> void:
 		["negative seed", func(c: UPTGConfig) -> void: c.generation_seed = -1, "generation_seed"],
 		["seed above 31 bits", func(c: UPTGConfig) -> void: c.generation_seed = 2147483648, "generation_seed"],
 		["1 cell on X", func(c: UPTGConfig) -> void: c.grid_cells_x = 1, "grid_cells_x"],
-		["1025 cells on Z", func(c: UPTGConfig) -> void: c.grid_cells_z = 1025, "grid_cells_z"],
+		["2049 cells on Z", func(c: UPTGConfig) -> void: c.grid_cells_z = 2049, "grid_cells_z"],
 		["cell_size 0", func(c: UPTGConfig) -> void: c.cell_size = 0.0, "cell_size"],
 		["sea_level NaN", func(c: UPTGConfig) -> void: c.sea_level = NAN, "sea_level"],
 		["sea_floor_depth infinite", func(c: UPTGConfig) -> void: c.sea_floor_depth = INF, "sea_floor_depth"],
@@ -52,7 +52,8 @@ func run(t: Object) -> void:
 		[512, 512, UPTGConfig.CollisionMode.HEIGHTMAP, UPTGConfig.CostLevel.OK],
 		[513, 512, UPTGConfig.CollisionMode.HEIGHTMAP, UPTGConfig.CostLevel.LARGE],
 		[1024, 1024, UPTGConfig.CollisionMode.HEIGHTMAP, UPTGConfig.CostLevel.LARGE],
-		[1025, 64, UPTGConfig.CollisionMode.HEIGHTMAP, UPTGConfig.CostLevel.REJECTED],
+		[2048, 2048, UPTGConfig.CollisionMode.HEIGHTMAP, UPTGConfig.CostLevel.LARGE],
+		[2049, 64, UPTGConfig.CollisionMode.HEIGHTMAP, UPTGConfig.CostLevel.REJECTED],
 		[256, 256, UPTGConfig.CollisionMode.TRIMESH, UPTGConfig.CostLevel.OK],
 		[257, 256, UPTGConfig.CollisionMode.TRIMESH, UPTGConfig.CostLevel.LARGE],
 	]
@@ -76,5 +77,5 @@ func run(t: Object) -> void:
 	t.check("A5b generate() refuses LARGE without generating (null, under 50 ms)", refused == null and refused_us < 50000, "%d us" % refused_us)
 
 	var rejected := UPTGConfig.new()
-	rejected.grid_cells_x = 2000
+	rejected.grid_cells_x = 4000
 	t.check("A5b REJECTED refused even with allow_large", not UPTGHeightfieldGenerator.check(rejected, true).is_empty())

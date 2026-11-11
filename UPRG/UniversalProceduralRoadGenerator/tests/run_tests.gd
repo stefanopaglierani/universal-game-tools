@@ -10,6 +10,7 @@ const SUITES: Array[String] = [
 	"res://tests/test_network.gd",
 	"res://tests/test_tiles.gd",
 	"res://tests/test_loops.gd",
+	"res://tests/test_sculpt_water.gd",
 ]
 
 var _failures: int = 0

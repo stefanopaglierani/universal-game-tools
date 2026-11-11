@@ -99,7 +99,7 @@ How memory is measured: CPU memory is the growth of `Performance.MEMORY_STATIC` 
 - `BYTES_PER_VERTEX` stays **112**: height field and mask (8), CPU mesh arrays (48), GPU copy (48), collision heights (4). Measured GPU buffers are about 54 bytes per vertex, in line with the estimate.
 - `BYTES_PER_CELL` goes from 24 to **48**: indices are held both on the CPU and on the GPU.
 - `BYTES_PER_CELL_TRIMESH` goes from 72 to **320**: the measured `ConcavePolygonShape3D` costs about 84 MB at 512 × 512 cells (320 bytes per cell), including the physics engine's own structures.
-- The thresholds (`MAX_CELLS_*`, `MAX_BYTES_*`) are unchanged. With the new coefficients the largest accepted case, 1024 × 1024 cells in TRIMESH, is estimated at about 480 MB, below the 512 MB hard limit, and 512 × 512 in HEIGHTMAP at about 40 MB, well within `OK`.
+- The thresholds (`MAX_CELLS_*`, `MAX_BYTES_*`) are unchanged. With the new coefficients the largest accepted case, 1024 × 1024 cells in TRIMESH, is estimated at about 480 MB, below the 512 MB hard limit of that time (raised to 2048 x 2048 cells and 1 GB by ADR-0016), and 512 × 512 in HEIGHTMAP at about 40 MB, well within `OK`.
 
 ## Checking the demo by hand
 

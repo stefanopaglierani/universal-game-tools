@@ -18,8 +18,10 @@ const TEMPLATE_NAMES := {
 @export var template: String = "island"
 ## The terrain (UPTG).
 @export var terrain: UPTGConfig
-## Roads, places, edits and objects (UPRG). Empty until those editors exist.
+## Brush strokes, lakes, rivers, roads, places and objects (UPRG).
 @export var world: UPRGWorldConfig
+## Undo steps of the editor: {kind: "edits" or "water", count}, oldest first.
+@export var history: Array = []
 @export_group("Export")
 @export var export_godot_single: bool = true
 @export var export_godot_tiles: bool = true
@@ -67,7 +69,7 @@ static func from_template(template_id: String, seed_value: int) -> UPWGProject:
 
 
 ## Sets the side of the square world in meters and the size of a cell (smaller is more detailed).
-## The grid is limited by UPTG to 1024 cells per side, so the cell grows when needed.
+## The grid is limited by UPTG to UPTGConfig.MAX_CELLS_PER_AXIS cells per side, so the cell grows when needed.
 static func set_size(config: UPTGConfig, side: float, cell: float) -> void:
 	var cells := int(round(side / cell / 4.0)) * 4
 	while cells > UPTGConfig.MAX_CELLS_PER_AXIS:

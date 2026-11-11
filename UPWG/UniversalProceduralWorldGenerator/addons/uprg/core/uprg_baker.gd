@@ -53,6 +53,12 @@ static func _add_world(root: Node3D, world: UPRGWorldConfig, out_path: String) -
 	var total_length := 0.0
 	for edit in world.terrain_edits:
 		changed += edit.apply(grid)
+	var water_plans: Array[Dictionary] = []
+	for body in world.water:
+		var plan := UPRGWaterBuilder.dig(body, grid)
+		if not plan.ok:
+			return _fail(plan.error)
+		water_plans.append(plan)
 	for place in world.places:
 		if not grid.is_inside(place.center, place.radius + place.blend):
 			return _fail("place %s leaves the terrain or comes too close to its border" % place.place_name)
@@ -146,6 +152,26 @@ static func _add_world(root: Node3D, world: UPRGWorldConfig, out_path: String) -
 			return _fail("cannot open the model library: %s (build it with tools/uprg_library.gd)" % world.dressing.library_path)
 	var buildings_total := 0
 	var place_meta: Array[Dictionary] = []
+	var water_meta: Array[Dictionary] = []
+	if not water_plans.is_empty():
+		var water_group := Node3D.new()
+		water_group.name = "Water"
+		root.add_child(water_group)
+		water_group.owner = root
+		for i in water_plans.size():
+			var plan := water_plans[i]
+			var surface := UPRGWaterBuilder.build_mesh(plan, grid)
+			if surface != null:
+				var node := MeshInstance3D.new()
+				node.name = "%s%d" % ["Lake" if plan.kind == "lake" else "River", i]
+				node.mesh = surface
+				node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+				water_group.add_child(node)
+				node.owner = root
+			if plan.kind == "lake":
+				water_meta.append({"kind": "lake", "center": plan.center, "radius": plan.radius, "level": plan.level})
+			else:
+				water_meta.append({"kind": "river", "path": plan.path, "levels": plan.levels, "width": plan.width})
 	var places_group := Node3D.new()
 	places_group.name = "Places"
 	root.add_child(places_group)
@@ -174,6 +200,7 @@ static func _add_world(root: Node3D, world: UPRGWorldConfig, out_path: String) -
 	meta.roads = road_meta
 	meta.junctions = junction_meta
 	meta.places = place_meta
+	meta.water = water_meta
 	root.set_meta(META_KEY, meta)
 
 	var scene := PackedScene.new()
@@ -202,6 +229,7 @@ static func _add_world(root: Node3D, world: UPRGWorldConfig, out_path: String) -
 		"junctions": junctions.size(),
 		"road_length": total_length,
 		"places": world.places.size(),
+		"water": water_meta.size(),
 		"buildings": buildings_total,
 		"vertices_changed": changed,
 	}

@@ -29,7 +29,7 @@ static func export_world(project: UPWGProject, folder: String) -> Dictionary:
 		var world := UPRGBaker.bake_world(terrain_only, project.world, single)
 		DirAccess.remove_absolute(terrain_only)
 		if not world.ok:
-			return _fail("roads and places: %s" % world.get("error", "unknown error"))
+			return _fail("roads, places and water: %s" % world.get("error", "unknown error"))
 	files.append(single)
 
 	var root := (ResourceLoader.load(single, "", ResourceLoader.CACHE_MODE_IGNORE) as PackedScene).instantiate() as Node3D
@@ -83,7 +83,7 @@ static func tile_cells(cells_x: int, cells_z: int) -> int:
 
 
 static func _has_world_content(world: UPRGWorldConfig) -> bool:
-	return world != null and not (world.roads.is_empty() and world.places.is_empty() and world.terrain_edits.is_empty())
+	return world != null and not (world.roads.is_empty() and world.places.is_empty() and world.terrain_edits.is_empty() and world.water.is_empty())
 
 
 static func _write_heightmap(meta: Dictionary, folder: String) -> Array[String]:

@@ -183,8 +183,8 @@ Note on names: `UPTGGenerator` from Draft 0.1 becomes `UPTGHeightfieldGenerator`
 | Group | Property | Type | Valid range | Provisional default | Notes |
 |---|---|---|---|---|---|
 | Seed | `generation_seed` | `int` | 0 – 2 147 483 647 | 12345 | 31-bit limit, compatible with `FastNoiseLite.seed` |
-| Grid | `grid_cells_x` | `int` | 2 – 1024 | 256 | Number of cells; vertices = cells + 1 |
-| Grid | `grid_cells_z` | `int` | 2 – 1024 | 256 | As above |
+| Grid | `grid_cells_x` | `int` | 2 – 2048 | 256 | Number of cells; vertices = cells + 1 |
+| Grid | `grid_cells_z` | `int` | 2 – 2048 | 256 | As above |
 | Grid | `cell_size` | `float` | 0.25 – 64.0 m | 4.0 | Cells are always square |
 | Sea | `sea_level` | `float` | any | 0.0 m | Height of the sea level |
 | Sea | `sea_floor_depth` | `float` | 0.5 – 500 m | 20.0 m | Depth of the sea floor below `sea_level` where the mask is 0 |
@@ -256,8 +256,8 @@ The memory coefficients were calibrated in Milestone D with real measurements **
 | Level | Condition | Behavior |
 |---|---|---|
 | `OK` | `cells <= 262 144` (512 × 512) and `estimated_bytes <= 128 MB` | Normal generation |
-| `LARGE` | beyond the `OK` threshold, but `cells <= 1 048 576` and `estimated_bytes <= 512 MB` | Generation **refused** with `generation_failed`, unless the `UPTGTerrain` node has `allow_large_terrain = true`; in that case it proceeds with `push_warning()` |
-| `REJECTED` | `grid_cells_x` or `grid_cells_z` above 1024, or beyond the `LARGE` limits | Generation always refused, even with `allow_large_terrain` |
+| `LARGE` | beyond the `OK` threshold, but `cells <= 4 194 304` and `estimated_bytes <= 1 GB` (ADR-0016; until 2026-11-11: 1 048 576 cells and 512 MB) | Generation **refused** with `generation_failed`, unless the `UPTGTerrain` node has `allow_large_terrain = true`; in that case it proceeds with `push_warning()` |
+| `REJECTED` | `grid_cells_x` or `grid_cells_z` above 2048, or beyond the `LARGE` limits | Generation always refused, even with `allow_large_terrain` |
 
 Additional rules:
 

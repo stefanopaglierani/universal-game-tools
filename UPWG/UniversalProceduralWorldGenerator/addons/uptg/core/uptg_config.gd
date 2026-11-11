@@ -30,16 +30,16 @@ enum CostLevel {
 const MAX_CELLS_OK: int = 262144
 ## Same threshold when [member collision_mode] is [constant CollisionMode.TRIMESH] (256 x 256).
 const MAX_CELLS_OK_TRIMESH: int = 65536
-## Hard limit on the total number of cells (1024 x 1024).
-const MAX_CELLS_HARD: int = 1048576
+## Hard limit on the total number of cells (2048 x 2048, ADR-0016).
+const MAX_CELLS_HARD: int = 4194304
 ## Hard limit on cells per axis.
-const MAX_CELLS_PER_AXIS: int = 1024
+const MAX_CELLS_PER_AXIS: int = 2048
 ## Minimum cells per axis.
 const MIN_CELLS_PER_AXIS: int = 2
 ## Estimated memory above which a configuration is [constant CostLevel.LARGE].
 const MAX_BYTES_OK: int = 128 * 1024 * 1024
 ## Estimated memory above which a configuration is [constant CostLevel.REJECTED].
-const MAX_BYTES_HARD: int = 512 * 1024 * 1024
+const MAX_BYTES_HARD: int = 1024 * 1024 * 1024
 ## Memory estimate per vertex, in bytes: height field and mask (8), heightmap collision (4),
 ## mesh vertex buffers on the GPU (about 30) and the CPU arrays alive while the mesh is built (48),
 ## rounded up. Calibrated with the Milestone D measurements (documentation/TESTING.md).
@@ -61,9 +61,9 @@ const COASTLINE_OCTAVES: int = 2
 
 @export_group("Grid")
 ## Number of cells along X. Vertices along X = cells + 1.
-@export_range(2, 1024) var grid_cells_x: int = 256
+@export_range(2, 2048) var grid_cells_x: int = 256
 ## Number of cells along Z. Vertices along Z = cells + 1.
-@export_range(2, 1024) var grid_cells_z: int = 256
+@export_range(2, 2048) var grid_cells_z: int = 256
 ## Side of a square cell, in meters.
 @export_range(0.25, 64.0, 0.01, "suffix:m") var cell_size: float = 4.0
 
