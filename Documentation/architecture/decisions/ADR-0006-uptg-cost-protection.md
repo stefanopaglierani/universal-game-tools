@@ -1,5 +1,3 @@
-**English** | [Italiano](ADR-0006-uptg-cost-protection.it.md)
-
 # ADR-0006: UPTG protection against expensive configurations
 
 **Status:** Accepted

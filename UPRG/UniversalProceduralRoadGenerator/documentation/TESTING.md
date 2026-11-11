@@ -1,5 +1,3 @@
-**English** | [Italiano](TESTING.it.md)
-
 # UPRG Testing
 
 From the module folder:

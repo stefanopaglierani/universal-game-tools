@@ -1,5 +1,3 @@
-**English** | [Italiano](UPTG_ARCHITECTURE_0.2.it.md)
-
 # UPTG — Universal Procedural Terrain Generator
 ## Architecture Specification — Version 0.2
 

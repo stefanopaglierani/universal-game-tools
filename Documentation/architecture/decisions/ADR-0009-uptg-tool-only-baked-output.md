@@ -1,5 +1,3 @@
-**English** | [Italiano](ADR-0009-uptg-tool-only-baked-output.it.md)
-
 # ADR-0009: UPTG is a private tool, only its baked output goes into a game
 
 **Status:** Accepted

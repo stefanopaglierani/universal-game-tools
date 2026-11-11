@@ -1,5 +1,3 @@
-**English** | [Italiano](README.it.md)
-
 # UPRG — Universal Procedural Road Generator
 
 **Status:** version 0.1.0 (tag `uprg-v0.1.0`)

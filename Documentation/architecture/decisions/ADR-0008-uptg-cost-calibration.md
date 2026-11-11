@@ -1,5 +1,3 @@
-**English** | [Italiano](ADR-0008-uptg-cost-calibration.it.md)
-
 # ADR-0008: UPTG cost estimate calibration from measurements
 
 **Status:** Accepted

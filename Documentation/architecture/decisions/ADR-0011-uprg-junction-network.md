@@ -1,5 +1,3 @@
-**English** | [Italiano](ADR-0011-uprg-junction-network.it.md)
-
 # ADR-0011: UPRG builds junctions as one network after planning every road
 
 **Status:** Accepted

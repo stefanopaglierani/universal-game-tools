@@ -1,5 +1,3 @@
-**English** | [Italiano](ADR-0003-uptg-square-cell-grid.it.md)
-
 # ADR-0003: UPTG grid: square cells defined by cell count and `cell_size`
 
 **Status:** Accepted

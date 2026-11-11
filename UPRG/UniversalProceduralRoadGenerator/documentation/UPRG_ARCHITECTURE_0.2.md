@@ -1,5 +1,3 @@
-**English** | [Italiano](UPRG_ARCHITECTURE_0.2.it.md)
-
 # UPRG — Architecture 0.2
 
 **Status:** describes UPRG 0.1.0 (2026-11-11). It supersedes [architecture 0.1](UPRG_ARCHITECTURE_0.1.md), kept as history.

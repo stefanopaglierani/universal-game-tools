@@ -1,5 +1,3 @@
-**English** | [Italiano](README.it.md)
-
 # UPTG — Universal Procedural Terrain Generator
 
 **Status:** version 0.1.0 released (tag `uptg-v0.1.0`)

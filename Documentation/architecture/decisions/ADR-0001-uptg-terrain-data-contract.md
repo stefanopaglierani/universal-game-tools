@@ -1,5 +1,3 @@
-**English** | [Italiano](ADR-0001-uptg-terrain-data-contract.it.md)
-
 # ADR-0001: UPTG terrain data contract (`UPTGTerrainData`)
 
 **Status:** Accepted

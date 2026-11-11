@@ -1,5 +1,3 @@
-**English** | [Italiano](ADR-0010-uprg-reads-baked-terrain.it.md)
-
 # ADR-0010: UPRG works on the baked terrain file
 
 **Status:** Accepted

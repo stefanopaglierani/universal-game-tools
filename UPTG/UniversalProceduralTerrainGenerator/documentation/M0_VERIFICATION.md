@@ -1,5 +1,3 @@
-**English** | [Italiano](M0_VERIFICATION.it.md)
-
 # UPTG — Milestone 0 verification results
 
 **Date:** 2026-11-06

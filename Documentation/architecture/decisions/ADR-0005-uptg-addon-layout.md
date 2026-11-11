@@ -1,5 +1,3 @@
-**English** | [Italiano](ADR-0005-uptg-addon-layout.it.md)
-
 # ADR-0005: UPTG addon layout (R12)
 
 **Status:** Accepted

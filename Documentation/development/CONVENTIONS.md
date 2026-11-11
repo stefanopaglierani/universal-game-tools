@@ -1,5 +1,3 @@
-**English** | [Italiano](CONVENTIONS.it.md)
-
 # Coding conventions
 
 Follows the official [GDScript style guide](https://docs.godotengine.org/en/stable/tutorials/scripting/gdscript/gdscript_styleguide.html), with these project rules.
@@ -27,5 +25,5 @@ Code (names, comments) is written in English.
 
 ## Documentation
 
-- Every module has a `README.md`, an architecture doc, `TESTING.md` and `CHANGELOG.md`, each with an Italian `.it.md` version.
+- Every module has a `README.md`, an architecture doc, `TESTING.md` and `CHANGELOG.md`, in English.
 - Public classes and exported properties have doc comments (`##`).

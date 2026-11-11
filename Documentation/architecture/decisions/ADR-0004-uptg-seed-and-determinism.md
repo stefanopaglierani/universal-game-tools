@@ -1,5 +1,3 @@
-**English** | [Italiano](ADR-0004-uptg-seed-and-determinism.it.md)
-
 # ADR-0004: UPTG seed handling and determinism guarantee
 
 **Status:** Accepted
