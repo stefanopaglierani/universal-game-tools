@@ -7,6 +7,7 @@ const CHUNK_SIZE := 160.0
 const TREE_KINDS: Array[String] = ["tree", "pine", "plant"]
 const SOLID_KINDS: Array[String] = ["tree", "pine", "rock", "lamp", "landmark"]
 const STREET_LAMP_SPACING := 30.0
+static var _chunk := CHUNK_SIZE
 
 
 ## Scatters plants and rocks, and adds roadside objects. Returns counts for the report.
@@ -19,6 +20,7 @@ static func dress(root: Node3D, dressing: UPRGDressing, library: UPRGLibrary, gr
 	var placements := {}
 	var solids: Array[Dictionary] = []
 	var counts := {"scatter": 0, "roadside": 0}
+	_chunk = dressing.chunk_size
 	counts.scatter += _scatter("tree", dressing.tree_density, 3.0, 1000.0, 0.88, grid, near_road, places, library, rng, placements, solids)
 	counts.scatter += _scatter("pine", dressing.tree_density * 0.6, 14.0, 1000.0, 0.8, grid, near_road, places, library, rng, placements, solids)
 	counts.scatter += _scatter("plant", dressing.plant_density, 2.5, 1000.0, 0.85, grid, near_road, places, library, rng, placements, solids)
@@ -133,7 +135,7 @@ static func _clear_of_other_roads(p: Vector2, road_index: int, road_paths: Array
 
 
 static func _place(item: Dictionary, p: Vector2, y: float, yaw: float, size: float, placements: Dictionary, solids: Array[Dictionary]) -> void:
-	var chunk := Vector2i(floori(p.x / CHUNK_SIZE), floori(p.y / CHUNK_SIZE))
+	var chunk := Vector2i(floori(p.x / _chunk), floori(p.y / _chunk))
 	var key := "%s|%d|%d" % [item.id, chunk.x, chunk.y]
 	if not placements.has(key):
 		placements[key] = {"item": item, "transforms": []}

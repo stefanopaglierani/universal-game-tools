@@ -67,6 +67,24 @@ func run(t: Object) -> void:
 
 	t.check("a size that does not divide the grid is refused", not UPRGTileBuilder.split(WORLD_IN, OUT_DIR, 30).ok)
 
+	result = UPRGTileBuilder.split(WORLD_IN, OUT_DIR, CELLS, true)
+	t.check("road colors are written", result.ok, str(result))
+	var tile := _load_tile(0, 1)
+	var mesh := (tile.get_node("Near") as MeshInstance3D).mesh
+	var arrays := mesh.surface_get_arrays(0)
+	var vertices: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
+	var colors: PackedColorArray = arrays[Mesh.ARRAY_COLOR]
+	var on_road := 0.0
+	var far_away := 1.0
+	for i in vertices.size():
+		var z := vertices[i].z + tile.position.z
+		if absf(z - 40.0) < 2.0:
+			on_road = maxf(on_road, colors[i].r)
+		if absf(z - 40.0) > 30.0:
+			far_away = minf(far_away, 1.0 - colors[i].r)
+	t.check("red marks the ground next to the road only", on_road > 0.99 and far_away > 0.99, "%.2f on the road, %.2f far" % [on_road, 1.0 - far_away])
+	tile.free()
+
 	for f in DirAccess.get_files_at(OUT_DIR):
 		DirAccess.remove_absolute(OUT_DIR.path_join(f))
 	DirAccess.remove_absolute(OUT_DIR)

@@ -62,6 +62,8 @@ A big world can be cut into tiles that a game loads while the player drives. Eac
 godot --headless --path . -s res://tools/uprg_tiles.gd -- --in=C:/Temp/world.scn --out=C:/Temp/world_tiles --cells=64
 ```
 
+`--road-colors` writes, in the red vertex color, how close the ground is to a road, for a game shader that textures the ground itself.
+
 ## Documentation
 
 - [Architecture](documentation/UPRG_ARCHITECTURE_0.1.md)

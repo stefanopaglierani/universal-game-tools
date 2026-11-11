@@ -6,6 +6,10 @@ extends RefCounted
 
 ## Reads the catalog and writes the library to [param out_dir]. Returns a Dictionary:
 ## [code]ok[/code], and [code]error[/code] on failure, or [code]items[/code] and [code]skipped[/code].
+const LOD_NORMAL_MERGE := 25.0
+const LOD_NORMAL_SPLIT := 60.0
+
+
 static func build(models_dir: String, catalog_path: String, out_dir: String, parent: Node) -> Dictionary:
 	var text := FileAccess.get_file_as_string(catalog_path)
 	var catalog: Variant = JSON.parse_string(text)
@@ -162,7 +166,9 @@ static func _merge(instances: Array, entry: Dictionary, max_triangles: int, max_
 	elif natural_size.length() < 0.05 or maxf(natural_size.x, maxf(natural_size.y, natural_size.z)) > 60.0:
 		return {}
 	var base := Vector3((low.x + high.x) * 0.5, low.y, (low.z + high.z) * 0.5)
-	var mesh := ArrayMesh.new()
+	# Built through ImporterMesh to add lighter versions (levels of detail) inside the mesh:
+	# the renderer switches to them by itself as the object gets small on the screen.
+	var importer := ImporterMesh.new()
 	for key: int in buckets:
 		var bucket: Dictionary = buckets[key]
 		var vertices: PackedVector3Array = bucket.v
@@ -174,8 +180,9 @@ static func _merge(instances: Array, entry: Dictionary, max_triangles: int, max_
 		arrays[Mesh.ARRAY_NORMAL] = bucket.n
 		arrays[Mesh.ARRAY_TEX_UV] = bucket.uv
 		arrays[Mesh.ARRAY_INDEX] = bucket.i
-		mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
-		mesh.surface_set_material(mesh.get_surface_count() - 1, _light_material(bucket.material, max_texture, textures))
+		importer.add_surface(Mesh.PRIMITIVE_TRIANGLES, arrays, [], {}, _light_material(bucket.material, max_texture, textures))
+	importer.generate_lods(LOD_NORMAL_MERGE, LOD_NORMAL_SPLIT, [])
+	var mesh := importer.get_mesh()
 	var size := natural_size * scale_factor
 	return {"mesh": mesh, "triangles": total_triangles, "size": [snappedf(size.x, 0.01), snappedf(size.y, 0.01), snappedf(size.z, 0.01)]}
 
