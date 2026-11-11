@@ -8,7 +8,7 @@
 
 [sub_resource type="Resource" id="village_coast"]
 script = ExtResource("3")
-place_name = "Porto Ovest"
+place_name = "West Harbor"
 center = Vector2(-880, 120)
 radius = 60.0
 blend = 25.0
@@ -18,7 +18,7 @@ streets = true
 
 [sub_resource type="Resource" id="village_north"]
 script = ExtResource("3")
-place_name = "Borgo Nord"
+place_name = "North Village"
 center = Vector2(362, 996)
 radius = 70.0
 blend = 25.0

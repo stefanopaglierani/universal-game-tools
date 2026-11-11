@@ -1,5 +1,3 @@
-**English** | [Italiano](README.it.md)
-
 # UPRG — Universal Procedural Road Generator
 
 **Status:** version 0.1.0 (tag `uprg-v0.1.0`)
@@ -46,7 +44,7 @@ Roads that cross, or a road that ends on another, become a junction by themselve
 
 ## 3D models
 
-A world with `dressing` takes its buildings, trees, rocks and roadside objects from a model library. The library is built once from the models folder and stays out of the repository; `presets/ambientazione_catalog.json` lists the chosen models. The example world needs it:
+A world with `dressing` takes its buildings, trees, rocks and roadside objects from a model library. The library is built once from a models folder (with a Markdown credits table listing number, author, source, license and link of each model) and stays out of the repository; `presets/models_catalog.json` lists the chosen models. The example world needs it:
 
 ```
 godot --headless --path . -s res://tools/uprg_library.gd -- --models=<models folder>

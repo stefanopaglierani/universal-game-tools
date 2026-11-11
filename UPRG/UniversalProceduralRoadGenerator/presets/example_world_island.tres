@@ -17,7 +17,7 @@ amount = 18.0
 
 [sub_resource type="Resource" id="village"]
 script = ExtResource("3")
-place_name = "Porto Vecchio"
+place_name = "Old Harbor"
 center = Vector2(-205, 45)
 radius = 55.0
 blend = 25.0

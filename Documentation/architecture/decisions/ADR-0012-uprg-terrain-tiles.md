@@ -1,5 +1,3 @@
-**English** | [Italiano](ADR-0012-uprg-terrain-tiles.it.md)
-
 # ADR-0012: Very large worlds are cut into terrain tiles after the bake
 
 **Status:** Accepted

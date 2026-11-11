@@ -1,0 +1,36 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://demo/uwr_demo.gd" id="1_demo"]
+[ext_resource type="Script" path="res://addons/uwr/uwr_world.gd" id="2_world"]
+
+[sub_resource type="ProceduralSkyMaterial" id="sky_material"]
+
+[sub_resource type="Sky" id="sky"]
+sky_material = SubResource("sky_material")
+
+[sub_resource type="Environment" id="environment"]
+background_mode = 2
+sky = SubResource("sky")
+ambient_light_source = 3
+fog_enabled = true
+fog_density = 0.0004
+
+[node name="UWRDemo" type="Node3D"]
+script = ExtResource("1_demo")
+
+[node name="Environment" type="WorldEnvironment" parent="."]
+environment = SubResource("environment")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.866, -0.354, 0.354, 0, 0.707, 0.707, -0.5, -0.612, 0.612, 0, 0, 0)
+shadow_enabled = true
+
+[node name="World" type="Node3D" parent="."]
+script = ExtResource("2_world")
+
+[node name="Camera" type="Camera3D" parent="."]
+far = 4000.0
+
+[node name="Info" type="Label" parent="."]
+offset_left = 12.0
+offset_top = 12.0

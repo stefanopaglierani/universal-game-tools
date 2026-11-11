@@ -1,5 +1,3 @@
-**English** | [Italiano](README.it.md)
-
 # Architecture overview
 
 Shared architecture rules that apply to every module in Universal Game Tools.
@@ -20,7 +18,7 @@ Each tool lives in `<CODE>/<FullName>/` and should ideally contain:
 
 - Modules are game-agnostic: no gameplay, vehicle, quest or game-specific logic in the core.
 - A module must be transferable to an independent Godot project with documented steps.
-- Modules are private development tools: only what they generate goes into a game, never their code (ADR-0009).
+- Modules are private development tools: only what they generate goes into a game, never their code (ADR-0009). The one exception is the small runtime reader UWR (ADR-0014).
 - Core systems and optional extensions are clearly separated.
 - Dependencies between modules are one-directional and documented (e.g. UPRG may depend on UPTG output, never the reverse).
 - Generation is deterministic from a seed where randomness is involved.
@@ -31,6 +29,7 @@ Each tool lives in `<CODE>/<FullName>/` and should ideally contain:
 |---|---|
 | UPTG | [UPTG_ARCHITECTURE_0.2.md](../../UPTG/UniversalProceduralTerrainGenerator/documentation/UPTG_ARCHITECTURE_0.2.md); it supersedes [draft 0.1](../../UPTG/UniversalProceduralTerrainGenerator/documentation/UPTG_ARCHITECTURE.md) |
 | UPRG | [UPRG_ARCHITECTURE_0.2.md](../../UPRG/UniversalProceduralRoadGenerator/documentation/UPRG_ARCHITECTURE_0.2.md); it supersedes [0.1](../../UPRG/UniversalProceduralRoadGenerator/documentation/UPRG_ARCHITECTURE_0.1.md) |
+| UWR | [UWR_ARCHITECTURE_0.1.md](../../UWR/UniversalWorldReader/documentation/UWR_ARCHITECTURE_0.1.md) |
 | UPWG | Not written yet |
 
 ## Decisions
@@ -50,3 +49,4 @@ Significant architectural decisions are recorded as ADRs in [`decisions/`](decis
 - [ADR-0011: UPRG builds junctions as one network after planning every road](decisions/ADR-0011-uprg-junction-network.md)
 - [ADR-0012: Very large worlds are cut into terrain tiles after the bake](decisions/ADR-0012-uprg-terrain-tiles.md)
 - [ADR-0013: Rings start away from junctions, and a world can require one connected network](decisions/ADR-0013-uprg-rings-and-connected-network.md)
+- [ADR-0014: A small runtime reader is the one part of the tools that ships in games](decisions/ADR-0014-uwr-runtime-reader.md)

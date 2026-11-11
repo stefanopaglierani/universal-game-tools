@@ -1,5 +1,3 @@
-**English** | [Italiano](ADR-0007-uptg-seed-derived-noise-offsets.it.md)
-
 # ADR-0007: UPTG noise sampling offsets derived from the seed
 
 **Status:** Accepted

@@ -1,5 +1,3 @@
-**English** | [Italiano](README.it.md)
-
 # UPWG — Universal Procedural World Generator
 
 **Status:** planned, not started.

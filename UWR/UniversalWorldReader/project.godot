@@ -1,0 +1,11 @@
+; Engine configuration file.
+
+config_version=5
+
+[application]
+
+config/name="UWR - Universal World Reader"
+config/description="Opens worlds made with the Universal Game Tools in a Godot game."
+config/version="0.1.0"
+run/main_scene="res://demo/uwr_demo.tscn"
+config/features=PackedStringArray("4.7")

@@ -1,5 +1,3 @@
-**English** | [Italiano](TESTING.it.md)
-
 # UPTG Testing
 
 UPTG tests are plain GDScript files run headless by Godot 4.7.2. No test framework or plugin is needed.

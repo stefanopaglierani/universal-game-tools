@@ -1,5 +1,3 @@
-**English** | [Italiano](ADR-0002-uptg-heightmap-collision.it.md)
-
 # ADR-0002: UPTG collision: `HeightMapShape3D` by default
 
 **Status:** Accepted

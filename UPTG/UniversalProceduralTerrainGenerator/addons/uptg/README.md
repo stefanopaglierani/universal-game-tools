@@ -1,5 +1,3 @@
-**English** | [Italiano](README.it.md)
-
 # UPTG addon (`addons/uptg/`)
 
 UPTG (Universal Procedural Terrain Generator) generates a deterministic 3D island at runtime in Godot 4.7.2: height field, mesh with vertex colors, and collision. It is written in typed GDScript, has no dependencies and does not reference any game.

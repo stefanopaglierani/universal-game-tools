@@ -1,5 +1,3 @@
-**English** | [Italiano](ADR-0013-uprg-rings-and-connected-network.it.md)
-
 # ADR-0013: Rings start away from junctions, and a world can require one connected network
 
 **Status:** Accepted

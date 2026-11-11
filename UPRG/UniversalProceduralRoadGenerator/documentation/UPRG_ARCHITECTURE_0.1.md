@@ -1,5 +1,3 @@
-**English** | [Italiano](UPRG_ARCHITECTURE_0.1.it.md)
-
 # UPRG — Architecture 0.1
 
 **Status:** first version, decided by Stefano's direction of 2026-11-08 (ADR-0009, ADR-0010)

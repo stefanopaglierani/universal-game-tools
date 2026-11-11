@@ -1,5 +1,3 @@
-**English** | [Italiano](CHANGELOG.it.md)
-
 # UPTG Changelog
 
 All notable changes to UPTG are documented here.

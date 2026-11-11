@@ -1,5 +1,3 @@
-**English** | [Italiano](WORKFLOW.it.md)
-
 # Development workflow
 
 ## Branches
@@ -35,9 +33,9 @@ docs: update testing procedure
 6. Report files created or modified, tests actually run, and known limitations.
 7. Propose the next milestone without starting it automatically.
 
-## Bilingual documentation
+## Language
 
-Every document exists in English (`NAME.md`) and Italian (`NAME.it.md`). When one is changed, update the other in the same commit.
+The repository is in English only (Stefano, 2026-11-11). The Italian `.it.md` versions were removed.
 
 ## Large binary assets
 

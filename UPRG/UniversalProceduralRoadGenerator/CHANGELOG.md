@@ -1,6 +1,9 @@
-**English** | [Italiano](CHANGELOG.it.md)
-
 # UPRG Changelog
+
+## [Unreleased]
+
+### Changed
+- English only: the model catalog is `presets/models_catalog.json`, the credits table is found by content in any `.md` file of the models folder, and the example places have English names.
 
 ## [0.1.0] - 2026-11-11
 

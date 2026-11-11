@@ -1,5 +1,3 @@
-**English** | [Italiano](CHANGELOG.it.md)
-
 # Changelog
 
 All notable changes to this repository are documented here.
@@ -19,7 +17,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - UPTG 0.1.0, released as tag `uptg-v0.1.0` (see the module `CHANGELOG.md`).
 - ADR-0007 and ADR-0008, recording decisions taken during UPTG Milestones A and D.
 - ADR-0009: UPTG is a private tool and only its baked output goes into a game.
+- UWR, the Universal World Reader (ADR-0014).
 - UPRG 0.1.0, released as tag `uprg-v0.1.0` (see the module `CHANGELOG.md`), with architecture 0.2 and ADR-0010 to ADR-0013.
 
 ### Changed
+- The repository is English only: the Italian `.it.md` documents were removed (Stefano, 2026-11-11).
 - Root README, documentation index and architecture overview updated for UPTG 0.1.0 and the UPTG addon layout (R12).
