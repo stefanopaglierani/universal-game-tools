@@ -26,6 +26,36 @@ func run(t: Object) -> void:
 	raise.apply(grid)
 	t.check("an edit only touches its own area", is_equal_approx(grid.heights[grid.index(2, 2)], far))
 
+	var box := _grid()
+	var square := UPRGTerrainEdit.new()
+	square.square = true
+	square.radius = 40.0
+	square.blend = 0.5
+	square.amount = 10.0
+	var corner_before := box.height_at(Vector2(36, 36))
+	square.apply(box)
+	t.check("a square edit reaches its corners", box.height_at(Vector2(36, 36)) > corner_before + 9.0)
+	var shelf := _grid()
+	var down := UPRGTerrainEdit.new()
+	down.kind = UPRGTerrainEdit.Kind.LEVEL
+	down.level_mode = UPRGTerrainEdit.LevelMode.DOWN_ONLY
+	down.radius = 300.0
+	down.square = true
+	var low_before := INF
+	var high_before := -INF
+	for h in shelf.heights:
+		low_before = minf(low_before, h)
+		high_before = maxf(high_before, h)
+	down.height = (low_before + high_before) * 0.5
+	var high_after := -INF
+	down.apply(shelf)
+	for h in shelf.heights:
+		high_after = maxf(high_after, h)
+	var low_after := INF
+	for h in shelf.heights:
+		low_after = minf(low_after, h)
+	t.check("flatten DOWN_ONLY lowers the high ground and keeps the low ground", high_after <= down.height + 0.01 and is_equal_approx(low_after, low_before), "%.2f to %.2f, low %.2f" % [high_before, high_after, low_after])
+
 	var bumpy := _grid()
 	var before := _roughness(bumpy, 32, 32)
 	var rough := UPRGTerrainEdit.new()

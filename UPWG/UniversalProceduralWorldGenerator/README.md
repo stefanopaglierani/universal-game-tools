@@ -27,19 +27,36 @@ Worlds with more than 2048 cells per side (for example 30 km with 4 m cells) are
 
 Roads, places, single houses, user models, textures and shaders come in the next stages (see the plan in `Documentation`).
 
+## Using it
+
+The window has two tabs. **Create** makes the world: pick a world (island, continent, coast, highlands, flat land, or "Surprise me!"), its size from Small (1 km) to Giant (30 km), the land and its hills, and the mountains. **Edit** shapes it with the mouse: Raise, Dig, Smooth, Flatten, Bumpy, Lake and River. Undo and Redo are always in the top bar. The language button switches between Italian and English.
+
+| Keys and mouse in the 3D view | What they do |
+|---|---|
+| Right button + W A S D, Q E | Look around and fly (Shift: faster) |
+| Wheel | Come closer to the point under the mouse, or go away |
+| Middle button, or left button with Look | Turn around the world |
+| Left button | Use the tool |
+| Ctrl | Raise digs, Dig raises; with Lake and River, removes the closest water |
+| Shift while painting | Smooth |
+| B + mouse or wheel, Shift + B | Brush size, brush strength |
+| F | Fly to the point under the mouse |
+| 1 to 8 | Choose an Edit tool |
+| Ctrl+Z, Ctrl+Y, Ctrl+S | Undo, redo, save |
+
 ## Run
 
 ```
 godot --path .
 ```
 
-With the Look tool, drag in the preview to turn around the world. With any other tool, the left button paints or places and the right button turns the view. The mouse wheel zooms.
+The keys are listed above and in the Help window.
 
 ## Folders
 
 | Folder | Content |
 |---|---|
-| `editor/` | The window (`upwg_editor`), the project (`UPWGProject`) and the exporter (`UPWGExporter`) |
+| `editor/` | The window (`upwg_editor`), its camera (`UPWGCamera`) and languages (`UPWGI18n`), the project (`UPWGProject`), the exporter (`UPWGExporter`) and the icons (`icons/`, Lucide, ISC) |
 | `addons/` | Copies of UPTG, UPRG and UWR, made by `tools/sync_vendor.gd` (do not edit here) |
 | `tools/` | `sync_vendor.gd` |
 | `tests/` | Headless tests |

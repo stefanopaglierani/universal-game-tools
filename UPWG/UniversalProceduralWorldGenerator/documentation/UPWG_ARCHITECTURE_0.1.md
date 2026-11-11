@@ -13,7 +13,9 @@ UPWG is the standalone editor of the Universal Game Tools: one window where a pe
 |---|---|
 | `UPWGProject` | One world in one `.upwg.tres` file: name, template, `UPTGConfig`, `UPRGWorldConfig`, export choices. `from_template()` builds a world from a template and a seed; `set_size()` keeps the grid within UPTG's 2048 cells per side (ADR-0016); `history` holds the undo steps of the editor; `resize()` sets the side (up to 30 720 m) and keeps a finer export cell in `detail_cell` when the world needs more than 2048 cells per side (ADR-0017); `place_mountains()` places mountains from the seed and a shuffle number |
 | `UPWGExporter` | Builds the world at full detail (UPTG bake, then UPRG when the world has roads, places or edits) and writes the chosen formats |
-| `upwg_editor` | The window: controls on the left, 3D preview on the right |
+| `upwg_editor` | The window: top bar, Create and Edit tabs with their tools and the options of the tool in use on the left, 3D preview on the right, keys under it. Made to be used by a child (8 years and up): pictures, few words, undo for everything, questions before losing work, autosave |
+| `UPWGCamera` | The preview camera: fly with the right button and W A S D, wheel toward the mouse, orbit, focus, whole world and sky views |
+| `UPWGI18n` | English texts in the code, Italian in a dictionary given to Godot's `TranslationServer`; the choice is saved in `user://upwg_settings.cfg`. A test checks that every text of the window has its Italian version |
 
 ## 3. Preview
 

@@ -1,13 +1,20 @@
 class_name UPRGTerrainEdit
 extends Resource
-## One direct change to the terrain in a circular area with a soft edge: the brush strokes of an
-## editor are lists of these.
+## One direct change to the terrain in a round or square area with a soft edge: the brush strokes
+## of an editor are lists of these.
 
 enum Kind {
 	ADD, ## Adds [member amount] meters (negative to lower).
 	LEVEL, ## Sets the area to [member height] above the sea.
 	SMOOTH, ## Moves the area toward the average of its neighbors; [member amount] is the strength, 0..1.
 	ROUGHEN, ## Adds bumps up to [member amount] meters, from [member noise_seed].
+}
+
+## LEVEL: which ground moves toward [member height].
+enum LevelMode {
+	BOTH, ## Lowers what is above and raises what is below.
+	DOWN_ONLY, ## Only lowers what is above.
+	UP_ONLY, ## Only raises what is below.
 }
 
 @export var kind: Kind = Kind.ADD
@@ -24,6 +31,11 @@ enum Kind {
 ## ROUGHEN: size of the bumps in meters, and the seed that places them.
 @export_range(1.0, 500.0, 0.5) var bump_size: float = 12.0
 @export var noise_seed: int = 0
+## Square area instead of a round one (the radius is half the side).
+@export var square: bool = false
+## LEVEL: which ground moves, and how far toward [member height] (0..1).
+@export var level_mode: LevelMode = LevelMode.BOTH
+@export_range(0.0, 1.0, 0.01) var strength: float = 1.0
 
 
 ## Applies this edit to [param grid]. Returns the number of vertices changed.
@@ -45,7 +57,7 @@ func apply(grid: UPRGTerrainGrid) -> int:
 	for iz in range(iz0, iz1 + 1):
 		for ix in range(ix0, ix1 + 1):
 			var p := Vector2(grid.vertex_x(ix), grid.vertex_z(iz))
-			var d := p.distance_to(center)
+			var d := maxf(absf(p.x - center.x), absf(p.y - center.y)) if square else p.distance_to(center)
 			if d >= reach:
 				continue
 			var k := 1.0 - smoothstep(0.0, 1.0, (d - radius) / blend) if d > radius else 1.0
@@ -54,7 +66,11 @@ func apply(grid: UPRGTerrainGrid) -> int:
 				Kind.ADD:
 					grid.heights[i] += amount * k
 				Kind.LEVEL:
-					grid.heights[i] = lerpf(grid.heights[i], grid.sea_level + height, k)
+					var target := grid.sea_level + height
+					var now := grid.heights[i]
+					if (level_mode == LevelMode.DOWN_ONLY and now <= target) or (level_mode == LevelMode.UP_ONLY and now >= target):
+						continue
+					grid.heights[i] = lerpf(now, target, k * strength)
 				Kind.SMOOTH:
 					grid.heights[i] = lerpf(source[i], _average(source, grid, ix, iz), clampf(amount, 0.0, 1.0) * k)
 				Kind.ROUGHEN:
