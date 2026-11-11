@@ -4,6 +4,8 @@ extends Resource
 
 ## Control points the road passes through, as (x, z). At least 2.
 @export var points: PackedVector2Array = PackedVector2Array()
+## A ring: after the last point the road goes back to the first one. At least 3 points.
+@export var closed: bool = false
 ## Width of the paved surface.
 @export_range(1.0, 60.0, 0.1) var width: float = 8.0
 ## Width of the sloped strip on each side of the pavement.
@@ -34,6 +36,8 @@ func validate() -> PackedStringArray:
 	var errors := PackedStringArray()
 	if points.size() < 2:
 		errors.append("a road needs at least 2 points")
+	if closed and points.size() < 3:
+		errors.append("a closed road needs at least 3 points")
 	for i in range(1, points.size()):
 		if points[i].distance_to(points[i - 1]) < 0.01:
 			errors.append("points %d and %d coincide" % [i - 1, i])

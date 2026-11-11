@@ -65,8 +65,11 @@ static func _find_hits(roads: Array[UPRGRoadConfig], plans: Array[UPRGRoadShape]
 			if not boxes[a].grow(reach).intersects(boxes[b].grow(reach)):
 				continue
 			_add_crossings(hits, a, b, plans[a].path, plans[b].path)
-			_add_road_end(hits, a, b, plans[a].path, plans[b].path, roads[b].width * 0.5)
-			_add_road_end(hits, b, a, plans[b].path, plans[a].path, roads[a].width * 0.5)
+			# A ring has no ends: its first and last positions are the same point.
+			if not roads[a].closed:
+				_add_road_end(hits, a, b, plans[a].path, plans[b].path, roads[b].width * 0.5)
+			if not roads[b].closed:
+				_add_road_end(hits, b, a, plans[b].path, plans[a].path, roads[a].width * 0.5)
 	return hits
 
 
@@ -199,7 +202,7 @@ static func _fit_heights(junctions: Array[Dictionary], roads: Array[UPRGRoadConf
 			continue
 		if not _fit_road(roads[r], plans[r], marks):
 			var at := plans[r].path[marks[0].sample]
-			return "a road cannot reach its junctions within max_grade near (%.0f, %.0f)" % [at.x, at.y]
+			return "road %d cannot reach its junctions within max_grade near (%.0f, %.0f)" % [r, at.x, at.y]
 	return ""
 
 
@@ -256,20 +259,28 @@ static func _fit_road(road: UPRGRoadConfig, plan: UPRGRoadShape, marks: Array[Di
 				plan.heights[i] = m.height
 		if pinned[i] == 0 and weight > 0.0:
 			plan.heights[i] = original[i] + total / maxf(weight, 1.0)
-	var steps := _allowed_steps(road, pinned)
+	var distance := _distance_to_pins(road, pinned)
+	var steps := _allowed_steps(road, distance)
 	_limit_grade(plan.heights, steps, pinned)
+	# Only next to the junctions: the rest of the road keeps its own profile (and a ring stays
+	# closed, since it starts far from any junction).
+	var near := PackedByteArray()
+	near.resize(count)
+	for i in count:
+		near[i] = 1 if pinned[i] == 0 and distance[i] <= RAMP_LENGTH + EASE_LENGTH * EASE_PASSES else 0
 	for pass_number in EASE_PASSES:
-		_ease(plan.heights, int(ceil(EASE_LENGTH / road.sample_spacing)), pinned)
+		_ease(plan.heights, int(ceil(EASE_LENGTH / road.sample_spacing)), near)
 	_limit_grade(plan.heights, steps, pinned)
+	if plan.closed:
+		plan.heights[count - 1] = plan.heights[0]
 	for i in range(1, count):
 		if absf(plan.heights[i] - plan.heights[i - 1]) > steps[i] + 0.001:
 			return false
 	return true
 
 
-## Largest height change between sample i - 1 and i: small next to a junction, so that the road
-## leaves its flat surface gradually.
-static func _allowed_steps(road: UPRGRoadConfig, pinned: PackedByteArray) -> PackedFloat32Array:
+## Meters from each sample to the nearest sample a junction holds.
+static func _distance_to_pins(road: UPRGRoadConfig, pinned: PackedByteArray) -> PackedFloat32Array:
 	var count := pinned.size()
 	var distance := PackedFloat32Array()
 	distance.resize(count)
@@ -281,6 +292,13 @@ static func _allowed_steps(road: UPRGRoadConfig, pinned: PackedByteArray) -> Pac
 	for i in range(count - 1, -1, -1):
 		walked = 0.0 if pinned[i] == 1 else walked + road.sample_spacing
 		distance[i] = minf(distance[i], walked)
+	return distance
+
+
+## Largest height change between sample i - 1 and i: small next to a junction, so that the road
+## leaves its flat surface gradually.
+static func _allowed_steps(road: UPRGRoadConfig, distance: PackedFloat32Array) -> PackedFloat32Array:
+	var count := distance.size()
 	var steps := PackedFloat32Array()
 	steps.resize(count)
 	for i in count:
@@ -301,10 +319,11 @@ static func _limit_grade(h: PackedFloat32Array, steps: PackedFloat32Array, pinne
 
 
 ## Rounds the change of slope where a road enters a junction, so that a car stays on the ground.
-static func _ease(h: PackedFloat32Array, window: int, pinned: PackedByteArray) -> void:
+## Only the samples marked in [param apply] change.
+static func _ease(h: PackedFloat32Array, window: int, apply: PackedByteArray) -> void:
 	var source := h.duplicate()
 	for i in h.size():
-		if pinned[i] == 1:
+		if apply[i] == 0:
 			continue
 		var total := 0.0
 		var count := 0

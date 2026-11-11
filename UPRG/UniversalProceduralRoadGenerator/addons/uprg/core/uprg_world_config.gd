@@ -10,6 +10,8 @@ extends Resource
 @export var skin: UPRGSkin
 ## Optional 3D models: buildings, trees, rocks, roadside objects.
 @export var dressing: UPRGDressing
+## Every road, ring and street must be joined to the others: a road on its own makes the bake fail.
+@export var connected_roads: bool = false
 
 
 ## Returns the list of errors, empty when the world description is valid.

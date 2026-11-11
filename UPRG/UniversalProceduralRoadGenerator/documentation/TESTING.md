@@ -17,4 +17,6 @@ godot --headless --path . -s res://tests/run_tests.gd
 
 `tests/test_tiles.gd` checks tiles (detail levels, shared borders, collision, what stays in the world file, refused sizes).
 
+`tests/test_loops.gd` checks rings (closing point, grades, surface without gaps, roads ending on a ring).
+
 To look at a result: `godot --path . res://demo/uprg_viewer.tscn -- --file=<world.scn>`.

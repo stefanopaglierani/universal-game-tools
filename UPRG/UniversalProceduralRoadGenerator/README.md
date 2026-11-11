@@ -34,7 +34,7 @@ The world description is one `.tres` file: open `presets/example_world_island.tr
 |---|---|
 | `terrain_edits` | Circular areas to raise, lower (`ADD`) or level (`LEVEL`) |
 | `places` | Name, center, radius, number and size of buildings, wall and roof colors, seed; `streets` adds streets joined to the nearest road, with the buildings along them |
-| `roads` | Points in meters from the terrain center, width, slope |
+| `roads` | Points in meters from the terrain center, width, slope; `closed` makes a ring |
 | `skin` | Images for roads, terrain and buildings, and color tints |
 | `dressing` | How many trees, plants, rocks and roadside objects, and how far they stay visible |
 
