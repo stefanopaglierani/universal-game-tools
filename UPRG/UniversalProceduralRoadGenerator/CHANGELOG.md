@@ -2,7 +2,7 @@
 
 # UPRG Changelog
 
-## [Unreleased]
+## [0.1.0] - 2026-11-11
 
 ### Added
 - Roads on terrains baked by UPTG: smooth path from control points, height profile with a slope limit, terrain flattening with blending, road surface and collision.

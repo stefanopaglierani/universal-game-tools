@@ -11,10 +11,10 @@ The tools are private and game-agnostic: they create worlds and 3D objects for o
 | Module | Name | Status |
 |---|---|---|
 | [UPTG](UPTG/UniversalProceduralTerrainGenerator/) | Universal Procedural Terrain Generator | Version 0.1.0 released (tag `uptg-v0.1.0`): procedural island generator with mesh, collision and demo |
-| [UPRG](UPRG/UniversalProceduralRoadGenerator/) | Universal Procedural Road Generator | First version in development: roads, terrain edits, places and skins on baked terrains |
-| [UPWG](UPWG/UniversalProceduralWorldGenerator/) | Universal Procedural World Generator | Planned, not started |
+| [UPRG](UPRG/UniversalProceduralRoadGenerator/) | Universal Procedural Road Generator | Version 0.1.0 released (tag `uprg-v0.1.0`): roads, rings and junctions, places with streets, 3D models, skins and terrain tiles on baked terrains |
+| [UPWG](UPWG/UniversalProceduralWorldGenerator/) | Universal Procedural World Generator | Planned: the standalone, child-proof world editor built on UPTG and UPRG (awaiting Stefano's decisions) |
 
-Current priority is **UPTG**. Other modules will not start until the first generator has been tested and approved.
+UPTG and UPRG work together: UPTG makes the terrain, UPRG adds roads, places and objects. The next step is UPWG, an editor that uses both without code.
 
 ## Repository layout
 
@@ -35,7 +35,7 @@ universal-game-tools/
 │       ├── CHANGELOG.md      Module changes
 │       └── README.md
 ├── UPRG/
-│   └── UniversalProceduralRoadGenerator/    (placeholder)
+│   └── UniversalProceduralRoadGenerator/    Same layout as UPTG: addons/uprg, tools, presets, tests, documentation
 ├── UPWG/
 │   └── UniversalProceduralWorldGenerator/   (placeholder)
 └── Documentation/

@@ -11,10 +11,10 @@ Gli strumenti sono privati e indipendenti dal gioco: creano mondi e oggetti 3D p
 | Modulo | Nome | Stato |
 |---|---|---|
 | [UPTG](UPTG/UniversalProceduralTerrainGenerator/README.it.md) | Universal Procedural Terrain Generator | Versione 0.1.0 rilasciata (tag `uptg-v0.1.0`): generatore procedurale di isole con mesh, collisione e demo |
-| [UPRG](UPRG/UniversalProceduralRoadGenerator/README.it.md) | Universal Procedural Road Generator | Prima versione in sviluppo: strade, modifiche al terreno, luoghi e skin sui terreni esportati |
-| [UPWG](UPWG/UniversalProceduralWorldGenerator/README.it.md) | Universal Procedural World Generator | Pianificato, non iniziato |
+| [UPRG](UPRG/UniversalProceduralRoadGenerator/README.it.md) | Universal Procedural Road Generator | Versione 0.1.0 rilasciata (tag `uprg-v0.1.0`): strade, anelli e incroci, luoghi con vie, modelli 3D, skin e tessere di terreno sui terreni esportati |
+| [UPWG](UPWG/UniversalProceduralWorldGenerator/README.it.md) | Universal Procedural World Generator | Pianificato: l'editor di mondi indipendente e a prova di bambino, costruito su UPTG e UPRG (in attesa delle decisioni di Stefano) |
 
-La priorità attuale è **UPTG**. Gli altri moduli non partiranno finché il primo generatore non sarà stato testato e approvato.
+UPTG e UPRG lavorano insieme: UPTG crea il terreno, UPRG aggiunge strade, luoghi e oggetti. Il prossimo passo è UPWG, un editor che li usa entrambi senza codice.
 
 ## Struttura del repository
 
@@ -35,7 +35,7 @@ universal-game-tools/
 │       ├── CHANGELOG.md      Modifiche del modulo
 │       └── README.md
 ├── UPRG/
-│   └── UniversalProceduralRoadGenerator/    (segnaposto)
+│   └── UniversalProceduralRoadGenerator/    Stessa struttura di UPTG: addons/uprg, tools, presets, tests, documentation
 ├── UPWG/
 │   └── UniversalProceduralWorldGenerator/   (segnaposto)
 └── Documentation/

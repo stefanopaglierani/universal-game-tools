@@ -19,6 +19,7 @@ Il formato segue [Keep a Changelog](https://keepachangelog.com/it-IT/1.1.0/) e i
 - UPTG 0.1.0, rilasciato con il tag `uptg-v0.1.0` (vedi il `CHANGELOG.md` del modulo).
 - ADR-0007 e ADR-0008, che registrano decisioni prese durante le Milestone A e D di UPTG.
 - ADR-0009: UPTG è uno strumento privato e in un gioco entra solo il risultato esportato.
+- UPRG 0.1.0, rilasciato come tag `uprg-v0.1.0` (vedi il `CHANGELOG.md` del modulo), con l'architettura 0.2 e le ADR da 0010 a 0013.
 
 ### Modificato
 - README della radice, indice della documentazione e panoramica dell'architettura aggiornati per UPTG 0.1.0 e per la struttura dell'addon UPTG (R12).
