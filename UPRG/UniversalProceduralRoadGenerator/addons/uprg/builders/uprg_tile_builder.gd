@@ -13,20 +13,24 @@ const SKIRT := 8.0
 const NEAR_RANGE := 480.0
 ## A tile whose ground is all this far under the sea is not written.
 const UNDER_SEA := 0.5
+## With road colors: width of the strip beside the pavement where the red channel fades to 0.
+const VERGE := 5.0
 
 
 ## Returns {ok, tiles, skipped, bytes, tile_size} or {ok: false, error}.
-static func split(in_path: String, out_dir: String, tile_cells: int) -> Dictionary:
+## With [param road_colors] the vertex colors no longer hold the terrain colors: the red channel
+## is 1 next to the roads and 0 away from them, for a game shader that textures the ground itself.
+static func split(in_path: String, out_dir: String, tile_cells: int, road_colors: bool = false) -> Dictionary:
 	var packed := ResourceLoader.load(in_path, "", ResourceLoader.CACHE_MODE_IGNORE) as PackedScene
 	if packed == null:
 		return _fail("cannot load the world: %s" % in_path)
 	var root := packed.instantiate() as Node3D
-	var result := _split(root, out_dir, tile_cells)
+	var result := _split(root, out_dir, tile_cells, road_colors)
 	root.free()
 	return result
 
 
-static func _split(root: Node3D, out_dir: String, tile_cells: int) -> Dictionary:
+static func _split(root: Node3D, out_dir: String, tile_cells: int, road_colors: bool) -> Dictionary:
 	var meta: Dictionary = root.get_meta(UPRGBaker.META_KEY, {})
 	var grid := UPRGTerrainGrid.from_meta(meta)
 	var mesh_node := root.get_node_or_null("Mesh") as MeshInstance3D
@@ -38,6 +42,8 @@ static func _split(root: Node3D, out_dir: String, tile_cells: int) -> Dictionary
 	if folder_error != OK:
 		return _fail("could not create the output folder (error %d)" % folder_error)
 	var source := mesh_node.mesh.surface_get_arrays(0)
+	if road_colors:
+		source[Mesh.ARRAY_COLOR] = _road_colors(grid, meta.get("roads", []))
 	var material := mesh_node.mesh.surface_get_material(0)
 	var written: Array[Vector2i] = []
 	var bytes := 0
@@ -78,6 +84,28 @@ static func _split(root: Node3D, out_dir: String, tile_cells: int) -> Dictionary
 
 static func tile_file(tx: int, tz: int) -> String:
 	return "tile_%d_%d.scn" % [tx, tz]
+
+
+static func _road_colors(grid: UPRGTerrainGrid, roads: Array) -> PackedColorArray:
+	var near := PackedFloat32Array()
+	near.resize(grid.heights.size())
+	for road: Dictionary in roads:
+		var inner: float = road.width * 0.5 + 1.0
+		var outer := inner + VERGE
+		var reach := int(ceil(outer / grid.cell_size))
+		for p: Vector2 in road.path:
+			var cx := roundi(p.x / grid.cell_size + grid.cells_x / 2.0)
+			var cz := roundi(p.y / grid.cell_size + grid.cells_z / 2.0)
+			for iz in range(maxi(cz - reach, 0), mini(cz + reach, grid.cells_z) + 1):
+				for ix in range(maxi(cx - reach, 0), mini(cx + reach, grid.cells_x) + 1):
+					var d := Vector2(grid.vertex_x(ix), grid.vertex_z(iz)).distance_to(p)
+					var i := grid.index(ix, iz)
+					near[i] = maxf(near[i], 1.0 - smoothstep(inner, outer, d))
+	var colors := PackedColorArray()
+	colors.resize(near.size())
+	for i in near.size():
+		colors[i] = Color(near[i], 0.0, 0.0, 1.0)
+	return colors
 
 
 static func _under_sea(grid: UPRGTerrainGrid, tx: int, tz: int, tile_cells: int) -> bool:

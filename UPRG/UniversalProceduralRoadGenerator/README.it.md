@@ -62,6 +62,8 @@ Un mondo grande si può tagliare in tessere che un gioco carica mentre si guida.
 godot --headless --path . -s res://tools/uprg_tiles.gd -- --in=C:/Temp/mondo.scn --out=C:/Temp/mondo_tessere --cells=64
 ```
 
+`--road-colors` scrive nel rosso dei colori dei vertici quanto il terreno è vicino a una strada, per uno shader del gioco che disegna il terreno con le sue texture.
+
 ## Documentazione
 
 - [Architettura](documentation/UPRG_ARCHITECTURE_0.1.it.md)

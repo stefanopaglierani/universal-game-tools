@@ -12,6 +12,9 @@
 - Junctions: roads that cross or end on each other meet at one height on a shared surface with rounded corners.
 - Streets inside places, joined to the nearest road, with buildings along them and turned toward the street.
 - Tiles for very large worlds: `tools/uprg_tiles.gd` writes terrain tiles with two detail levels and collision, and an example world five times wider.
+- `--road-colors` for tiles: the red vertex color marks the ground next to the roads.
+- Levels of detail: the model library stores up to six lighter versions of each model, and the renderer picks them by distance. `UPRGDressing.chunk_size` sets how objects are grouped.
+- The x5 example world has two villages with streets, trees, rocks and roadside objects.
 
 ### Fixed
 - Model parts made of lines or points no longer enter the model library.

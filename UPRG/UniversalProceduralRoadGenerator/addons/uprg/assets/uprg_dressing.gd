@@ -19,5 +19,7 @@ extends Resource
 @export_range(0, 100, 1) var place_props: int = 8
 ## Distance at which trees, rocks and buildings disappear.
 @export_range(50.0, 3000.0, 10.0) var view_distance: float = 500.0
+## Side of the squares in which repeated objects are grouped: bigger means fewer draw calls.
+@export_range(40.0, 1000.0, 10.0) var chunk_size: float = 160.0
 ## Distance at which bushes and small objects disappear.
 @export_range(20.0, 1000.0, 10.0) var small_view_distance: float = 160.0

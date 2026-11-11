@@ -1,8 +1,30 @@
-[gd_resource type="Resource" script_class="UPRGWorldConfig" load_steps=5 format=3]
+[gd_resource type="Resource" script_class="UPRGWorldConfig" load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://addons/uprg/core/uprg_world_config.gd" id="1"]
+[ext_resource type="Script" path="res://addons/uprg/core/uprg_place.gd" id="3"]
 [ext_resource type="Script" path="res://addons/uprg/core/uprg_road_config.gd" id="4"]
 [ext_resource type="Script" path="res://addons/uprg/core/uprg_skin.gd" id="5"]
+[ext_resource type="Script" path="res://addons/uprg/assets/uprg_dressing.gd" id="6"]
+
+[sub_resource type="Resource" id="village_west"]
+script = ExtResource("3")
+place_name = "Porto Ovest"
+center = Vector2(-1063, -188)
+radius = 70.0
+blend = 25.0
+building_count = 16
+seed_value = 7
+streets = true
+
+[sub_resource type="Resource" id="village_north"]
+script = ExtResource("3")
+place_name = "Borgo Nord"
+center = Vector2(362, 996)
+radius = 70.0
+blend = 25.0
+building_count = 16
+seed_value = 11
+streets = true
 
 [sub_resource type="Resource" id="race_road"]
 script = ExtResource("4")
@@ -15,7 +37,19 @@ smoothing = 120.0
 script = ExtResource("5")
 terrain_tint = Color(0.92, 0.92, 0.88, 1)
 
+[sub_resource type="Resource" id="dressing"]
+script = ExtResource("6")
+tree_density = 3.0
+plant_density = 2.0
+bush_density = 6.0
+rock_density = 0.5
+chunk_size = 320.0
+view_distance = 450.0
+small_view_distance = 140.0
+
 [resource]
 script = ExtResource("1")
+places = Array[ExtResource("3")]([SubResource("village_west"), SubResource("village_north")])
 roads = Array[ExtResource("4")]([SubResource("race_road")])
 skin = SubResource("skin")
+dressing = SubResource("dressing")
