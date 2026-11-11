@@ -63,6 +63,7 @@ The terrain is centered on the node: it covers `grid_cells_x * cell_size` by `gr
 | Seed | `generation_seed` (0 – 2 147 483 647). The same seed and configuration always give the same terrain. |
 | Grid | `grid_cells_x`, `grid_cells_z` (2 – 1024), `cell_size` in meters. |
 | Sea | `sea_level`, `sea_floor_depth`. The border of the grid is always under the sea. |
+| Land | `land_shape` (ISLAND, CONTINENT or COAST) and, for a coast, `coast_position`. |
 | Island | `island_radius`, `coastline_irregularity`, `coastline_noise_frequency`, `coastline_falloff_width`. |
 | Relief | `land_base_height`, `min_land_height`, `terrain_noise_frequency`, `terrain_noise_amplitude`, `noise_octaves`, `noise_lacunarity`, `noise_gain`. |
 | Mountains | `mountain_regions`: up to 16 `UPTGMountainRegion` (`center` and `radius` normalized, `peak_height` in meters, `falloff`). |

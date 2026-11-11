@@ -6,8 +6,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 ## [Unreleased]
 
 ### Added
+- Land shapes (`UPTGConfig.land_shape`): ISLAND (default, unchanged), CONTINENT (land everywhere) and COAST (land on one side, an irregular coastline at `coast_position`). Islands keep their checksums.
 - Bake tool (`tools/uptg_bake.gd`, `tools/uptg_baker.gd`): writes a world to a self-contained `.scn` file that a game opens without UPTG. Tested by `tests/test_bake.gd`. Architecture 0.2-r6, ADR-0009.
-- English version of architecture 0.2 (`documentation/UPTG_ARCHITECTURE_0.2.md`). The Italian text, unchanged, is now `documentation/UPTG_ARCHITECTURE_0.2.it.md`.
+- English version of architecture 0.2 (`documentation/UPTG_ARCHITECTURE_0.2.md`). The Italian version was removed when the repository became English only (2026-11-11).
 - Demo screenshots from Milestones B, C and D in `documentation/screenshots/`, listed in `documentation/TESTING.md`.
 
 ### Changed

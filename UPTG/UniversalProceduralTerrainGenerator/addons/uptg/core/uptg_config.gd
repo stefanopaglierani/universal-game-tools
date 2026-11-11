@@ -12,6 +12,13 @@ enum CollisionMode {
 	NONE, ## No collision.
 }
 
+## Overall shape of the land.
+enum LandShape {
+	ISLAND, ## Land surrounded by the sea (default).
+	CONTINENT, ## Land everywhere: no sea inside the map.
+	COAST, ## Land on the -Z side, sea on the +Z side, with an irregular coastline.
+}
+
 ## Result of [method estimate_cost] (architecture 0.2, section 5.4).
 enum CostLevel {
 	OK, ## Normal generation.
@@ -65,6 +72,12 @@ const COASTLINE_OCTAVES: int = 2
 @export_range(-1000.0, 1000.0, 0.01, "or_less", "or_greater", "suffix:m") var sea_level: float = 0.0
 ## Depth of the sea floor below [member sea_level] where the island mask is 0.
 @export_range(0.5, 500.0, 0.1, "suffix:m") var sea_floor_depth: float = 20.0
+
+@export_group("Land")
+## Overall shape of the land. ISLAND keeps the island settings below.
+@export var land_shape: LandShape = LandShape.ISLAND
+## COAST only: where the coastline runs, from 0 (the -Z edge) to 1 (the +Z edge).
+@export_range(0.2, 0.9, 0.01) var coast_position: float = 0.65
 
 @export_group("Island")
 ## Normalized radii of the base ellipse (0.1..0.85 per axis).
@@ -164,8 +177,9 @@ func validate() -> PackedStringArray:
 	_check_float(errors, "beach_height", beach_height, 0.0, 50.0)
 	_check_float(errors, "rock_slope_degrees", rock_slope_degrees, 0.0, 90.0)
 	_check_float(errors, "rock_height", rock_height, 0.0, 2000.0)
+	_check_float(errors, "coast_position", coast_position, 0.2, 0.9)
 	# Coastline constraint (section 5.3): the perturbed coast must stay inside the edge band.
-	if is_finite(island_radius.x) and is_finite(island_radius.y) and is_finite(coastline_irregularity) \
+	if land_shape == LandShape.ISLAND and is_finite(island_radius.x) and is_finite(island_radius.y) and is_finite(coastline_irregularity) \
 			and coastline_irregularity >= 0.0 and coastline_irregularity < 1.0:
 		var extent: float = maxf(island_radius.x, island_radius.y) / (1.0 - coastline_irregularity)
 		if extent > MAX_COAST_EXTENT + 1e-6:
@@ -215,7 +229,7 @@ func get_height_parameters() -> Array:
 	for region in mountain_regions:
 		if region != null:
 			regions.append([region.center, region.radius, region.peak_height, region.falloff])
-	return [
+	var parameters: Array = [
 		generation_seed, grid_cells_x, grid_cells_z, cell_size,
 		sea_level, sea_floor_depth,
 		island_radius, coastline_irregularity, coastline_noise_frequency, coastline_falloff_width,
@@ -223,6 +237,10 @@ func get_height_parameters() -> Array:
 		noise_octaves, noise_lacunarity, noise_gain,
 		regions,
 	]
+	# Islands keep the checksum they had before land shapes existed.
+	if land_shape != LandShape.ISLAND:
+		parameters.append([land_shape, coast_position])
+	return parameters
 
 
 static func _check_float(errors: PackedStringArray, name: String, value: float, min_value: float, max_value: float) -> void:

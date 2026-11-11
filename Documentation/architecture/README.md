@@ -30,7 +30,7 @@ Each tool lives in `<CODE>/<FullName>/` and should ideally contain:
 | UPTG | [UPTG_ARCHITECTURE_0.2.md](../../UPTG/UniversalProceduralTerrainGenerator/documentation/UPTG_ARCHITECTURE_0.2.md); it supersedes [draft 0.1](../../UPTG/UniversalProceduralTerrainGenerator/documentation/UPTG_ARCHITECTURE.md) |
 | UPRG | [UPRG_ARCHITECTURE_0.2.md](../../UPRG/UniversalProceduralRoadGenerator/documentation/UPRG_ARCHITECTURE_0.2.md); it supersedes [0.1](../../UPRG/UniversalProceduralRoadGenerator/documentation/UPRG_ARCHITECTURE_0.1.md) |
 | UWR | [UWR_ARCHITECTURE_0.1.md](../../UWR/UniversalWorldReader/documentation/UWR_ARCHITECTURE_0.1.md) |
-| UPWG | Not written yet |
+| UPWG | [UPWG_ARCHITECTURE_0.1.md](../../UPWG/UniversalProceduralWorldGenerator/documentation/UPWG_ARCHITECTURE_0.1.md) |
 
 ## Decisions
 
@@ -50,3 +50,4 @@ Significant architectural decisions are recorded as ADRs in [`decisions/`](decis
 - [ADR-0012: Very large worlds are cut into terrain tiles after the bake](decisions/ADR-0012-uprg-terrain-tiles.md)
 - [ADR-0013: Rings start away from junctions, and a world can require one connected network](decisions/ADR-0013-uprg-rings-and-connected-network.md)
 - [ADR-0014: A small runtime reader is the one part of the tools that ships in games](decisions/ADR-0014-uwr-runtime-reader.md)
+- [ADR-0015: UPWG keeps synchronized copies of the generators](decisions/ADR-0015-upwg-vendored-generators.md)

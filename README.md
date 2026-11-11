@@ -11,7 +11,7 @@ The tools are private and game-agnostic: they create worlds and 3D objects for o
 | [UPTG](UPTG/UniversalProceduralTerrainGenerator/) | Universal Procedural Terrain Generator | Version 0.1.0 released (tag `uptg-v0.1.0`): procedural island generator with mesh, collision and demo |
 | [UPRG](UPRG/UniversalProceduralRoadGenerator/) | Universal Procedural Road Generator | Version 0.1.0 released (tag `uprg-v0.1.0`): roads, rings and junctions, places with streets, 3D models, skins and terrain tiles on baked terrains |
 | [UWR](UWR/UniversalWorldReader/) | Universal World Reader | In development: the small runtime addon that opens these worlds in any Godot game |
-| [UPWG](UPWG/UniversalProceduralWorldGenerator/) | Universal Procedural World Generator | Planned: the standalone, child-proof world editor built on UPTG and UPRG (awaiting Stefano's decisions) |
+| [UPWG](UPWG/UniversalProceduralWorldGenerator/) | Universal Procedural World Generator | In development: the standalone world editor (templates, seeds, terrain, live preview, export to Godot, RAW/EXR heightmaps and glTF) |
 
 UPTG and UPRG work together: UPTG makes the terrain, UPRG adds roads, places and objects. The next step is UPWG, an editor that uses both without code.
 

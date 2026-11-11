@@ -67,6 +67,8 @@ static func generate(config: UPTGConfig, allow_large: bool = false) -> UPTGTerra
 		m_falloffs.append(region.falloff)
 	var m_count: int = m_centers.size()
 
+	var shape: UPTGConfig.LandShape = config.land_shape
+	var coast_line: float = config.coast_position * 2.0 - 1.0
 	var rx: float = config.island_radius.x
 	var rz: float = config.island_radius.y
 	var irregularity: float = config.coastline_irregularity
@@ -91,7 +93,11 @@ static func generate(config: UPTGConfig, allow_large: bool = false) -> UPTGTerra
 		for ix in vx:
 			var x: float = (ix - cells_x * 0.5) * cell
 			var u: float = x / half_x
-			var mask: float = _shape_mask(coast, x + coast_offset.x, z + coast_offset.y, u, v, rx, rz, irregularity, inner)
+			var mask: float = 1.0
+			if shape == UPTGConfig.LandShape.ISLAND:
+				mask = _shape_mask(coast, x + coast_offset.x, z + coast_offset.y, u, v, rx, rz, irregularity, inner)
+			elif shape == UPTGConfig.LandShape.COAST:
+				mask = _coast_mask(coast, x + coast_offset.x, z + coast_offset.y, v, coast_line, irregularity, config.coastline_falloff_width)
 			var h: float = sea_floor
 			if mask > 0.0:
 				var hills: float = clampf(relief.get_noise_2d(x + relief_offset.x, z + relief_offset.y), -1.0, 1.0) * amplitude
@@ -139,6 +145,14 @@ static func _shape_mask(coast: FastNoiseLite, x: float, z: float, u: float, v: f
 	var c: float = clampf(coast.get_noise_2d(x, z), -1.0, 1.0)
 	var d_pert: float = d * (1.0 + irregularity * c)
 	return (1.0 - smoothstep(inner, 1.0, d_pert)) * edge
+
+
+## Coast mask: 1 on the -Z side, 0 on the +Z side, with the line at [param line] (normalized -1..1)
+## moved by the coastline noise. [param width] is the normalized width of the land-to-sea transition.
+static func _coast_mask(coast: FastNoiseLite, x: float, z: float, v: float, line: float, irregularity: float, width: float) -> float:
+	var c: float = clampf(coast.get_noise_2d(x, z), -1.0, 1.0)
+	var shifted: float = v + irregularity * c
+	return 1.0 - smoothstep(line - width, line, shifted)
 
 
 static func _make_noise(noise_seed: int, frequency: float, octaves: int, lacunarity: float, gain: float) -> FastNoiseLite:

@@ -1,0 +1,17 @@
+; Engine configuration file.
+
+config_version=5
+
+[application]
+
+config/name="UPWG - Universal Procedural World Generator"
+config/description="Standalone editor for complete 3D worlds, built on UPTG and UPRG."
+config/version="0.1.0"
+run/main_scene="res://editor/upwg_editor.tscn"
+config/features=PackedStringArray("4.7")
+
+[display]
+
+window/size/viewport_width=1600
+window/size/viewport_height=900
+window/stretch/aspect="expand"
