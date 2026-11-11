@@ -3,6 +3,10 @@ extends Resource
 ## A world being made in UPWG, in one file: everything needed to build it again and to export it.
 
 const FORMAT := 1
+## Largest world side in meters (15 km from the center to the edge).
+const MAX_SIDE := 30720.0
+## Largest number of cells per side of an exported world (UPTG heights only, ADR-0017).
+const MAX_EXPORT_CELLS := 8192
 ## Starting points offered by "New world".
 const TEMPLATES := ["island", "continent", "coast", "highlands", "flat"]
 const TEMPLATE_NAMES := {
@@ -20,6 +24,9 @@ const TEMPLATE_NAMES := {
 @export var terrain: UPTGConfig
 ## Brush strokes, lakes, rivers, roads, places and objects (UPRG).
 @export var world: UPRGWorldConfig
+## Cell of the exported world in meters, finer than [member terrain]'s cell when the world has
+## more than 2048 cells per side (ADR-0017). 0 = the cell of [member terrain].
+@export var detail_cell: float = 0.0
 ## Undo steps of the editor: {kind: "edits" or "water", count}, oldest first.
 @export var history: Array = []
 @export_group("Export")
@@ -80,6 +87,30 @@ static func set_size(config: UPTGConfig, side: float, cell: float) -> void:
 	config.grid_cells_z = maxi(cells, 8)
 
 
+## Sets the side of the world and the wanted cell. The terrain keeps at most 2048 cells per side
+## (it is what the preview and small exports use); a finer cell is kept in [member detail_cell]
+## for the export, up to [constant MAX_EXPORT_CELLS] cells per side.
+func resize(side: float, cell: float) -> void:
+	side = clampf(side, 64.0, MAX_SIDE)
+	set_size(terrain, side, cell)
+	var detail := terrain.cell_size
+	var cells := terrain.grid_cells_x
+	while detail * 0.5 >= cell - 0.001 and cells * 2 <= MAX_EXPORT_CELLS:
+		detail *= 0.5
+		cells *= 2
+	detail_cell = detail if detail < terrain.cell_size else 0.0
+
+
+## Cell of the exported world in meters.
+func export_cell() -> float:
+	return detail_cell if detail_cell > 0.0 else terrain.cell_size
+
+
+## True when the world is exported in tiles straight from its heights, without one scene.
+func is_large() -> bool:
+	return export_cell() < terrain.cell_size - 0.0001
+
+
 ## Puts [param count] mountains at places chosen from the seed and [param shuffle]: a different
 ## shuffle moves them, the same one puts them back.
 static func place_mountains(config: UPTGConfig, count: int, shuffle: int, peak: float, radius: float) -> void:
@@ -106,4 +137,8 @@ func validate() -> PackedStringArray:
 		errors.append("the world has no terrain")
 		return errors
 	errors.append_array(terrain.validate())
+	if detail_cell > 0.0:
+		var cells := roundi(terrain.get_size().x / detail_cell)
+		if absf(cells * detail_cell - terrain.get_size().x) > 0.01 or cells > MAX_EXPORT_CELLS:
+			errors.append("the export detail of %.2f m does not fit this world" % detail_cell)
 	return errors

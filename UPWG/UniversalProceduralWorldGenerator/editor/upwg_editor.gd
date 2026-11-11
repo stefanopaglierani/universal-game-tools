@@ -24,6 +24,7 @@ var _sea: MeshInstance3D
 var _cursor: MeshInstance3D
 var _markers: Node3D
 var _camera: Camera3D
+var _env: Environment
 var _orbit := Vector2(0.7, 0.55)
 var _distance := 2600.0
 var _status: Label
@@ -114,8 +115,13 @@ func rebuild_preview() -> void:
 		return
 	_preview_config = project.terrain.duplicate(true) as UPTGConfig
 	var side := _preview_config.get_size().x
-	UPWGProject.set_size(_preview_config, side, maxf(side / PREVIEW_CELLS, _preview_config.cell_size))
-	_preview_data = UPTGHeightfieldGenerator.generate(_preview_config, true)
+	# Halve the grid until it is light enough: the cell still divides the world exactly.
+	var cells := _preview_config.grid_cells_x
+	var cell := _preview_config.cell_size
+	while cells > PREVIEW_CELLS and cells % 2 == 0:
+		cells /= 2
+		cell *= 2.0
+	_preview_data = UPTGHeightfieldGenerator.generate_heights(_preview_config, cell)
 	if _preview_data == null:
 		_say("Cannot build this terrain.")
 		return
@@ -133,6 +139,8 @@ func rebuild_preview() -> void:
 	(_sea.mesh as PlaneMesh).size = Vector2(side * 3.0, side * 3.0)
 	_sea.visible = _preview_config.land_shape != UPTGConfig.LandShape.CONTINENT
 	_distance = clampf(_distance, side * 0.3, side * 2.5)
+	_env.fog_density = 0.16 / side
+	_camera.far = side * 4.0
 	_place_camera()
 
 
@@ -397,7 +405,7 @@ func _build_ui() -> void:
 		_shape.add_item(shape_name)
 	_shape.item_selected.connect(func(index: int) -> void: _change("land_shape", index))
 	panel.add_child(_row("Land", _shape))
-	_slider(panel, "size", "World size (m)", 512, 16384, 256)
+	_slider(panel, "size", "World size (m)", 512, UPWGProject.MAX_SIDE, 256)
 	_slider(panel, "cell", "Detail: cell (m)", 1, 32, 1)
 	_slider(panel, "land_base_height", "Land height (m)", 0, 120, 1)
 	_slider(panel, "terrain_noise_amplitude", "Hills height (m)", 0, 200, 1)
@@ -433,10 +441,10 @@ func _build_ui() -> void:
 		grid.add_child(button)
 		_tool_buttons[tool_name] = button
 	panel.add_child(grid)
-	_slider(panel, "brush_radius", "Brush size (m)", 5, 1000, 5, false)
+	_slider(panel, "brush_radius", "Brush size (m)", 5, 3000, 5, false)
 	_slider(panel, "brush_strength", "Strength", 0.1, 10, 0.1, false)
 	_slider(panel, "brush_softness", "Soft edge", 0, 1, 0.05, false)
-	_slider(panel, "water_size", "Lake size (m)", 10, 1000, 5, false)
+	_slider(panel, "water_size", "Lake size (m)", 10, 2000, 5, false)
 	_slider(panel, "water_depth", "Water depth (m)", 1, 40, 0.5, false)
 	(_controls["brush_radius"] as HSlider).value = 60
 	(_controls["brush_strength"] as HSlider).value = 2
@@ -505,6 +513,7 @@ func _build_scene(viewport: SubViewport) -> void:
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_SKY
 	env.fog_enabled = true
 	env.fog_density = 0.00008
+	_env = env
 	environment.environment = env
 	world.add_child(environment)
 	var sun := DirectionalLight3D.new()
@@ -591,7 +600,7 @@ func _sync_controls() -> void:
 	_seed.value = t.generation_seed
 	_shape.selected = t.land_shape
 	var values := {
-		"size": t.get_size().x, "cell": t.cell_size, "land_base_height": t.land_base_height,
+		"size": t.get_size().x, "cell": project.export_cell(), "land_base_height": t.land_base_height,
 		"terrain_noise_amplitude": t.terrain_noise_amplitude, "hill_size": 1.0 / t.terrain_noise_frequency,
 		"island_width": t.island_radius.x, "coastline_irregularity": t.coastline_irregularity,
 		"coast_position": t.coast_position, "sea_floor_depth": t.sea_floor_depth,
@@ -623,9 +632,9 @@ func _change(key: String, value: float) -> void:
 			t.land_shape = int(value) as UPTGConfig.LandShape
 			_show_shape_rows()
 		"size":
-			UPWGProject.set_size(t, value, t.cell_size)
+			project.resize(value, (_controls["cell"] as HSlider).value)
 		"cell":
-			UPWGProject.set_size(t, t.get_size().x, value)
+			project.resize(t.get_size().x, value)
 		"hill_size":
 			t.terrain_noise_frequency = 1.0 / value
 		"island_width":
@@ -639,6 +648,9 @@ func _change(key: String, value: float) -> void:
 	var widest := UPTGConfig.MAX_COAST_EXTENT * (1.0 - t.coastline_irregularity)
 	if t.island_radius.x > widest:
 		t.island_radius = Vector2(widest, widest)
+	if key in ["size", "cell"]:
+		_say("World %.1f km per side, cells of %.2f m (%d per side)%s." % [t.get_size().x / 1000.0, project.export_cell(),
+			roundi(t.get_size().x / project.export_cell()), ": exported as tiles" if project.is_large() else ""])
 	_rebuild_wait = REBUILD_DELAY
 
 

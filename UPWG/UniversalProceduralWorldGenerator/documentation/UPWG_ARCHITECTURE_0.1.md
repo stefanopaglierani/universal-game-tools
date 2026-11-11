@@ -11,7 +11,7 @@ UPWG is the standalone editor of the Universal Game Tools: one window where a pe
 
 | Piece | Job |
 |---|---|
-| `UPWGProject` | One world in one `.upwg.tres` file: name, template, `UPTGConfig`, `UPRGWorldConfig`, export choices. `from_template()` builds a world from a template and a seed; `set_size()` keeps the grid within UPTG's 2048 cells per side (ADR-0016); `history` holds the undo steps of the editor; `place_mountains()` places mountains from the seed and a shuffle number |
+| `UPWGProject` | One world in one `.upwg.tres` file: name, template, `UPTGConfig`, `UPRGWorldConfig`, export choices. `from_template()` builds a world from a template and a seed; `set_size()` keeps the grid within UPTG's 2048 cells per side (ADR-0016); `history` holds the undo steps of the editor; `resize()` sets the side (up to 30 720 m) and keeps a finer export cell in `detail_cell` when the world needs more than 2048 cells per side (ADR-0017); `place_mountains()` places mountains from the seed and a shuffle number |
 | `UPWGExporter` | Builds the world at full detail (UPTG bake, then UPRG when the world has roads, places or edits) and writes the chosen formats |
 | `upwg_editor` | The window: controls on the left, 3D preview on the right |
 
@@ -34,6 +34,10 @@ Godot cannot share an addon between projects, so UPWG keeps copies of the UPTG a
 
 - Terrain only: roads, places, rivers, lakes, single houses, user models, textures and shaders are the next stages.
 - A world of 1024 x 1024 cells takes about 20 s to export on the development PC, with the window waiting; 2048 x 2048 takes about 45 s.
+
+## Large worlds (ADR-0017)
+
+When the export has more than 2048 cells per side (`UPWGProject.is_large()`), `UPWGExporter` calls `UPTGHeightfieldGenerator.generate_heights()` at `detail_cell`, applies the brush strokes and digs the water on that grid, then writes the heightmap, `UPRGTileBuilder.split_grid()` tiles and a glTF at the detail of the terrain configuration. The preview always uses the terrain configuration, at most 192 cells per side.
 
 ## Sculpting and water
 

@@ -45,6 +45,13 @@ static func _split(root: Node3D, out_dir: String, tile_cells: int, road_colors: 
 	if road_colors:
 		source[Mesh.ARRAY_COLOR] = _road_colors(grid, meta.get("roads", []))
 	var material := mesh_node.mesh.surface_get_material(0)
+	var from_normals: PackedVector3Array = source[Mesh.ARRAY_NORMAL]
+	var from_colors: Variant = source[Mesh.ARRAY_COLOR]
+	var from_uvs: Variant = source[Mesh.ARRAY_TEX_UV]
+	var attributes := func(ix: int, iz: int) -> Array:
+		var i := grid.index(ix, iz)
+		return [from_normals[i], (from_colors as PackedColorArray)[i] if from_colors != null else null,
+			(from_uvs as PackedVector2Array)[i] if from_uvs != null else null]
 	var written: Array[Vector2i] = []
 	var bytes := 0
 	var skipped := 0
@@ -53,15 +60,12 @@ static func _split(root: Node3D, out_dir: String, tile_cells: int, road_colors: 
 			if _under_sea(grid, tx, tz, tile_cells):
 				skipped += 1
 				continue
-			var tile := _make_tile(grid, source, tx, tz, tile_cells)
-			var scene := PackedScene.new()
-			var pack_error := scene.pack(tile)
-			tile.free()
 			var path := out_dir.path_join(tile_file(tx, tz))
-			if pack_error != OK or ResourceSaver.save(scene, path, ResourceSaver.FLAG_COMPRESS) != OK:
+			var saved := _save_tile(grid, attributes, tx, tz, tile_cells, path)
+			if saved < 0:
 				return _fail("could not save %s" % path)
 			written.append(Vector2i(tx, tz))
-			bytes += FileAccess.get_file_as_bytes(path).size()
+			bytes += saved
 
 	for child_name: String in ["Mesh", "Body"]:
 		var child := root.get_node_or_null(child_name)
@@ -80,6 +84,58 @@ static func _split(root: Node3D, out_dir: String, tile_cells: int, road_colors: 
 		return _fail("could not save %s" % world_path)
 	bytes += FileAccess.get_file_as_bytes(world_path).size()
 	return {"ok": true, "tiles": written.size(), "skipped": skipped, "bytes": bytes, "tile_size": tile_size}
+
+
+## Writes tiles straight from a height grid, for worlds too big to be baked as one mesh
+## (ADR-0017). [param root] holds the rest of the world (water, objects) and [param meta] its
+## data without the heights; both go in world.scn. The vertex colors are those of
+## [code]road_colors[/code] with no roads, the UVs are the position in meters divided by
+## [param texture_tile]. Returns the same result as [method split].
+static func split_grid(grid: UPRGTerrainGrid, root: Node3D, meta: Dictionary, out_dir: String, tile_cells: int, texture_tile: float) -> Dictionary:
+	if tile_cells < FAR_STEP or grid.cells_x % tile_cells != 0 or grid.cells_z % tile_cells != 0 or tile_cells % FAR_STEP != 0:
+		return _fail("%d cells per tile do not divide the %d x %d grid" % [tile_cells, grid.cells_x, grid.cells_z])
+	var folder_error := DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(out_dir))
+	if folder_error != OK:
+		return _fail("could not create the output folder (error %d)" % folder_error)
+	var inv_tile := 1.0 / maxf(texture_tile, 0.001)
+	var attributes := func(ix: int, iz: int) -> Array:
+		return [grid.normal_at_vertex(ix, iz), Color(0.0, 0.0, 0.0, 1.0), Vector2(grid.vertex_x(ix), grid.vertex_z(iz)) * inv_tile]
+	var written: Array[Vector2i] = []
+	var bytes := 0
+	var skipped := 0
+	for tz in grid.cells_z / tile_cells:
+		for tx in grid.cells_x / tile_cells:
+			if _under_sea(grid, tx, tz, tile_cells):
+				skipped += 1
+				continue
+			var path := out_dir.path_join(tile_file(tx, tz))
+			var saved := _save_tile(grid, attributes, tx, tz, tile_cells, path)
+			if saved < 0:
+				return _fail("could not save %s" % path)
+			written.append(Vector2i(tx, tz))
+			bytes += saved
+	var tile_size := tile_cells * grid.cell_size
+	meta = meta.duplicate()
+	meta.erase("heights")
+	meta.tiles = {"size": tile_size, "origin": Vector2(-grid.cells_x, -grid.cells_z) * grid.cell_size * 0.5, "list": written}
+	root.set_meta(UPRGBaker.META_KEY, meta)
+	var world := PackedScene.new()
+	var world_path := out_dir.path_join(WORLD_FILE)
+	if world.pack(root) != OK or ResourceSaver.save(world, world_path, ResourceSaver.FLAG_COMPRESS) != OK:
+		return _fail("could not save %s" % world_path)
+	bytes += FileAccess.get_file_as_bytes(world_path).size()
+	return {"ok": true, "tiles": written.size(), "skipped": skipped, "bytes": bytes, "tile_size": tile_size}
+
+
+## Saves one tile; returns its size in bytes, or -1.
+static func _save_tile(grid: UPRGTerrainGrid, attributes: Callable, tx: int, tz: int, tile_cells: int, path: String) -> int:
+	var tile := _make_tile(grid, attributes, tx, tz, tile_cells)
+	var scene := PackedScene.new()
+	var pack_error := scene.pack(tile)
+	tile.free()
+	if pack_error != OK or ResourceSaver.save(scene, path, ResourceSaver.FLAG_COMPRESS) != OK:
+		return -1
+	return FileAccess.get_file_as_bytes(path).size()
 
 
 static func tile_file(tx: int, tz: int) -> String:
@@ -117,18 +173,18 @@ static func _under_sea(grid: UPRGTerrainGrid, tx: int, tz: int, tile_cells: int)
 	return true
 
 
-static func _make_tile(grid: UPRGTerrainGrid, source: Array, tx: int, tz: int, tile_cells: int) -> Node3D:
+static func _make_tile(grid: UPRGTerrainGrid, attributes: Callable, tx: int, tz: int, tile_cells: int) -> Node3D:
 	var tile := Node3D.new()
 	tile.name = "Tile_%d_%d" % [tx, tz]
 	tile.position = Vector3(grid.vertex_x(tx * tile_cells), 0.0, grid.vertex_z(tz * tile_cells))
 	var near := MeshInstance3D.new()
 	near.name = "Near"
-	near.mesh = _mesh(grid, source, tx, tz, tile_cells, 1, tile.position)
+	near.mesh = _mesh(grid, attributes, tx, tz, tile_cells, 1, tile.position)
 	near.visibility_range_end = NEAR_RANGE
 	_add(tile, near, tile)
 	var far := MeshInstance3D.new()
 	far.name = "Far"
-	far.mesh = _mesh(grid, source, tx, tz, tile_cells, FAR_STEP, tile.position)
+	far.mesh = _mesh(grid, attributes, tx, tz, tile_cells, FAR_STEP, tile.position)
 	far.visibility_range_begin = NEAR_RANGE
 	far.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	_add(tile, far, tile)
@@ -157,10 +213,11 @@ static func _add(parent: Node, child: Node, root: Node) -> void:
 	child.owner = root
 
 
-static func _mesh(grid: UPRGTerrainGrid, source: Array, tx: int, tz: int, tile_cells: int, step: int, origin: Vector3) -> ArrayMesh:
-	var from_normals: PackedVector3Array = source[Mesh.ARRAY_NORMAL]
-	var from_colors: Variant = source[Mesh.ARRAY_COLOR]
-	var from_uvs: Variant = source[Mesh.ARRAY_TEX_UV]
+## [param attributes] gives [normal, color or null, uv or null] of vertex (ix, iz).
+static func _mesh(grid: UPRGTerrainGrid, attributes: Callable, tx: int, tz: int, tile_cells: int, step: int, origin: Vector3) -> ArrayMesh:
+	var first: Array = attributes.call(tx * tile_cells, tz * tile_cells)
+	var has_colors: bool = first[1] != null
+	var has_uvs: bool = first[2] != null
 	var count := tile_cells / step + 1
 	var vertices := PackedVector3Array()
 	var normals := PackedVector3Array()
@@ -168,12 +225,13 @@ static func _mesh(grid: UPRGTerrainGrid, source: Array, tx: int, tz: int, tile_c
 	var uvs := PackedVector2Array()
 	var add_vertex := func(ix: int, iz: int, drop: float) -> void:
 		var i := grid.index(ix, iz)
+		var a: Array = attributes.call(ix, iz)
 		vertices.append(Vector3(grid.vertex_x(ix) - origin.x, grid.heights[i] - drop, grid.vertex_z(iz) - origin.z))
-		normals.append(from_normals[i])
-		if from_colors != null:
-			colors.append((from_colors as PackedColorArray)[i])
-		if from_uvs != null:
-			uvs.append((from_uvs as PackedVector2Array)[i])
+		normals.append(a[0])
+		if has_colors:
+			colors.append(a[1])
+		if has_uvs:
+			uvs.append(a[2])
 	for j in count:
 		for i in count:
 			add_vertex.call(tx * tile_cells + i * step, tz * tile_cells + j * step, 0.0)
@@ -206,9 +264,9 @@ static func _mesh(grid: UPRGTerrainGrid, source: Array, tx: int, tz: int, tile_c
 	arrays.resize(Mesh.ARRAY_MAX)
 	arrays[Mesh.ARRAY_VERTEX] = vertices
 	arrays[Mesh.ARRAY_NORMAL] = normals
-	if from_colors != null:
+	if has_colors:
 		arrays[Mesh.ARRAY_COLOR] = colors
-	if from_uvs != null:
+	if has_uvs:
 		arrays[Mesh.ARRAY_TEX_UV] = uvs
 	arrays[Mesh.ARRAY_INDEX] = indices
 	var mesh := ArrayMesh.new()

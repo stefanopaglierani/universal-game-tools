@@ -16,4 +16,4 @@ godot --headless --path . -s res://tests/run_tests.gd
 
 The exit code is `0` when every check passes.
 
-Measured on the development PC (2026-11-11): a 2 km world with 4 m cells (512 x 512) exports in 4.7 s, a 4 km world (1024 x 1024) in 21.8 s. The exported tiles open in the UWR demo at 60 FPS.
+Measured on the development PC (2026-11-11): a 2 km world with 4 m cells (512 x 512) exports in 4.7 s, a 4 km world (1024 x 1024) in 21.8 s. The exported tiles open in the UWR demo at 60 FPS. A 30 720 m world with 4 m cells (7680 x 7680, the largest) exports in 10.4 min with a 1.8 GB memory peak: 4192 tile files (447 MB), heightmaps 178 MB, glTF at 16 m cells 313 MB. In the editor, one brush touch on that world takes about 60 ms.

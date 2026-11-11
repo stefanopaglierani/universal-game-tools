@@ -85,6 +85,32 @@ func run(t: Object) -> void:
 	t.check("red marks the ground next to the road only", on_road > 0.99 and far_away > 0.99, "%.2f on the road, %.2f far" % [on_road, 1.0 - far_away])
 	tile.free()
 
+	# Tiles straight from a height grid (worlds too big for one mesh): same ground as the baked tiles.
+	var baked_tile := _load_tile(1, 1)
+	var baked_near := _vertices(baked_tile, "Near")
+	baked_tile.free()
+	var packed := ResourceLoader.load(WORLD_IN, "", ResourceLoader.CACHE_MODE_IGNORE) as PackedScene
+	var source := packed.instantiate() as Node3D
+	var grid := UPRGTerrainGrid.from_meta(source.get_meta(UPRGBaker.META_KEY))
+	var meta: Dictionary = (source.get_meta(UPRGBaker.META_KEY) as Dictionary).duplicate()
+	source.free()
+	var rest_root := Node3D.new()
+	rest_root.name = "World"
+	result = UPRGTileBuilder.split_grid(grid, rest_root, meta, OUT_DIR, CELLS, 8.0)
+	rest_root.free()
+	t.check("tiles can be written from a height grid", result.ok and result.tiles == 4, str(result))
+	var grid_tile := _load_tile(1, 1)
+	var grid_near := _vertices(grid_tile, "Near")
+	var grid_body := grid_tile.get_node_or_null("Body/Shape") != null
+	grid_tile.free()
+	var same_ground := grid_near.size() == baked_near.size()
+	for i in range(0, mini(grid_near.size(), baked_near.size()), 7):
+		same_ground = same_ground and grid_near[i].is_equal_approx(baked_near[i])
+	t.check("they have the same ground and a collision", same_ground and grid_body)
+	var listed := (ResourceLoader.load(OUT_DIR.path_join(UPRGTileBuilder.WORLD_FILE), "", ResourceLoader.CACHE_MODE_IGNORE) as PackedScene).instantiate() as Node3D
+	t.check("and a world file that lists them", (listed.get_meta(UPRGBaker.META_KEY).tiles.list as Array).size() == 4)
+	listed.free()
+
 	for f in DirAccess.get_files_at(OUT_DIR):
 		DirAccess.remove_absolute(OUT_DIR.path_join(f))
 	DirAccess.remove_absolute(OUT_DIR)

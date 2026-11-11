@@ -7,6 +7,9 @@ extends RefCounted
 
 ## Maximum normalized distance (max(|u|, |v|)) where the edge band starts.
 const EDGE_BAND_START: float = 0.9
+## Largest grid side accepted by [method generate_heights] (heights only, no mesh): about
+## 540 MB for the heights and the mask at 8192 x 8192 cells (ADR-0017).
+const MAX_HEIGHT_CELLS_PER_AXIS: int = 8192
 
 
 ## Validation and cost check. Returns the errors that prevent generation
@@ -36,13 +39,40 @@ static func generate(config: UPTGConfig, allow_large: bool = false) -> UPTGTerra
 		for e in errors:
 			push_error("UPTG: " + e)
 		return null
+	return _build(config, config.grid_cells_x, config.grid_cells_z, config.cell_size)
 
-	var cells_x: int = config.grid_cells_x
-	var cells_z: int = config.grid_cells_z
+
+## Generates only the height field of [param config] with cells of [param cell_size] meters
+## instead of [member UPTGConfig.cell_size], for worlds too big for one mesh (ADR-0017). The world
+## keeps its size, so [param cell_size] must divide it; up to [constant MAX_HEIGHT_CELLS_PER_AXIS]
+## cells per side. The heights are the same function of the position in meters as in
+## [method generate]: vertices that both grids share get the same height.
+## Returns [code]null[/code] and reports the errors when the request is invalid.
+static func generate_heights(config: UPTGConfig, cell_size: float) -> UPTGTerrainData:
+	var errors := PackedStringArray()
+	if config == null:
+		errors.append("missing UPTGConfig")
+	else:
+		errors.append_array(config.validate())
+	var cells := Vector2i.ZERO
+	if errors.is_empty():
+		var size := config.get_size()
+		cells = Vector2i(roundi(size.x / cell_size), roundi(size.y / cell_size))
+		if cell_size <= 0.0 or absf(cells.x * cell_size - size.x) > 0.01 or absf(cells.y * cell_size - size.y) > 0.01:
+			errors.append("a cell of %.3f m does not divide the %.1f x %.1f m world" % [cell_size, size.x, size.y])
+		elif cells.x > MAX_HEIGHT_CELLS_PER_AXIS or cells.y > MAX_HEIGHT_CELLS_PER_AXIS or cells.x < 2 or cells.y < 2:
+			errors.append("%d x %d cells: the height field must have 2 to %d cells per side" % [cells.x, cells.y, MAX_HEIGHT_CELLS_PER_AXIS])
+	if not errors.is_empty():
+		for e in errors:
+			push_error("UPTG: " + e)
+		return null
+	return _build(config, cells.x, cells.y, cell_size)
+
+
+static func _build(config: UPTGConfig, cells_x: int, cells_z: int, cell: float) -> UPTGTerrainData:
 	var vx: int = cells_x + 1
 	var vz: int = cells_z + 1
-	var cell: float = config.cell_size
-	var size := config.get_size()
+	var size := Vector2(cells_x * cell, cells_z * cell)
 	var half_x: float = size.x * 0.5
 	var half_z: float = size.y * 0.5
 

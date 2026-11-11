@@ -39,6 +39,49 @@ func run(t: SceneTree) -> void:
 	t.check("an impossible world is refused with a message", not UPWGExporter.export_world(project, folder).ok)
 	_remove(folder)
 
+	# Sizes: 30 km is accepted with up to 8192 cells per side; past 2048 the world is "large".
+	var big := UPWGProject.from_template("island", 1)
+	big.resize(30720.0, 1.0)
+	t.check("a 30 km world is accepted", big.validate().is_empty() and is_equal_approx(big.terrain.get_size().x, 30720.0)
+		and big.terrain.grid_cells_x <= UPTGConfig.MAX_CELLS_PER_AXIS, "%d cells of %.1f m" % [big.terrain.grid_cells_x, big.terrain.cell_size])
+	t.check("its export detail is as fine as 8192 cells allow", big.is_large() and roundi(30720.0 / big.export_cell()) <= UPWGProject.MAX_EXPORT_CELLS
+		and big.export_cell() <= 4.0, "%.2f m" % big.export_cell())
+	big.resize(2048.0, 4.0)
+	t.check("a small world is not large", not big.is_large() and big.detail_cell == 0.0)
+
+	# The large export path, on a small world made "large" by a finer export cell.
+	var large := UPWGProject.from_template("island", 8)
+	UPWGProject.set_size(large.terrain, 1024.0, 16.0)
+	large.detail_cell = 8.0
+	var hill := UPRGTerrainEdit.new()
+	hill.center = Vector2(-100, 50)
+	hill.radius = 80.0
+	hill.blend = 60.0
+	hill.amount = 70.0
+	large.world.terrain_edits.append(hill)
+	var lake := UPRGWater.new()
+	lake.points = PackedVector2Array([Vector2(-100, 50)])
+	lake.size = 30.0
+	lake.depth = 4.0
+	lake.shore = 12.0
+	large.world.water.append(lake)
+	result = UPWGExporter.export_world(large, folder)
+	t.check("a large world exports straight to tiles", result.ok and DirAccess.dir_exists_absolute(folder.path_join("godot/tiles"))
+		and not FileAccess.file_exists(folder.path_join("godot/world.scn")), str(result.get("error", "")))
+	if result.ok:
+		raw = FileAccess.get_file_as_bytes(folder.path_join("heightmap/height.r16"))
+		t.check("its heightmap has the export detail", raw.size() == 129 * 129 * 2, "%d bytes" % raw.size())
+		var rest := (load(folder.path_join("godot/tiles/world.scn")) as PackedScene).instantiate()
+		var meta: Dictionary = rest.get_meta("terrain_data")
+		t.check("its tiles have the export detail, the brush strokes and the lake", meta.cell_size == 8.0 and meta.tiles.list.size() > 0
+			and rest.has_node("Water/Lake0") and meta.water.size() == 1 and meta.water[0].level > 60.0, "lake level %.1f" % meta.water[0].level)
+		rest.free()
+		summary = JSON.parse_string(FileAccess.get_file_as_string(folder.path_join("world.json")))
+		t.check("world.json explains what was written", summary.cell_m == 8.0 and (summary.notes as Array).size() >= 2)
+		state = GLTFState.new()
+		t.check("its glTF has the ground and the lake", gltf.append_from_file(folder.path_join("gltf/terrain.glb"), state) == OK and state.get_meshes().size() >= 2)
+	_remove(folder)
+
 
 static func _remove(folder: String) -> void:
 	if not DirAccess.dir_exists_absolute(folder):
