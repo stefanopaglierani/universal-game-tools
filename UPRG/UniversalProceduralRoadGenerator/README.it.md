@@ -2,10 +2,10 @@
 
 # UPRG — Universal Procedural Road Generator
 
-**Stato:** prima versione in sviluppo (0.1.0, non ancora taggata)
+**Stato:** versione 0.1.0 (tag `uprg-v0.1.0`)
 **Motore:** Godot 4.7.2 (GDScript)
 
-Uno strumento di sviluppo privato: prende un terreno esportato da UPTG e scrive un nuovo file del mondo con modifiche al terreno, strade, luoghi con edifici e texture personalizzate. Un gioco apre il risultato senza codice UPTG o UPRG.
+Uno strumento di sviluppo privato: prende un terreno esportato da UPTG e scrive un nuovo file del mondo con modifiche al terreno, strade, anelli e incroci, luoghi con vie ed edifici, modelli 3D e texture personalizzate, eventualmente tagliato in tessere. Un gioco apre il risultato senza codice UPTG o UPRG.
 
 ## Cartelle
 
@@ -66,6 +66,6 @@ godot --headless --path . -s res://tools/uprg_tiles.gd -- --in=C:/Temp/mondo.scn
 
 ## Documentazione
 
-- [Architettura](documentation/UPRG_ARCHITECTURE_0.1.it.md)
+- [Architettura 0.2](documentation/UPRG_ARCHITECTURE_0.2.it.md) (sostituisce la [0.1](documentation/UPRG_ARCHITECTURE_0.1.it.md))
 - [Test](documentation/TESTING.it.md)
 - [Changelog](CHANGELOG.it.md)

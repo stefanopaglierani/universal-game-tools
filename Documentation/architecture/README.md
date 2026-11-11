@@ -30,7 +30,7 @@ Each tool lives in `<CODE>/<FullName>/` and should ideally contain:
 | Module | Architecture doc |
 |---|---|
 | UPTG | [UPTG_ARCHITECTURE_0.2.md](../../UPTG/UniversalProceduralTerrainGenerator/documentation/UPTG_ARCHITECTURE_0.2.md); it supersedes [draft 0.1](../../UPTG/UniversalProceduralTerrainGenerator/documentation/UPTG_ARCHITECTURE.md) |
-| UPRG | [UPRG_ARCHITECTURE_0.1.md](../../UPRG/UniversalProceduralRoadGenerator/documentation/UPRG_ARCHITECTURE_0.1.md) |
+| UPRG | [UPRG_ARCHITECTURE_0.2.md](../../UPRG/UniversalProceduralRoadGenerator/documentation/UPRG_ARCHITECTURE_0.2.md); it supersedes [0.1](../../UPRG/UniversalProceduralRoadGenerator/documentation/UPRG_ARCHITECTURE_0.1.md) |
 | UPWG | Not written yet |
 
 ## Decisions
@@ -47,3 +47,6 @@ Significant architectural decisions are recorded as ADRs in [`decisions/`](decis
 - [ADR-0008: UPTG cost estimate calibration from measurements](decisions/ADR-0008-uptg-cost-calibration.md)
 - [ADR-0009: UPTG is a private tool, only its baked output goes into a game](decisions/ADR-0009-uptg-tool-only-baked-output.md)
 - [ADR-0010: UPRG works on the baked terrain file](decisions/ADR-0010-uprg-reads-baked-terrain.md)
+- [ADR-0011: UPRG builds junctions as one network after planning every road](decisions/ADR-0011-uprg-junction-network.md)
+- [ADR-0012: Very large worlds are cut into terrain tiles after the bake](decisions/ADR-0012-uprg-terrain-tiles.md)
+- [ADR-0013: Rings start away from junctions, and a world can require one connected network](decisions/ADR-0013-uprg-rings-and-connected-network.md)

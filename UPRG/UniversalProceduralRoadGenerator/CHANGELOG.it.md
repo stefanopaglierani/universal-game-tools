@@ -2,7 +2,7 @@
 
 # Changelog di UPRG
 
-## [Non rilasciato]
+## [0.1.0] - 2026-11-11
 
 ### Aggiunto
 - Strade sui terreni esportati da UPTG: percorso curvo dai punti di controllo, profilo delle altezze con limite di pendenza, spianamento del terreno con raccordo, superficie stradale e collisione.

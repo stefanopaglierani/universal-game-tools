@@ -30,7 +30,7 @@ Ogni strumento vive in `<CODICE>/<NomeCompleto>/` e idealmente contiene:
 | Modulo | Documento di architettura |
 |---|---|
 | UPTG | [UPTG_ARCHITECTURE_0.2.it.md](../../UPTG/UniversalProceduralTerrainGenerator/documentation/UPTG_ARCHITECTURE_0.2.it.md); sostituisce la [bozza 0.1](../../UPTG/UniversalProceduralTerrainGenerator/documentation/UPTG_ARCHITECTURE.md), in inglese |
-| UPRG | [UPRG_ARCHITECTURE_0.1.it.md](../../UPRG/UniversalProceduralRoadGenerator/documentation/UPRG_ARCHITECTURE_0.1.it.md) |
+| UPRG | [UPRG_ARCHITECTURE_0.2.it.md](../../UPRG/UniversalProceduralRoadGenerator/documentation/UPRG_ARCHITECTURE_0.2.it.md); sostituisce la [0.1](../../UPRG/UniversalProceduralRoadGenerator/documentation/UPRG_ARCHITECTURE_0.1.it.md) |
 | UPWG | Non ancora scritto |
 
 ## Decisioni
@@ -47,3 +47,6 @@ Le decisioni architetturali importanti sono registrate come ADR in [`decisions/`
 - [ADR-0008: Calibrazione della stima dei costi di UPTG con misure reali](decisions/ADR-0008-uptg-cost-calibration.it.md)
 - [ADR-0009: UPTG è uno strumento privato, in un gioco entra solo il risultato esportato](decisions/ADR-0009-uptg-tool-only-baked-output.it.md)
 - [ADR-0010: UPRG lavora sul file del terreno esportato](decisions/ADR-0010-uprg-reads-baked-terrain.it.md)
+- [ADR-0011: UPRG costruisce gli incroci come un'unica rete dopo aver pianificato tutte le strade](decisions/ADR-0011-uprg-junction-network.it.md)
+- [ADR-0012: I mondi molto grandi si tagliano in tessere di terreno dopo il bake](decisions/ADR-0012-uprg-terrain-tiles.it.md)
+- [ADR-0013: Gli anelli partono lontano dagli incroci, e un mondo può richiedere un'unica rete collegata](decisions/ADR-0013-uprg-rings-and-connected-network.it.md)
