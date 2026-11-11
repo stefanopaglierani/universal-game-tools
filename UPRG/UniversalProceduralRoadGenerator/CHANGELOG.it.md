@@ -15,6 +15,10 @@
 - `--road-colors` per le tessere: il rosso dei colori dei vertici segna il terreno vicino alle strade.
 - Livelli di dettaglio: la libreria dei modelli conserva fino a sei versioni più leggere di ogni modello, e il motore le sceglie in base alla distanza. `UPRGDressing.chunk_size` decide come vengono raggruppati gli oggetti.
 - Il mondo di esempio x5 ha due villaggi con le vie, alberi, rocce e arredi a bordo strada.
+- Strade chiuse (`UPRGRoadConfig.closed`): un anello che torna al primo punto, con una chiusura morbida e gli incroci lontani da essa. Il mondo di esempio x5 ha il circuito Costa ad anello sulla costa ovest, collegato all'anello principale da una strada.
+
+### Corretto
+- Le pendenze si arrotondano solo vicino agli incroci, così il resto di ogni strada mantiene il suo profilo.
 
 ### Corretto
 - Le parti dei modelli fatte di linee o punti non entrano più nella libreria dei modelli.

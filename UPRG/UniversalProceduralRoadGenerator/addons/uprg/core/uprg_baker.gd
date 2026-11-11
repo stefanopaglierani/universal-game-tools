@@ -63,6 +63,9 @@ static func _add_world(root: Node3D, world: UPRGWorldConfig, out_path: String) -
 			return _fail("a road leaves the terrain or comes too close to its border")
 		plans.append(plan)
 
+	for i in roads.size():
+		if roads[i].closed:
+			plans[i].rotate_start(_quiet_start(plans[i], i, plans, world.places))
 	var road_paths: Array[PackedVector2Array] = []
 	var road_clearances := PackedFloat32Array()
 	for i in roads.size():
@@ -126,6 +129,7 @@ static func _add_world(root: Node3D, world: UPRGWorldConfig, out_path: String) -
 			"width": roads[i].width,
 			"sample_spacing": roads[i].sample_spacing,
 			"street": roads[i].is_street,
+			"closed": roads[i].closed,
 		})
 	var junction_meta: Array[Dictionary] = []
 	for i in junctions.size():
@@ -251,6 +255,27 @@ static func _add_place_nodes(group: Node3D, root: Node3D, place_name: String, sk
 	shape_node.shape = shape
 	body.add_child(shape_node)
 	shape_node.owner = root
+
+
+## Where a ring should start: the position farthest from the other roads and from the places, so
+## that no junction sits across the point where the ring closes.
+static func _quiet_start(plan: UPRGRoadShape, index: int, plans: Array[UPRGRoadShape], places: Array[UPRGPlace]) -> int:
+	var best := 0
+	var best_distance := -1.0
+	for i in range(0, plan.path.size() - 1, 5):
+		var p := plan.path[i]
+		var nearest := INF
+		for other in plans.size():
+			if other == index:
+				continue
+			for k in range(0, plans[other].path.size(), 5):
+				nearest = minf(nearest, p.distance_to(plans[other].path[k]))
+		for place in places:
+			nearest = minf(nearest, p.distance_to(place.center) - place.radius)
+		if nearest > best_distance:
+			best_distance = nearest
+			best = i
+	return best
 
 
 static func _add_surface_node(group: Node3D, root: Node3D, node_name: String, mesh: ArrayMesh) -> void:

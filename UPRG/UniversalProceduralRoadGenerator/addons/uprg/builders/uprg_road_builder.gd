@@ -39,7 +39,13 @@ static func build_mesh(road: UPRGRoadConfig, shape: UPRGRoadShape, skin: UPRGSki
 static func section(road: UPRGRoadConfig, shape: UPRGRoadShape, i: int) -> Array[Vector3]:
 	var count := shape.path.size()
 	var p := shape.path[i]
-	var tangent := (shape.path[mini(i + 1, count - 1)] - shape.path[maxi(i - 1, 0)]).normalized()
+	var after := mini(i + 1, count - 1)
+	var before := maxi(i - 1, 0)
+	if shape.closed:
+		# The first and last positions are the same point of the ring: same direction too.
+		after = i + 1 if i < count - 1 else 1
+		before = i - 1 if i > 0 else count - 2
+	var tangent := (shape.path[after] - shape.path[before]).normalized()
 	var side := Vector2(tangent.y, -tangent.x)
 	var half := road.width * 0.5
 	var offsets: Array[float] = [-half - road.shoulder, -half, half, half + road.shoulder]

@@ -34,7 +34,7 @@ La descrizione del mondo è un unico file `.tres`: apri `presets/example_world_i
 |---|---|
 | `terrain_edits` | Aree circolari da alzare, abbassare (`ADD`) o livellare (`LEVEL`) |
 | `places` | Nome, centro, raggio, numero e dimensioni degli edifici, colori di muri e tetti, seed; `streets` aggiunge strade collegate alla strada più vicina, con gli edifici lungo di esse |
-| `roads` | Punti in metri dal centro del terreno, larghezza, pendenza |
+| `roads` | Punti in metri dal centro del terreno, larghezza, pendenza; `closed` crea un anello |
 | `skin` | Immagini per strade, terreno ed edifici, e tinte di colore |
 | `dressing` | Quanti alberi, piante, rocce e oggetti a bordo strada, e fino a che distanza restano visibili |
 

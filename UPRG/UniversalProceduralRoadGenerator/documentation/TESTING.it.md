@@ -17,4 +17,6 @@ godot --headless --path . -s res://tests/run_tests.gd
 
 `tests/test_tiles.gd` controlla le tessere (livelli di dettaglio, bordi comuni, collisione, cosa resta nel file del mondo, dimensioni rifiutate).
 
+`tests/test_loops.gd` controlla gli anelli (punto di chiusura, pendenze, superficie senza buchi, strade che finiscono su un anello).
+
 Per vedere un risultato: `godot --path . res://demo/uprg_viewer.tscn -- --file=<mondo.scn>`.
