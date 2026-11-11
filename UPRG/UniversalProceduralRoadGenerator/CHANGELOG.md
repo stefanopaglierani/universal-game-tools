@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+### Added
+- `UPRGTileBuilder.split_grid()`: tiles and `world.scn` written straight from a height grid, for worlds too big to be baked as one mesh (ADR-0017). `split()` shares the same tile code.
+- Terrain edits `SMOOTH` (softens the ground, `amount` = strength 0..1) and `ROUGHEN` (adds bumps of `amount` meters and `bump_size` width, repeatable from `noise_seed`). Every edit now only visits the cells inside its area, so thousands of brush dabs stay fast.
+- Water (`UPRGWater`, `UPRGWaterBuilder`, `UPRGWorldConfig.water`): lakes at any height, whose level is taken from the lowest point of their rim so they can never spill (a lake on a mountain top works), and rivers whose water only flows downhill along the drawn points. The baker digs them after the terrain edits and adds `Water/Lake<n>` and `Water/River<n>` surfaces and `terrain_data.water`. Tested by `tests/test_sculpt_water.gd`.
+
 ### Changed
 - English only: the model catalog is `presets/models_catalog.json`, the credits table is found by content in any `.md` file of the models folder, and the example places have English names.
 

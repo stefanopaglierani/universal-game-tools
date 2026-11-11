@@ -6,6 +6,8 @@ extends Resource
 @export var terrain_edits: Array[UPRGTerrainEdit] = []
 @export var places: Array[UPRGPlace] = []
 @export var roads: Array[UPRGRoadConfig] = []
+## Lakes and rivers, at any height.
+@export var water: Array[UPRGWater] = []
 ## Optional appearance.
 @export var skin: UPRGSkin
 ## Optional 3D models: buildings, trees, rocks, roadside objects.
@@ -17,9 +19,9 @@ extends Resource
 ## Returns the list of errors, empty when the world description is valid.
 func validate() -> PackedStringArray:
 	var errors := PackedStringArray()
-	if terrain_edits.is_empty() and places.is_empty() and roads.is_empty():
+	if terrain_edits.is_empty() and places.is_empty() and roads.is_empty() and water.is_empty():
 		errors.append("nothing to add: no terrain edit, place or road")
-	for item in terrain_edits + places + roads:
+	for item in terrain_edits + places + roads + water:
 		if item == null:
 			errors.append("the world description has an empty entry")
 	if not errors.is_empty():
@@ -28,4 +30,6 @@ func validate() -> PackedStringArray:
 		errors.append_array(place.validate())
 	for road in roads:
 		errors.append_array(road.validate())
+	for body in water:
+		errors.append_array(body.validate())
 	return errors
