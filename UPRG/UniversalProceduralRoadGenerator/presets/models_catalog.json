@@ -1,5 +1,5 @@
 {
-	"comment": "Models chosen from the Ambientazione folder. n is the number in CREDITI.md. height: real height in meters; natural: keep the size of the file; pieces: each part of the file is a separate object; rotate_x: degrees to stand the model upright.",
+	"comment": "Models chosen from the models folder. n is the number of the model in the credits table of that folder. height: real height in meters; natural: keep the size of the file; pieces: each part of the file is a separate object; rotate_x: degrees to stand the model upright.",
 	"max_triangles": 26000,
 	"max_texture": 512,
 	"entries": [

@@ -15,9 +15,9 @@ static func build(models_dir: String, catalog_path: String, out_dir: String, par
 	var catalog: Variant = JSON.parse_string(text)
 	if not catalog is Dictionary:
 		return {"ok": false, "error": "cannot read the catalog: %s" % catalog_path}
-	var credits := parse_credits(models_dir.path_join("CREDITI.md"))
+	var credits := find_credits(models_dir)
 	if credits.is_empty():
-		return {"ok": false, "error": "cannot read CREDITI.md in %s" % models_dir}
+		return {"ok": false, "error": "no credits table (a .md file with one row per model) in %s" % models_dir}
 	var error := DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(out_dir))
 	if error != OK:
 		return {"ok": false, "error": "cannot create %s" % out_dir}
@@ -42,7 +42,19 @@ static func build(models_dir: String, catalog_path: String, out_dir: String, par
 	return {"ok": true, "items": index.size(), "skipped": skipped}
 
 
-## Reads the table of CREDITI.md: number -> {model, author, source, license, link}.
+## The first Markdown file in [param models_dir] that holds a credits table, read with
+## [method parse_credits]. Empty when there is none.
+static func find_credits(models_dir: String) -> Dictionary:
+	for file_name in DirAccess.get_files_at(models_dir):
+		if file_name.get_extension().to_lower() == "md":
+			var credits := parse_credits(models_dir.path_join(file_name))
+			if not credits.is_empty():
+				return credits
+	return {}
+
+
+## Reads a credits table: number -> {model, author, source, license, link}. Rows look like
+## | n | folder | file | model | author | source | license | triangles | link |
 static func parse_credits(path: String) -> Dictionary:
 	var credits := {}
 	for line in FileAccess.get_file_as_string(path).split("\n"):

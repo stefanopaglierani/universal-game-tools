@@ -1,6 +1,6 @@
 extends SceneTree
 ## Builds the model library used for dressing worlds. From the module folder:
-## godot --headless --path . -s res://tools/uprg_library.gd -- --models=<Ambientazione folder>
+## godot --headless --path . -s res://tools/uprg_library.gd -- --models=<models folder>
 ## Optional: --catalog=<catalog.json> --out=<library folder>
 ## Exit code: 0 when the library is written, 1 otherwise.
 
@@ -11,7 +11,7 @@ func _initialize() -> void:
 
 func _run() -> void:
 	var models := ""
-	var catalog := "res://presets/ambientazione_catalog.json"
+	var catalog := "res://presets/models_catalog.json"
 	var out := "res://library"
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--models="):
