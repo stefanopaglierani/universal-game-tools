@@ -35,7 +35,7 @@ universal-game-tools/
 │       ├── CHANGELOG.md      Modifiche del modulo
 │       └── README.md
 ├── UPRG/
-│   └── UniversalProceduralRoadGenerator/    (segnaposto)
+│   └── UniversalProceduralRoadGenerator/    Stessa struttura di UPTG: addons/uprg, tools, presets, tests, documentation
 ├── UPWG/
 │   └── UniversalProceduralWorldGenerator/   (segnaposto)
 └── Documentation/
